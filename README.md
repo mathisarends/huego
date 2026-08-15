@@ -19,18 +19,34 @@ go install github.com/mathisarends/huego@latest
 
 ## Setup
 
+`huego setup` walks you through getting an application key from the bridge —
+that's the credential huego needs for every other command:
+
 ```sh
 huego setup
 ```
 
-Discovers your bridge on the network via `discovery.meethue.com`, waits for
-you to press its link button, then registers an application key (and, for
-future entertainment-streaming support, a client key) and stores them in
-your OS config directory (`~/.config/huego` on Linux/macOS,
-`%AppData%\huego` on Windows).
+1. **Discovery.** It queries `discovery.meethue.com` for bridges on your
+   network. If it finds more than one, it lists them and asks you to pick.
+2. **Link-button press.** It prints `Press the link button on your Hue
+   Bridge, then hit Enter.` — the physical button on top of the bridge. huego
+   then polls the bridge every 2 seconds for up to 60 seconds; the bridge
+   itself only grants the request within a shorter window after the button
+   press, which is how Hue proves the request came from someone with
+   physical access, not a random device on the network.
+3. **Registration.** Once you hit Enter, it registers the app and receives
+   an application key (and a client key, reserved for future entertainment-
+   streaming support — the bridge only ever returns it once, on this call).
+4. **Storage.** Both are written to your OS config directory
+   (`~/.config/huego` on Linux/macOS, `%AppData%\huego` on Windows), so every
+   later command just works — no flags, no re-auth.
 
-Credentials can also come from env vars instead of `setup`: `HUEGO_BRIDGE_IP`,
-`HUEGO_APP_KEY`, `HUEGO_CLIENT_KEY` (see `.env.example`).
+If setup can't run interactively (CI, containers, a headless box), skip it
+and set credentials directly instead: `HUEGO_BRIDGE_IP`, `HUEGO_APP_KEY`,
+`HUEGO_CLIENT_KEY` as env vars or in a `.env` file (see `.env.example`). You
+still need to press the link button once to obtain the app key in the first
+place — there's no way around that, it's how the bridge enforces physical
+access for pairing.
 
 ## Commands
 
