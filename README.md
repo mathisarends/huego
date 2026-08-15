@@ -1,9 +1,7 @@
 # huego
 
 A Philips Hue CLI backed by the bridge's local CLIP v2 REST API — no cloud
-account, no Hue app, no cookie scraping. Ported from the
-[mathisarends/hueify](https://github.com/mathisarends/hueify) Python client;
-project layout modeled after [mathisarends/spoti](https://github.com/mathisarends/spoti).
+account, no Hue app, no cookie scraping.
 
 ## Install
 
@@ -144,12 +142,6 @@ Every `Controllable`-accepting function works identically whether you pass
 `client.LightNamespace`, `client.RoomNamespace`, or `client.ZoneNamespace` —
 that's the same polymorphism the CLI's `light`/`room`/`zone` commands lean on.
 
-## Scope
-
-This port covers lighting control (lights, rooms, zones, scenes) and bridge
-onboarding. hueify's entertainment-area DTLS streaming and SSE event stream
-are not ported — high implementation complexity for little CLI value.
-
 ## Development
 
 ```sh
@@ -163,3 +155,9 @@ go vet ./...
 ./scripts/lint.sh            # golangci-lint
 ./scripts/check-coverage.sh  # go test -cover, threshold defaults to 90
 ```
+
+## See also
+
+[hueify](https://github.com/mathisarends/hueify), a Python client covering
+the same lighting control plus entertainment-area DTLS streaming and the
+bridge's SSE event stream, for anyone who needs those.
