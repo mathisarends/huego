@@ -77,6 +77,136 @@ func TestLightOnCommandByName(t *testing.T) {
 	}
 }
 
+func TestLightListCommandReportsEmpty(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, hue.APIResponse[hue.Light]{Data: []hue.Light{}})
+	})
+	withClient(t, client)
+
+	out, err := execute(t, "light", "list")
+	if err != nil {
+		t.Fatalf("execute() error = %v", err)
+	}
+	if !strings.Contains(out, "No results.") {
+		t.Fatalf("output = %q, want it to report no results", out)
+	}
+}
+
+const testLightUUID = "01234567-89ab-cdef-0123-456789abcdef"
+
+func TestLightColorCommand(t *testing.T) {
+	var gotBody hue.LightUpdate
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			decodeJSONFixture(t, r, &gotBody)
+			writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+				Data: []hue.ResourceIdentifier{{RID: testLightUUID, RType: hue.ResourceTypeLight}},
+			})
+		}
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "color", testLightUUID, "#ff0000"); err != nil {
+		t.Fatalf("execute() error = %v", err)
+	}
+	if gotBody.Color == nil || gotBody.Color.XY == nil {
+		t.Fatalf("request body Color = %+v, want an XY value", gotBody.Color)
+	}
+}
+
+func TestLightColorCommandInvalidHex(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("bridge should not be called for an invalid color")
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "color", testLightUUID, "not-a-color"); err == nil {
+		t.Fatal("execute() error = nil, want error")
+	}
+}
+
+func TestLightTemperatureCommand(t *testing.T) {
+	var gotBody hue.LightUpdate
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			decodeJSONFixture(t, r, &gotBody)
+			writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+				Data: []hue.ResourceIdentifier{{RID: testLightUUID, RType: hue.ResourceTypeLight}},
+			})
+		}
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "temperature", testLightUUID, "2700"); err != nil {
+		t.Fatalf("execute() error = %v", err)
+	}
+	if gotBody.ColorTemperature == nil || *gotBody.ColorTemperature.Mirek != 370 {
+		t.Fatalf("request body ColorTemperature = %+v, want mirek 370", gotBody.ColorTemperature)
+	}
+}
+
+func TestLightTemperatureCommandInvalidKelvin(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("bridge should not be called for an invalid kelvin value")
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "temperature", testLightUUID, "not-a-number"); err == nil {
+		t.Fatal("execute() error = nil, want error")
+	}
+}
+
+func TestLightIdentifyCommand(t *testing.T) {
+	var gotBody hue.LightUpdate
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			decodeJSONFixture(t, r, &gotBody)
+			writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+				Data: []hue.ResourceIdentifier{{RID: testLightUUID, RType: hue.ResourceTypeLight}},
+			})
+		}
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "identify", testLightUUID); err != nil {
+		t.Fatalf("execute() error = %v", err)
+	}
+	if gotBody.Alert == nil {
+		t.Fatalf("request body Alert = %+v, want a value", gotBody.Alert)
+	}
+}
+
+func TestLightBrightnessCommandZeroTurnsOff(t *testing.T) {
+	var gotBody hue.LightUpdate
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			decodeJSONFixture(t, r, &gotBody)
+			writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+				Data: []hue.ResourceIdentifier{{RID: testLightUUID, RType: hue.ResourceTypeLight}},
+			})
+		}
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "brightness", testLightUUID, "0"); err != nil {
+		t.Fatalf("execute() error = %v", err)
+	}
+	if gotBody.On == nil || gotBody.On.On {
+		t.Fatalf("request body On = %+v, want on=false", gotBody.On)
+	}
+}
+
+func TestLightBrightnessCommandInvalidPercent(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("bridge should not be called for an invalid percent")
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "brightness", testLightUUID, "not-a-number"); err == nil {
+		t.Fatal("execute() error = nil, want error")
+	}
+}
+
 func decodeJSONFixture(t *testing.T, r *http.Request, v any) {
 	t.Helper()
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
