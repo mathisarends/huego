@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"testing"
@@ -74,6 +75,18 @@ func TestLightOnCommandByName(t *testing.T) {
 	}
 	if gotBody.Dimming == nil || gotBody.Dimming.Brightness != 50 {
 		t.Fatalf("request body Dimming = %+v, want brightness 50", gotBody.Dimming)
+	}
+}
+
+func TestLightOnCommandClientError(t *testing.T) {
+	orig := newClient
+	t.Cleanup(func() { newClient = orig })
+	wantErr := "no bridge configured"
+	newClient = func() (*hue.Client, error) { return nil, errors.New(wantErr) }
+
+	_, err := execute(t, "light", "on", testLightUUID)
+	if err == nil || !strings.Contains(err.Error(), wantErr) {
+		t.Fatalf("execute() error = %v, want it to mention %q", err, wantErr)
 	}
 }
 
