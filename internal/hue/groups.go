@@ -55,14 +55,14 @@ func (n *groupNamespace) IsOn(ctx context.Context, id string) (bool, error) {
 	return groupedLight.On != nil && groupedLight.On.On, nil
 }
 
-type RoomNamespace struct{ groupNamespace }
+type Rooms struct{ groupNamespace }
 
-func newRoomNamespace(client *Client) *RoomNamespace {
-	return &RoomNamespace{groupNamespace{resourceNamespace[Group]{client: client, resourceType: "room"}}}
+func newRooms(client *Client) *Rooms {
+	return &Rooms{groupNamespace{resourceNamespace[Group]{client: client, resourceType: "room"}}}
 }
 
-type ZoneNamespace struct{ groupNamespace }
+type Zones struct{ groupNamespace }
 
-func newZoneNamespace(client *Client) *ZoneNamespace {
-	return &ZoneNamespace{groupNamespace{resourceNamespace[Group]{client: client, resourceType: "zone"}}}
+func newZones(client *Client) *Zones {
+	return &Zones{groupNamespace{resourceNamespace[Group]{client: client, resourceType: "zone"}}}
 }

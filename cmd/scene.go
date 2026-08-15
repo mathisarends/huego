@@ -19,7 +19,7 @@ var sceneListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		scenes, err := client.SceneNamespace.List(cmd.Context())
+		scenes, err := client.Scenes.List(cmd.Context())
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ var sceneActivateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		id, err := client.SceneNamespace.ResolveTarget(cmd.Context(), args[0])
+		id, err := client.Scenes.ResolveTarget(cmd.Context(), args[0])
 		if err != nil {
 			return err
 		}

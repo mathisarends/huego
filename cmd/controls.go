@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// controlTarget is satisfied by *hue.LightNamespace and by
-// *hue.RoomNamespace/*hue.ZoneNamespace, which act through their
+// controlTarget is satisfied by *hue.Lights and by
+// *hue.Rooms/*hue.Zones, which act through their
 // grouped_light service instead of light-by-light.
 type controlTarget interface {
 	hue.Controllable

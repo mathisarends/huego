@@ -19,7 +19,7 @@ var lightListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		lights, err := client.LightNamespace.List(cmd.Context())
+		lights, err := client.Lights.List(cmd.Context())
 		if err != nil {
 			return err
 		}
@@ -27,7 +27,7 @@ var lightListCmd = &cobra.Command{
 	},
 }
 
-func lightTarget(c *hue.Client) controlTarget { return c.LightNamespace }
+func lightTarget(c *hue.Client) controlTarget { return c.Lights }
 
 func init() {
 	lightCmd.AddCommand(lightListCmd)

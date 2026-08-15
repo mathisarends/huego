@@ -19,7 +19,7 @@ var roomListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		rooms, err := client.RoomNamespace.List(cmd.Context())
+		rooms, err := client.Rooms.List(cmd.Context())
 		if err != nil {
 			return err
 		}
@@ -27,7 +27,7 @@ var roomListCmd = &cobra.Command{
 	},
 }
 
-func roomTarget(c *hue.Client) controlTarget { return c.RoomNamespace }
+func roomTarget(c *hue.Client) controlTarget { return c.Rooms }
 
 func init() {
 	roomCmd.AddCommand(roomListCmd)

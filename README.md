@@ -112,20 +112,20 @@ everything the CLI does is a thin wrapper over it.
 ```go
 client := hue.NewClient(config.Bridge{IP: "192.168.1.10", AppKey: "..."})
 
-lights, err := client.LightNamespace.List(ctx)
-light, err  := client.LightNamespace.FindByName(ctx, "Desk Lamp")
+lights, err := client.Lights.List(ctx)
+light, err  := client.Lights.FindByName(ctx, "Desk Lamp")
 
-_, err = hue.TurnOn(ctx, client.LightNamespace, light.ID, nil, nil, nil)
-_, err = hue.SetHex(ctx, client.RoomNamespace, roomID, "#ff8800", nil, nil)
-_, err = client.SceneNamespace.Activate(ctx, sceneID, hue.SceneActivation{Dynamic: true})
+_, err = hue.TurnOn(ctx, client.Lights, light.ID, nil, nil, nil)
+_, err = hue.SetHex(ctx, client.Rooms, roomID, "#ff8800", nil, nil)
+_, err = client.Scenes.Activate(ctx, sceneID, hue.SceneActivation{Dynamic: true})
 ```
 
 | Type / function | Signature | Notes |
 | ---------------- | --------- | ------- |
 | `hue.NewClient` | `func(bridge config.Bridge) *Client` | Skips TLS verification — the bridge presents a self-signed certificate. |
-| `Client.LightNamespace` | `*LightNamespace` | `List`, `GetOne`, `FindByName`, `ResolveTarget` over `light` resources. |
-| `Client.RoomNamespace` / `Client.ZoneNamespace` | `*RoomNamespace` / `*ZoneNamespace` | Same namespace methods over `room`/`zone`; light commands act through the group's `grouped_light` service. |
-| `Client.SceneNamespace` | `*SceneNamespace` | `List`, `GetOne`, `FindByName`, plus `Recall` and `Activate`. |
+| `Client.Lights` | `*Lights` | `List`, `GetOne`, `FindByName`, `ResolveTarget` over `light` resources. |
+| `Client.Rooms` / `Client.Zones` | `*Rooms` / `*Zones` | Same namespace methods over `room`/`zone`; light commands act through the group's `grouped_light` service. |
+| `Client.Scenes` | `*Scenes` | `List`, `GetOne`, `FindByName`, plus `Recall` and `Activate`. |
 | `hue.TurnOn` / `TurnOff` / `Toggle` | `func(ctx, Controllable, id string, ...) (APIResponse[ResourceIdentifier], error)` | Shared light-command functions; work on any `Controllable` (lights, rooms, zones). |
 | `hue.SetBrightness` | `func(ctx, Controllable, id string, brightness float64, transition *float64) (...)` | `brightness == 0` turns the target off instead of dimming to zero. |
 | `hue.SetRGB` / `SetHex` | `func(ctx, Controllable, id string, ..., brightness, transition *float64) (...)` | Converts sRGB → CIE xy internally via `hue.RGBToXY`. |
@@ -139,7 +139,7 @@ _, err = client.SceneNamespace.Activate(ctx, sceneID, hue.SceneActivation{Dynami
 | `hue.RegisterAppKey` | `func(ctx, bridgeIP string) (RegisteredApp, error)` | Polls the bridge's `/api` endpoint every 2s for up to 60s until the link button is pressed. |
 
 Every `Controllable`-accepting function works identically whether you pass
-`client.LightNamespace`, `client.RoomNamespace`, or `client.ZoneNamespace` —
+`client.Lights`, `client.Rooms`, or `client.Zones` —
 that's the same polymorphism the CLI's `light`/`room`/`zone` commands lean on.
 
 ## Development

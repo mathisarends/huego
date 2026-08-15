@@ -27,7 +27,7 @@ func writeJSONFixture(t *testing.T, w http.ResponseWriter, v any) {
 	}
 }
 
-func TestLightNamespaceList(t *testing.T) {
+func TestLightsList(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		if got := r.Header.Get("hue-application-key"); got != "test-app-key" {
 			t.Errorf("hue-application-key header = %q, want test-app-key", got)
@@ -40,7 +40,7 @@ func TestLightNamespaceList(t *testing.T) {
 		}})
 	})
 
-	lights, err := client.LightNamespace.List(t.Context())
+	lights, err := client.Lights.List(t.Context())
 	if err != nil {
 		t.Fatalf("List() error = %v", err)
 	}
@@ -49,7 +49,7 @@ func TestLightNamespaceList(t *testing.T) {
 	}
 }
 
-func TestLightNamespaceFindByNameFuzzy(t *testing.T) {
+func TestLightsFindByNameFuzzy(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
 			{ID: "1", Metadata: NamedMetadata{Name: "Living Room Lamp"}},
@@ -57,7 +57,7 @@ func TestLightNamespaceFindByNameFuzzy(t *testing.T) {
 		}})
 	})
 
-	light, err := client.LightNamespace.FindByName(t.Context(), "living room lamp")
+	light, err := client.Lights.FindByName(t.Context(), "living room lamp")
 	if err != nil {
 		t.Fatalf("FindByName() error = %v", err)
 	}
@@ -66,19 +66,19 @@ func TestLightNamespaceFindByNameFuzzy(t *testing.T) {
 	}
 }
 
-func TestLightNamespaceFindByNameNotFound(t *testing.T) {
+func TestLightsFindByNameNotFound(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
 			{ID: "1", Metadata: NamedMetadata{Name: "Desk Lamp"}},
 		}})
 	})
 
-	if _, err := client.LightNamespace.FindByName(t.Context(), "totally unrelated"); err == nil {
+	if _, err := client.Lights.FindByName(t.Context(), "totally unrelated"); err == nil {
 		t.Fatal("FindByName() error = nil, want error")
 	}
 }
 
-func TestLightNamespaceApplySendsPut(t *testing.T) {
+func TestLightsApplySendsPut(t *testing.T) {
 	var gotBody LightUpdate
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
@@ -94,7 +94,7 @@ func TestLightNamespaceApplySendsPut(t *testing.T) {
 	})
 
 	on := true
-	_, err := TurnOn(t.Context(), client.LightNamespace, "abc", nil, nil, nil)
+	_, err := TurnOn(t.Context(), client.Lights, "abc", nil, nil, nil)
 	if err != nil {
 		t.Fatalf("TurnOn() error = %v", err)
 	}
@@ -103,7 +103,7 @@ func TestLightNamespaceApplySendsPut(t *testing.T) {
 	}
 }
 
-func TestGroupNamespaceAppliesViaGroupedLight(t *testing.T) {
+func TestGroupsAppliesViaGroupedLight(t *testing.T) {
 	var putPath string
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		switch {
@@ -123,7 +123,7 @@ func TestGroupNamespaceAppliesViaGroupedLight(t *testing.T) {
 		}
 	})
 
-	if _, err := TurnOff(t.Context(), client.RoomNamespace, "room-1", nil); err != nil {
+	if _, err := TurnOff(t.Context(), client.Rooms, "room-1", nil); err != nil {
 		t.Fatalf("TurnOff() error = %v", err)
 	}
 	if putPath != "/clip/v2/resource/grouped_light/grouped-1" {
@@ -131,7 +131,7 @@ func TestGroupNamespaceAppliesViaGroupedLight(t *testing.T) {
 	}
 }
 
-func TestSceneNamespaceActivate(t *testing.T) {
+func TestScenesActivate(t *testing.T) {
 	var gotRequest SceneRecallRequest
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewDecoder(r.Body).Decode(&gotRequest)
@@ -153,7 +153,7 @@ func TestSceneNamespaceActivate(t *testing.T) {
 	}
 }
 
-func TestLightNamespaceIsOn(t *testing.T) {
+func TestLightsIsOn(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
 			{ID: "1", On: OnState{On: true}},
@@ -169,7 +169,7 @@ func TestLightNamespaceIsOn(t *testing.T) {
 	}
 }
 
-func TestGroupNamespaceIsOn(t *testing.T) {
+func TestGroupsIsOn(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/clip/v2/resource/room/room-1":
@@ -186,7 +186,7 @@ func TestGroupNamespaceIsOn(t *testing.T) {
 		}
 	})
 
-	on, err := client.RoomNamespace.IsOn(t.Context(), "room-1")
+	on, err := client.Rooms.IsOn(t.Context(), "room-1")
 	if err != nil {
 		t.Fatalf("IsOn() error = %v", err)
 	}
@@ -195,7 +195,7 @@ func TestGroupNamespaceIsOn(t *testing.T) {
 	}
 }
 
-func TestGroupNamespaceIsOnFalseWhenOnStateMissing(t *testing.T) {
+func TestGroupsIsOnFalseWhenOnStateMissing(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/clip/v2/resource/room/room-1":
@@ -212,7 +212,7 @@ func TestGroupNamespaceIsOnFalseWhenOnStateMissing(t *testing.T) {
 		}
 	})
 
-	on, err := client.RoomNamespace.IsOn(t.Context(), "room-1")
+	on, err := client.Rooms.IsOn(t.Context(), "room-1")
 	if err != nil {
 		t.Fatalf("IsOn() error = %v", err)
 	}
@@ -221,7 +221,7 @@ func TestGroupNamespaceIsOnFalseWhenOnStateMissing(t *testing.T) {
 	}
 }
 
-func TestGroupNamespaceGroupedLightNoServiceMatch(t *testing.T) {
+func TestGroupsGroupedLightNoServiceMatch(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, APIResponse[Group]{Data: []Group{{
 			ID:       "room-1",
@@ -229,7 +229,7 @@ func TestGroupNamespaceGroupedLightNoServiceMatch(t *testing.T) {
 		}}})
 	})
 
-	if _, err := client.RoomNamespace.IsOn(t.Context(), "room-1"); err == nil {
+	if _, err := client.Rooms.IsOn(t.Context(), "room-1"); err == nil {
 		t.Fatal("IsOn() error = nil, want error for a room with no grouped_light service")
 	}
 }
@@ -240,7 +240,7 @@ func TestResolveTargetPassesThroughUUID(t *testing.T) {
 	})
 
 	uuid := "01234567-89ab-cdef-0123-456789abcdef"
-	id, err := client.LightNamespace.ResolveTarget(t.Context(), uuid)
+	id, err := client.Lights.ResolveTarget(t.Context(), uuid)
 	if err != nil {
 		t.Fatalf("ResolveTarget() error = %v", err)
 	}
@@ -256,7 +256,7 @@ func TestResolveTargetLooksUpByName(t *testing.T) {
 		}})
 	})
 
-	id, err := client.LightNamespace.ResolveTarget(t.Context(), "Desk Lamp")
+	id, err := client.Lights.ResolveTarget(t.Context(), "Desk Lamp")
 	if err != nil {
 		t.Fatalf("ResolveTarget() error = %v", err)
 	}
@@ -270,7 +270,7 @@ func TestGetOneNotFound(t *testing.T) {
 		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{}})
 	})
 
-	if _, err := client.LightNamespace.GetOne(t.Context(), "missing"); err == nil {
+	if _, err := client.Lights.GetOne(t.Context(), "missing"); err == nil {
 		t.Fatal("GetOne() error = nil, want error")
 	}
 }
@@ -283,7 +283,7 @@ func TestFindByNameNoCloseMatch(t *testing.T) {
 		}})
 	})
 
-	_, err := client.LightNamespace.FindByName(t.Context(), "totally unrelated")
+	_, err := client.Lights.FindByName(t.Context(), "totally unrelated")
 	if err == nil {
 		t.Fatal("FindByName() error = nil, want error")
 	}
@@ -297,7 +297,7 @@ func TestFindByNameNoResources(t *testing.T) {
 		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{}})
 	})
 
-	_, err := client.LightNamespace.FindByName(t.Context(), "anything")
+	_, err := client.Lights.FindByName(t.Context(), "anything")
 	if err == nil {
 		t.Fatal("FindByName() error = nil, want error")
 	}
@@ -306,7 +306,7 @@ func TestFindByNameNoResources(t *testing.T) {
 	}
 }
 
-func TestSceneNamespaceActivateDynamicWithTransition(t *testing.T) {
+func TestScenesActivateDynamicWithTransition(t *testing.T) {
 	var gotRequest SceneRecallRequest
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewDecoder(r.Body).Decode(&gotRequest)
@@ -334,7 +334,7 @@ func TestAPIErrorOnNon2xx(t *testing.T) {
 		_, _ = w.Write([]byte(`{"errors":[{"description":"unauthorized user"}]}`))
 	})
 
-	_, err := client.LightNamespace.List(t.Context())
+	_, err := client.Lights.List(t.Context())
 	if err == nil {
 		t.Fatal("List() error = nil, want error")
 	}

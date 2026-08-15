@@ -19,7 +19,7 @@ var zoneListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		zones, err := client.ZoneNamespace.List(cmd.Context())
+		zones, err := client.Zones.List(cmd.Context())
 		if err != nil {
 			return err
 		}
@@ -27,7 +27,7 @@ var zoneListCmd = &cobra.Command{
 	},
 }
 
-func zoneTarget(c *hue.Client) controlTarget { return c.ZoneNamespace }
+func zoneTarget(c *hue.Client) controlTarget { return c.Zones }
 
 func init() {
 	zoneCmd.AddCommand(zoneListCmd)
