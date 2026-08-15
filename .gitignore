@@ -1,0 +1,4 @@
+/huego
+/dist/
+.env
+*.test
