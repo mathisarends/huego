@@ -265,6 +265,69 @@ func TestResolveTargetLooksUpByName(t *testing.T) {
 	}
 }
 
+func TestGetOneNotFound(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{}})
+	})
+
+	if _, err := client.LightNamespace.GetOne(t.Context(), "missing"); err == nil {
+		t.Fatal("GetOne() error = nil, want error")
+	}
+}
+
+func TestFindByNameNoCloseMatch(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
+			{ID: "1", Metadata: NamedMetadata{Name: "Desk Lamp"}},
+			{ID: "2", Metadata: NamedMetadata{Name: "Kitchen Light"}},
+		}})
+	})
+
+	_, err := client.LightNamespace.FindByName(t.Context(), "totally unrelated")
+	if err == nil {
+		t.Fatal("FindByName() error = nil, want error")
+	}
+	if !strings.Contains(err.Error(), "Desk Lamp") || !strings.Contains(err.Error(), "Kitchen Light") {
+		t.Fatalf("error = %q, want it to list known names", err.Error())
+	}
+}
+
+func TestFindByNameNoResources(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{}})
+	})
+
+	_, err := client.LightNamespace.FindByName(t.Context(), "anything")
+	if err == nil {
+		t.Fatal("FindByName() error = nil, want error")
+	}
+	if !strings.Contains(err.Error(), "none") {
+		t.Fatalf("error = %q, want it to say known names: none", err.Error())
+	}
+}
+
+func TestSceneNamespaceActivateDynamicWithTransition(t *testing.T) {
+	var gotRequest SceneRecallRequest
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&gotRequest)
+		writeJSONFixture(t, w, APIResponse[ResourceIdentifier]{
+			Data: []ResourceIdentifier{{RID: "scene-1", RType: ResourceTypeScene}},
+		})
+	})
+
+	transition := 2.0
+	_, err := client.Activate(t.Context(), "scene-1", SceneActivation{Dynamic: true, Transition: &transition})
+	if err != nil {
+		t.Fatalf("Activate() error = %v", err)
+	}
+	if gotRequest.Recall.Action != SceneActionDynamicPalette {
+		t.Fatalf("Recall.Action = %v, want dynamic_palette", gotRequest.Recall.Action)
+	}
+	if gotRequest.Recall.Duration == nil || *gotRequest.Recall.Duration != 2000 {
+		t.Fatalf("Recall.Duration = %v, want 2000", gotRequest.Recall.Duration)
+	}
+}
+
 func TestAPIErrorOnNon2xx(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)

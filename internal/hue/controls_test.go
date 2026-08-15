@@ -224,6 +224,17 @@ func TestIdentifySendsBreatheAlert(t *testing.T) {
 	}
 }
 
+func TestSetStatePropagatesBuildError(t *testing.T) {
+	target := &fakeControllable{}
+	kelvin, mirek := 2700, 300
+	if _, err := SetState(t.Context(), target, "abc", StateChange{Kelvin: &kelvin, Mirek: &mirek}); err == nil {
+		t.Fatal("SetState() error = nil, want error")
+	}
+	if target.applyCalls != 0 {
+		t.Fatalf("Apply() called %d times, want 0 when the state change is invalid", target.applyCalls)
+	}
+}
+
 func TestTransitionToMilliseconds(t *testing.T) {
 	if got := transitionToMilliseconds(1.5); got != 1500 {
 		t.Fatalf("transitionToMilliseconds(1.5) = %d, want 1500", got)

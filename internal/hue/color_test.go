@@ -91,3 +91,15 @@ func TestKelvinToMirekRejectsNonPositive(t *testing.T) {
 		t.Fatal("KelvinToMirek(0) error = nil, want error")
 	}
 }
+
+func TestMirekToKelvinRejectsNonPositive(t *testing.T) {
+	if _, err := MirekToKelvin(0); err == nil {
+		t.Fatal("MirekToKelvin(0) error = nil, want error")
+	}
+}
+
+func TestClampMirekClampsUpperBound(t *testing.T) {
+	if got := clampMirek(MirekMaximum + 100); got != MirekMaximum {
+		t.Fatalf("clampMirek() = %d, want %d", got, MirekMaximum)
+	}
+}
