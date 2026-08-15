@@ -141,7 +141,7 @@ func TestSceneNamespaceActivate(t *testing.T) {
 	})
 
 	brightness := 80.0
-	_, err := client.SceneNamespace.Activate(t.Context(), "scene-1", SceneActivation{Brightness: &brightness})
+	_, err := client.Activate(t.Context(), "scene-1", SceneActivation{Brightness: &brightness})
 	if err != nil {
 		t.Fatalf("Activate() error = %v", err)
 	}

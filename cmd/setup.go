@@ -20,9 +20,9 @@ var setupCmd = &cobra.Command{
 		out := cmd.OutOrStdout()
 		ctx := cmd.Context()
 
-		fmt.Fprintln(out, "Hue Bridge Setup")
-		fmt.Fprintln(out)
-		fmt.Fprintln(out, "Searching for bridges on your network...")
+		_, _ = fmt.Fprintln(out, "Hue Bridge Setup")
+		_, _ = fmt.Fprintln(out)
+		_, _ = fmt.Fprintln(out, "Searching for bridges on your network...")
 		bridges, err := hue.DiscoverBridges(ctx)
 		if err != nil {
 			return err
@@ -32,11 +32,11 @@ var setupCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(out, "\nUsing bridge at %s\n\n", bridge.InternalIPAddress)
-		fmt.Fprintln(out, "Press the link button on your Hue Bridge, then hit Enter.")
+		_, _ = fmt.Fprintf(out, "\nUsing bridge at %s\n\n", bridge.InternalIPAddress)
+		_, _ = fmt.Fprintln(out, "Press the link button on your Hue Bridge, then hit Enter.")
 		_, _ = bufio.NewReader(cmd.InOrStdin()).ReadString('\n')
 
-		fmt.Fprintln(out, "Registering app key...")
+		_, _ = fmt.Fprintln(out, "Registering app key...")
 		app, err := hue.RegisterAppKey(ctx, bridge.InternalIPAddress)
 		if err != nil {
 			return err
@@ -60,34 +60,34 @@ func selectBridge(cmd *cobra.Command, bridges []hue.DiscoveredBridge) (hue.Disco
 	}
 
 	out := cmd.OutOrStdout()
-	fmt.Fprintf(out, "Found %d bridges:\n\n", len(bridges))
+	_, _ = fmt.Fprintf(out, "Found %d bridges:\n\n", len(bridges))
 	for i, b := range bridges {
-		fmt.Fprintf(out, "  [%d] %s  (%s)\n", i+1, b.InternalIPAddress, b.ID)
+		_, _ = fmt.Fprintf(out, "  [%d] %s  (%s)\n", i+1, b.InternalIPAddress, b.ID)
 	}
-	fmt.Fprintln(out)
+	_, _ = fmt.Fprintln(out)
 
 	reader := bufio.NewReader(cmd.InOrStdin())
 	for {
-		fmt.Fprintf(out, "Select a bridge (1-%d): ", len(bridges))
+		_, _ = fmt.Fprintf(out, "Select a bridge (1-%d): ", len(bridges))
 		line, _ := reader.ReadString('\n')
 		choice, err := strconv.Atoi(strings.TrimSpace(line))
 		if err == nil && choice >= 1 && choice <= len(bridges) {
 			return bridges[choice-1], nil
 		}
-		fmt.Fprintln(out, "Invalid choice, try again.")
+		_, _ = fmt.Fprintln(out, "Invalid choice, try again.")
 	}
 }
 
 func printSetupResult(out io.Writer, bridge config.Bridge) {
-	fmt.Fprintln(out, "\nSetup complete. huego stores these values in its config directory:")
-	fmt.Fprintln(out)
-	fmt.Fprintf(out, "  bridge_ip = %s\n", bridge.IP)
-	fmt.Fprintf(out, "  app_key   = %s\n", bridge.AppKey)
+	_, _ = fmt.Fprintln(out, "\nSetup complete. huego stores these values in its config directory:")
+	_, _ = fmt.Fprintln(out)
+	_, _ = fmt.Fprintf(out, "  bridge_ip = %s\n", bridge.IP)
+	_, _ = fmt.Fprintf(out, "  app_key   = %s\n", bridge.AppKey)
 	if bridge.ClientKey != "" {
-		fmt.Fprintf(out, "  client_key = %s\n", bridge.ClientKey)
+		_, _ = fmt.Fprintf(out, "  client_key = %s\n", bridge.ClientKey)
 	}
-	fmt.Fprintln(out, "\nThese keys control your bridge - keep them out of version control.")
-	fmt.Fprintln(out, "You can also set HUEGO_BRIDGE_IP / HUEGO_APP_KEY / HUEGO_CLIENT_KEY instead.")
+	_, _ = fmt.Fprintln(out, "\nThese keys control your bridge - keep them out of version control.")
+	_, _ = fmt.Fprintln(out, "You can also set HUEGO_BRIDGE_IP / HUEGO_APP_KEY / HUEGO_CLIENT_KEY instead.")
 }
 
 func init() {

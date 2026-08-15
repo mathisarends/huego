@@ -57,7 +57,7 @@ var sceneActivateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		resp, err := client.SceneNamespace.Activate(cmd.Context(), id, activation)
+		resp, err := client.Activate(cmd.Context(), id, activation)
 		if err != nil {
 			return err
 		}
