@@ -153,6 +153,118 @@ func TestSceneNamespaceActivate(t *testing.T) {
 	}
 }
 
+func TestLightNamespaceIsOn(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
+			{ID: "1", On: OnState{On: true}},
+		}})
+	})
+
+	on, err := client.IsOn(t.Context(), "1")
+	if err != nil {
+		t.Fatalf("IsOn() error = %v", err)
+	}
+	if !on {
+		t.Fatal("IsOn() = false, want true")
+	}
+}
+
+func TestGroupNamespaceIsOn(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/clip/v2/resource/room/room-1":
+			writeJSONFixture(t, w, APIResponse[Group]{Data: []Group{{
+				ID:       "room-1",
+				Services: []ResourceReference{{RID: "grouped-1", RType: ResourceTypeGroupedLight}},
+			}}})
+		case "/clip/v2/resource/grouped_light/grouped-1":
+			writeJSONFixture(t, w, APIResponse[GroupedLight]{Data: []GroupedLight{
+				{ID: "grouped-1", On: &OnState{On: true}},
+			}})
+		default:
+			t.Fatalf("unexpected request: %s", r.URL.Path)
+		}
+	})
+
+	on, err := client.RoomNamespace.IsOn(t.Context(), "room-1")
+	if err != nil {
+		t.Fatalf("IsOn() error = %v", err)
+	}
+	if !on {
+		t.Fatal("IsOn() = false, want true")
+	}
+}
+
+func TestGroupNamespaceIsOnFalseWhenOnStateMissing(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/clip/v2/resource/room/room-1":
+			writeJSONFixture(t, w, APIResponse[Group]{Data: []Group{{
+				ID:       "room-1",
+				Services: []ResourceReference{{RID: "grouped-1", RType: ResourceTypeGroupedLight}},
+			}}})
+		case "/clip/v2/resource/grouped_light/grouped-1":
+			writeJSONFixture(t, w, APIResponse[GroupedLight]{Data: []GroupedLight{
+				{ID: "grouped-1"},
+			}})
+		default:
+			t.Fatalf("unexpected request: %s", r.URL.Path)
+		}
+	})
+
+	on, err := client.RoomNamespace.IsOn(t.Context(), "room-1")
+	if err != nil {
+		t.Fatalf("IsOn() error = %v", err)
+	}
+	if on {
+		t.Fatal("IsOn() = true, want false")
+	}
+}
+
+func TestGroupNamespaceGroupedLightNoServiceMatch(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Group]{Data: []Group{{
+			ID:       "room-1",
+			Services: []ResourceReference{{RID: "some-sensor", RType: "device_power"}},
+		}}})
+	})
+
+	if _, err := client.RoomNamespace.IsOn(t.Context(), "room-1"); err == nil {
+		t.Fatal("IsOn() error = nil, want error for a room with no grouped_light service")
+	}
+}
+
+func TestResolveTargetPassesThroughUUID(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("ResolveTarget should not call the bridge for a UUID target")
+	})
+
+	uuid := "01234567-89ab-cdef-0123-456789abcdef"
+	id, err := client.LightNamespace.ResolveTarget(t.Context(), uuid)
+	if err != nil {
+		t.Fatalf("ResolveTarget() error = %v", err)
+	}
+	if id != uuid {
+		t.Fatalf("ResolveTarget() = %q, want %q", id, uuid)
+	}
+}
+
+func TestResolveTargetLooksUpByName(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
+			{ID: "abc", Metadata: NamedMetadata{Name: "Desk Lamp"}},
+		}})
+	})
+
+	id, err := client.LightNamespace.ResolveTarget(t.Context(), "Desk Lamp")
+	if err != nil {
+		t.Fatalf("ResolveTarget() error = %v", err)
+	}
+	if id != "abc" {
+		t.Fatalf("ResolveTarget() = %q, want abc", id)
+	}
+}
+
 func TestAPIErrorOnNon2xx(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)

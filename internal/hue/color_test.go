@@ -1,6 +1,9 @@
 package hue
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestParseColorNamed(t *testing.T) {
 	rgb, err := ParseColor("warm white")
@@ -44,6 +47,14 @@ func TestRGBXYRoundTrip(t *testing.T) {
 	back := XYToRGB(xy, 100)
 	if back.R < 240 {
 		t.Fatalf("XYToRGB(RGBToXY(%v)) = %+v, want red channel to dominate", original, back)
+	}
+}
+
+func TestXYToHex(t *testing.T) {
+	xy := RGBToXY(RGB{255, 0, 0})
+	hex := XYToHex(xy, 100)
+	if !strings.HasPrefix(hex, "#ff00") {
+		t.Fatalf("XYToHex() = %q, want a hex string with red channel dominant", hex)
 	}
 }
 
