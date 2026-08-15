@@ -11,10 +11,6 @@ type RGB struct {
 	R, G, B uint8
 }
 
-type ColorXY struct {
-	X, Y float64
-}
-
 const (
 	MirekMinimum = 153
 	MirekMaximum = 500
