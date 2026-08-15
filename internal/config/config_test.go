@@ -1,6 +1,40 @@
 package config
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"testing"
+)
+
+func TestDirUsesOSDefaultWhenEnvUnset(t *testing.T) {
+	_ = os.Unsetenv("HUEGO_CONFIG_DIR")
+
+	base := t.TempDir()
+	switch runtime.GOOS {
+	case "windows":
+		t.Setenv("AppData", base)
+	case "darwin":
+		t.Setenv("HOME", base)
+	default:
+		t.Setenv("XDG_CONFIG_HOME", base)
+	}
+
+	dir, err := Dir()
+	if err != nil {
+		t.Fatalf("Dir() error = %v", err)
+	}
+	if !strings.HasPrefix(dir, base) {
+		t.Fatalf("Dir() = %q, want it under %q", dir, base)
+	}
+	if filepath.Base(dir) != "huego" {
+		t.Fatalf("Dir() = %q, want it to end in huego", dir)
+	}
+	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+		t.Fatalf("Dir() = %q was not created", dir)
+	}
+}
 
 func TestSaveAndLoadBridge(t *testing.T) {
 	t.Setenv("HUEGO_CONFIG_DIR", t.TempDir())
