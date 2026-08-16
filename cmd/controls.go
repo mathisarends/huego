@@ -35,7 +35,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 	addBrightnessFlag(onCmd)
@@ -58,7 +58,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 	addTransitionFlag(offCmd)
@@ -80,7 +80,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 	addTransitionFlag(toggleCmd)
@@ -106,7 +106,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 	addTransitionFlag(brightnessCmd)
@@ -128,7 +128,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 	addBrightnessFlag(colorCmd)
@@ -155,7 +155,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 	addBrightnessFlag(temperatureCmd)
@@ -174,7 +174,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			return writeResponse(cmd, resp)
+			return writeResponse(cmd, args[0], resp)
 		},
 	}
 

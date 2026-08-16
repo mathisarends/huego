@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
@@ -60,10 +61,21 @@ func sceneRows(scenes []hue.Scene) []resourceRow {
 	return rows
 }
 
-func writeResponse(cmd *cobra.Command, resp hue.APIResponse[hue.ResourceIdentifier]) error {
-	if written, err := writeJSON(cmd, resp); written || err != nil {
+func writeResponse(cmd *cobra.Command, target string, resp hue.APIResponse[hue.ResourceIdentifier]) error {
+	written, err := writeJSON(cmd, resp)
+	if err != nil {
 		return err
 	}
-	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated %d resource(s).\n", len(resp.Data))
+	if len(resp.Errors) > 0 {
+		descriptions := make([]string, len(resp.Errors))
+		for i, responseError := range resp.Errors {
+			descriptions[i] = responseError.Description
+		}
+		return fmt.Errorf("bridge could not fully update %q: %s", target, strings.Join(descriptions, "; "))
+	}
+	if written {
+		return nil
+	}
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated %q (%d resource(s)).\n", target, len(resp.Data))
 	return nil
 }

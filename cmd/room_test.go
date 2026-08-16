@@ -61,7 +61,7 @@ func TestRoomOnCommandByName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Updated 1 resource(s).") {
+	if !strings.Contains(out, `Updated "Kitchen" (1 resource(s)).`) {
 		t.Fatalf("output = %q, want update confirmation", out)
 	}
 	if putPath != "/clip/v2/resource/grouped_light/grouped-1" {
@@ -103,7 +103,7 @@ func TestRoomToggleCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Updated 1 resource(s).") {
+	if !strings.Contains(out, `Updated "`+roomID+`" (1 resource(s)).`) {
 		t.Fatalf("output = %q, want update confirmation", out)
 	}
 	if gotBody.On == nil || !gotBody.On.On {

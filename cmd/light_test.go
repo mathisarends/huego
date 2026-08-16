@@ -67,14 +67,49 @@ func TestLightOnCommandByName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Updated 1 resource(s).") {
-		t.Fatalf("output = %q, want update confirmation", out)
+	if !strings.Contains(out, `Updated "Desk Lamp" (1 resource(s)).`) {
+		t.Fatalf("output = %q, want named update confirmation", out)
 	}
 	if gotBody.On == nil || !gotBody.On.On {
 		t.Fatalf("request body On = %+v, want on=true", gotBody.On)
 	}
 	if gotBody.Dimming == nil || gotBody.Dimming.Brightness != 50 {
 		t.Fatalf("request body Dimming = %+v, want brightness 50", gotBody.Dimming)
+	}
+}
+
+func TestLightOnCommandReportsBridgeErrors(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+			Errors: []struct {
+				Description string `json:"description"`
+			}{{Description: "light has communication issues"}},
+		})
+	})
+	withClient(t, client)
+
+	_, err := execute(t, "light", "on", testLightUUID)
+	if err == nil || !strings.Contains(err.Error(), "communication issues") || !strings.Contains(err.Error(), testLightUUID) {
+		t.Fatalf("execute() error = %v, want target and bridge error", err)
+	}
+}
+
+func TestLightOnCommandJSONWritesResponseAndReportsBridgeErrors(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+			Errors: []struct {
+				Description string `json:"description"`
+			}{{Description: "light has communication issues"}},
+		})
+	})
+	withClient(t, client)
+
+	out, err := execute(t, "light", "on", testLightUUID, "--json")
+	if err == nil || !strings.Contains(err.Error(), "communication issues") {
+		t.Fatalf("execute() error = %v, want bridge error", err)
+	}
+	if !strings.Contains(out, `"errors":[{"description":"light has communication issues"}]`) {
+		t.Fatalf("output = %q, want JSON bridge response", out)
 	}
 }
 

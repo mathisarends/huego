@@ -61,7 +61,7 @@ var sceneActivateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return writeResponse(cmd, resp)
+		return writeResponse(cmd, args[0], resp)
 	},
 }
 

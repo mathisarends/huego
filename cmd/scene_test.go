@@ -52,7 +52,7 @@ func TestSceneActivateCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Updated 1 resource(s).") {
+	if !strings.Contains(out, `Updated "01234567-89ab-cdef-0123-456789abcdef" (1 resource(s)).`) {
 		t.Fatalf("output = %q, want update confirmation", out)
 	}
 	if gotRequest.Recall.Dimming == nil || gotRequest.Recall.Dimming.Brightness != 60 {
