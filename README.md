@@ -81,8 +81,9 @@ switches every light it contains in a single bridge call, via its
 | `<group> identify <target>`        | UUID or name       | —                                   | Makes the target breathe so you can spot it physically.         |
 
 `--transition` is a fade duration in seconds. `<target>` accepts a resource
-UUID or a name; names are matched exactly first, then fuzzily (closest match
-by edit distance) if there's no exact hit.
+UUID or a complete name. Name matching ignores capitalization and surrounding
+whitespace, but does not guess misspellings or abbreviated names. Unknown names
+produce an error containing the known names for that resource type.
 
 ### `scene` — activate a stored scene
 

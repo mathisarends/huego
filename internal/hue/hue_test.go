@@ -49,7 +49,7 @@ func TestLightsList(t *testing.T) {
 	}
 }
 
-func TestLightsFindByNameFuzzy(t *testing.T) {
+func TestLightsFindByNameCaseInsensitive(t *testing.T) {
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
 			{ID: "1", Metadata: NamedMetadata{Name: "Living Room Lamp"}},
@@ -289,6 +289,27 @@ func TestFindByNameNoCloseMatch(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "Desk Lamp") || !strings.Contains(err.Error(), "Kitchen Light") {
 		t.Fatalf("error = %q, want it to list known names", err.Error())
+	}
+}
+
+func TestFindByNameRejectsInexactNames(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
+			{ID: "1", Metadata: NamedMetadata{Name: "Bettlicht"}},
+			{ID: "2", Metadata: NamedMetadata{Name: "Schreibtisch-Licht"}},
+		}})
+	})
+
+	for _, name := range []string{"Bettlich", "Schreibtisch"} {
+		t.Run(name, func(t *testing.T) {
+			_, err := client.Lights.FindByName(t.Context(), name)
+			if err == nil {
+				t.Fatalf("FindByName(%q) error = nil, want exact-match error", name)
+			}
+			if !strings.Contains(err.Error(), "Bettlicht") || !strings.Contains(err.Error(), "Schreibtisch-Licht") {
+				t.Fatalf("error = %q, want known names", err.Error())
+			}
+		})
 	}
 }
 
