@@ -1,5 +1,6 @@
 /huego
 /dist/
+/.tmp/
 .env
 *.test
 coverage.out
