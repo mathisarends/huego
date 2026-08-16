@@ -1,7 +1,8 @@
 # huego
 
 A Philips Hue CLI backed by the bridge's local CLIP v2 REST API — no cloud
-account, no Hue app, no cookie scraping.
+account, no Hue app, no cookie scraping. Interactive setup uses Philips's
+cloud discovery endpoint once; all bridge control remains local.
 
 ## Install
 
@@ -24,8 +25,10 @@ that's the credential huego needs for every other command:
 huego setup
 ```
 
-1. **Discovery.** It queries `discovery.meethue.com` for bridges on your
-   network. If it finds more than one, it lists them and asks you to pick.
+1. **Discovery.** It queries Philips's cloud endpoint
+   `discovery.meethue.com` for bridges on your network. This does not require
+   a cloud account. If it finds more than one bridge, huego lists them and
+   asks you to pick; subsequent control requests go directly to that bridge.
 2. **Link-button press.** It prints `Press the link button on your Hue
    Bridge, then hit Enter.` — the physical button on top of the bridge. huego
    then polls the bridge every 2 seconds for up to 60 seconds; the bridge
@@ -73,8 +76,8 @@ switches every light it contains in a single bridge call, via its
 | `<group> off <target>`             | UUID or name       | `--transition`                     | Turns the target off.                                          |
 | `<group> toggle <target>`          | UUID or name       | `--transition`                     | Flips current on/off state.                                    |
 | `<group> brightness <target> <pct>` | UUID/name, 0-100  | `--transition`                     | `0` turns the target off instead of dimming to nothing.        |
-| `<group> color <target> <hex>`     | UUID/name, `#rgb` or `#rrggbb` | `--brightness/-b`, `--transition` | Converts sRGB to the bridge's CIE xy color space.               |
-| `<group> temperature <target> <kelvin>` | UUID/name, kelvin | `--brightness/-b`, `--transition`  | Converts kelvin to mirek, clamped to the bridge's supported range (153-500 mirek). |
+| `<group> color <target> <color>`   | UUID/name, color name, `#rgb`, or `#rrggbb` | `--brightness/-b`, `--transition` | Converts sRGB to the bridge's CIE xy color space.               |
+| `<group> temperature <target> <kelvin>` | UUID/name, 2000-6536 K | `--brightness/-b`, `--transition`  | Converts kelvin to the bridge's supported mirek range (153-500); out-of-range values are rejected. |
 | `<group> identify <target>`        | UUID or name       | —                                   | Makes the target breathe so you can spot it physically.         |
 
 `--transition` is a fade duration in seconds. `<target>` accepts a resource
@@ -129,12 +132,12 @@ _, err = client.Scenes.Activate(ctx, sceneID, hue.SceneActivation{Dynamic: true}
 | `hue.TurnOn` / `TurnOff` / `Toggle` | `func(ctx, Controllable, id string, ...) (APIResponse[ResourceIdentifier], error)` | Shared light-command functions; work on any `Controllable` (lights, rooms, zones). |
 | `hue.SetBrightness` | `func(ctx, Controllable, id string, brightness float64, transition *float64) (...)` | `brightness == 0` turns the target off instead of dimming to zero. |
 | `hue.SetRGB` / `SetHex` | `func(ctx, Controllable, id string, ..., brightness, transition *float64) (...)` | Converts sRGB → CIE xy internally via `hue.RGBToXY`. |
-| `hue.SetColorTemperature` | `func(ctx, Controllable, id string, kelvin int, brightness, transition *float64) (...)` | Converts kelvin → mirek via `hue.KelvinToMirek`, clamped to `[MirekMinimum, MirekMaximum]`. |
+| `hue.SetColorTemperature` | `func(ctx, Controllable, id string, kelvin int, brightness, transition *float64) (...)` | Converts kelvin → mirek via `hue.KelvinToMirek`; out-of-range values return an error. |
 | `hue.Brighten` / `Dim` | `func(ctx, Controllable, id string, by float64) (...)` | Relative brightness steps via the bridge's `dimming_delta`. |
 | `hue.Identify` | `func(ctx, Controllable, id string) (...)` | Triggers the `breathe` alert effect. |
 | `hue.ParseColor` | `func(color string) (RGB, error)` | Accepts hex (`#rgb`, `#rrggbb`) or a built-in color name (`red`, `warm_white`, ...). |
 | `hue.RGBToXY` / `hue.XYToRGB` | `func(RGB) ColorXY` / `func(ColorXY, brightness float64) RGB` | sRGB ⇄ CIE xy, gamma-corrected per the Hue color spec. |
-| `hue.KelvinToMirek` / `hue.MirekToKelvin` | `func(int) (int, error)` | Color temperature conversion; kelvin conversion clamps to `[153, 500]` mirek. |
+| `hue.KelvinToMirek` / `hue.MirekToKelvin` | `func(int) (int, error)` | Color temperature conversion; kelvin must be within `[KelvinMinimum, KelvinMaximum]` (2000-6536 K). |
 | `hue.DiscoverBridges` | `func(ctx) ([]DiscoveredBridge, error)` | Queries `discovery.meethue.com`. |
 | `hue.RegisterAppKey` | `func(ctx, bridgeIP string) (RegisteredApp, error)` | Polls the bridge's `/api` endpoint every 2s for up to 60s until the link button is pressed. |
 

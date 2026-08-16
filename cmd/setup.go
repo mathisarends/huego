@@ -22,6 +22,7 @@ var setupCmd = &cobra.Command{
 
 		_, _ = fmt.Fprintln(out, "Hue Bridge Setup")
 		_, _ = fmt.Fprintln(out)
+		_, _ = fmt.Fprintln(out, "Discovery contacts discovery.meethue.com; bridge control remains local after setup.")
 		_, _ = fmt.Fprintln(out, "Searching for bridges on your network...")
 		bridges, err := hue.DiscoverBridges(ctx)
 		if err != nil {
