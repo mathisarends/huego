@@ -12,8 +12,10 @@ type RGB struct {
 }
 
 const (
-	MirekMinimum = 153
-	MirekMaximum = 500
+	MirekMinimum  = 153
+	MirekMaximum  = 500
+	KelvinMinimum = 2000
+	KelvinMaximum = 6536
 )
 
 var namedColors = map[string]RGB{
@@ -132,10 +134,10 @@ func XYToHex(xy ColorXY, brightness float64) string {
 }
 
 func KelvinToMirek(kelvin int) (int, error) {
-	if kelvin <= 0 {
-		return 0, fmt.Errorf("color temperature in kelvin must be positive")
+	if kelvin < KelvinMinimum || kelvin > KelvinMaximum {
+		return 0, fmt.Errorf("color temperature in kelvin must be between %d and %d", KelvinMinimum, KelvinMaximum)
 	}
-	return clampMirek(int(math.Round(1_000_000 / float64(kelvin)))), nil
+	return int(math.Round(1_000_000 / float64(kelvin))), nil
 }
 
 func MirekToKelvin(mirek int) (int, error) {
@@ -143,16 +145,6 @@ func MirekToKelvin(mirek int) (int, error) {
 		return 0, fmt.Errorf("color temperature in mirek must be positive")
 	}
 	return int(math.Round(1_000_000 / float64(mirek))), nil
-}
-
-func clampMirek(mirek int) int {
-	if mirek < MirekMinimum {
-		return MirekMinimum
-	}
-	if mirek > MirekMaximum {
-		return MirekMaximum
-	}
-	return mirek
 }
 
 func gammaExpand(channel float64) float64 {

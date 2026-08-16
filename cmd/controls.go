@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
@@ -90,7 +91,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 		Short: "Set brightness from 0 to 100; zero turns the target off",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			percent, err := parseFloat(args[1], "percent")
+			percent, err := parsePercentage(args[1], "percent")
 			if err != nil {
 				return err
 			}
@@ -109,11 +110,12 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			return writeResponse(cmd, args[0], resp)
 		},
 	}
+	brightnessCmd.SetFlagErrorFunc(readableNumericFlagError("percent"))
 	addTransitionFlag(brightnessCmd)
 
 	colorCmd := &cobra.Command{
-		Use:   "color <target> <hex>",
-		Short: "Set a color from a #rgb or #rrggbb hex string",
+		Use:   "color <target> <color>",
+		Short: "Set a color from a name, #rgb, or #rrggbb hex string",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			brightness, transition, err := brightnessAndTransitionFlags(cmd)
@@ -124,7 +126,11 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			if err != nil {
 				return err
 			}
-			resp, err := hue.SetHex(cmd.Context(), target(client), id, args[1], brightness, transition)
+			rgb, err := hue.ParseColor(args[1])
+			if err != nil {
+				return err
+			}
+			resp, err := hue.SetRGB(cmd.Context(), target(client), id, rgb, brightness, transition)
 			if err != nil {
 				return err
 			}
@@ -139,7 +145,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 		Short: "Set a color temperature in kelvin",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			kelvin, err := parseInt(args[1], "kelvin")
+			kelvin, err := parseKelvin(args[1])
 			if err != nil {
 				return err
 			}
@@ -158,6 +164,7 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 			return writeResponse(cmd, args[0], resp)
 		},
 	}
+	temperatureCmd.SetFlagErrorFunc(readableNumericFlagError("kelvin"))
 	addBrightnessFlag(temperatureCmd)
 	addTransitionFlag(temperatureCmd)
 
@@ -206,6 +213,9 @@ func brightnessAndTransitionFlags(cmd *cobra.Command) (brightness, transition *f
 		v, err := cmd.Flags().GetFloat64("brightness")
 		if err != nil {
 			return nil, nil, err
+		}
+		if v < 0 || v > 100 {
+			return nil, nil, fmt.Errorf("brightness must be between 0 and 100")
 		}
 		brightness = &v
 	}

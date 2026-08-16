@@ -33,6 +33,9 @@ func buildLightUpdate(change StateChange) (LightUpdate, error) {
 	if change.Color != nil && (change.Kelvin != nil || change.Mirek != nil) {
 		return LightUpdate{}, fmt.Errorf("a light shows either a color or a color temperature")
 	}
+	if change.Brightness != nil && (*change.Brightness < 0 || *change.Brightness > 100) {
+		return LightUpdate{}, fmt.Errorf("brightness must be between 0 and 100")
+	}
 
 	mirek := change.Mirek
 	if change.Kelvin != nil {

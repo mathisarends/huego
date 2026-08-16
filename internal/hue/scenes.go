@@ -1,6 +1,9 @@
 package hue
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type Scenes struct {
 	resourceNamespace[Scene]
@@ -23,6 +26,9 @@ type SceneActivation struct {
 }
 
 func (n *Scenes) Activate(ctx context.Context, id string, activation SceneActivation) (APIResponse[ResourceIdentifier], error) {
+	if activation.Brightness != nil && (*activation.Brightness < 0 || *activation.Brightness > 100) {
+		return APIResponse[ResourceIdentifier]{}, fmt.Errorf("brightness must be between 0 and 100")
+	}
 	action := SceneActionActive
 	if activation.Dynamic {
 		action = SceneActionDynamicPalette

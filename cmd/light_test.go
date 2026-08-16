@@ -261,3 +261,55 @@ func decodeJSONFixture(t *testing.T, r *http.Request, v any) {
 		t.Fatalf("decode request body: %v", err)
 	}
 }
+
+func TestLightColorCommandNamedColor(t *testing.T) {
+	var gotBody hue.LightUpdate
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		decodeJSONFixture(t, r, &gotBody)
+		writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
+			Data: []hue.ResourceIdentifier{{RID: testLightUUID, RType: hue.ResourceTypeLight}},
+		})
+	})
+	withClient(t, client)
+
+	if _, err := execute(t, "light", "color", testLightUUID, "red"); err != nil {
+		t.Fatalf("execute() error = %v", err)
+	}
+	if gotBody.Color == nil || gotBody.Color.XY == nil {
+		t.Fatalf("request body Color = %+v, want an XY value", gotBody.Color)
+	}
+}
+
+func TestLightTemperatureCommandRejectsOutOfRange(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("bridge should not be called for out-of-range kelvin")
+	})
+	withClient(t, client)
+
+	_, err := execute(t, "light", "temperature", testLightUUID, "100000")
+	if err == nil || !strings.Contains(err.Error(), "between 2000 and 6536") {
+		t.Fatalf("execute() error = %v, want kelvin range", err)
+	}
+}
+
+func TestLightBrightnessCommandRejectsOutOfRange(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("bridge should not be called for out-of-range brightness")
+	})
+	withClient(t, client)
+
+	_, err := execute(t, "light", "brightness", testLightUUID, "150")
+	if err == nil || !strings.Contains(err.Error(), "between 0 and 100") {
+		t.Fatalf("execute() error = %v, want percentage range", err)
+	}
+}
+
+func TestLightBrightnessCommandExplainsNegativeValue(t *testing.T) {
+	_, err := execute(t, "light", "brightness", testLightUUID, "-5")
+	if err == nil || !strings.Contains(err.Error(), `invalid percent "-5"`) {
+		t.Fatalf("execute() error = %v, want readable negative-value error", err)
+	}
+	if strings.Contains(err.Error(), "unknown shorthand flag") {
+		t.Fatalf("execute() error = %v, should not expose flag parser jargon", err)
+	}
+}

@@ -59,3 +59,15 @@ func TestSceneActivateCommand(t *testing.T) {
 		t.Fatalf("Recall.Dimming = %+v, want brightness 60", gotRequest.Recall.Dimming)
 	}
 }
+
+func TestSceneActivateRejectsOutOfRangeBrightness(t *testing.T) {
+	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("bridge should not be called for out-of-range brightness")
+	})
+	withClient(t, client)
+
+	_, err := execute(t, "scene", "activate", "01234567-89ab-cdef-0123-456789abcdef", "--brightness", "101")
+	if err == nil || !strings.Contains(err.Error(), "between 0 and 100") {
+		t.Fatalf("execute() error = %v, want brightness range", err)
+	}
+}

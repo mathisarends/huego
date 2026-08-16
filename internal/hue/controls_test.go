@@ -135,6 +135,16 @@ func TestSetBrightnessPositiveTurnsOn(t *testing.T) {
 	}
 }
 
+func TestSetBrightnessRejectsOutOfRange(t *testing.T) {
+	target := &fakeControllable{}
+	if _, err := SetBrightness(t.Context(), target, "abc", 101, nil); err == nil {
+		t.Fatal("SetBrightness(101) error = nil, want range error")
+	}
+	if target.applyCalls != 0 {
+		t.Fatalf("Apply() called %d times, want 0", target.applyCalls)
+	}
+}
+
 func TestBrightenDefaultsStep(t *testing.T) {
 	target := &fakeControllable{}
 	if _, err := Brighten(t.Context(), target, "abc", 0); err != nil {

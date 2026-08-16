@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
 )
@@ -37,6 +39,9 @@ var sceneActivateCmd = &cobra.Command{
 			v, err := cmd.Flags().GetFloat64("brightness")
 			if err != nil {
 				return err
+			}
+			if v < 0 || v > 100 {
+				return fmt.Errorf("brightness must be between 0 and 100")
 			}
 			activation.Brightness = &v
 		}

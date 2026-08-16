@@ -76,13 +76,9 @@ func TestKelvinMirekRoundTrip(t *testing.T) {
 	}
 }
 
-func TestKelvinToMirekClamps(t *testing.T) {
-	mirek, err := KelvinToMirek(10000)
-	if err != nil {
-		t.Fatalf("KelvinToMirek() error = %v", err)
-	}
-	if mirek != MirekMinimum {
-		t.Fatalf("KelvinToMirek(10000) = %d, want clamped to %d", mirek, MirekMinimum)
+func TestKelvinToMirekRejectsOutOfRange(t *testing.T) {
+	if _, err := KelvinToMirek(10000); err == nil {
+		t.Fatal("KelvinToMirek(10000) error = nil, want range error")
 	}
 }
 
@@ -95,11 +91,5 @@ func TestKelvinToMirekRejectsNonPositive(t *testing.T) {
 func TestMirekToKelvinRejectsNonPositive(t *testing.T) {
 	if _, err := MirekToKelvin(0); err == nil {
 		t.Fatal("MirekToKelvin(0) error = nil, want error")
-	}
-}
-
-func TestClampMirekClampsUpperBound(t *testing.T) {
-	if got := clampMirek(MirekMaximum + 100); got != MirekMaximum {
-		t.Fatalf("clampMirek() = %d, want %d", got, MirekMaximum)
 	}
 }
