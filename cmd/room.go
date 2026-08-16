@@ -19,7 +19,7 @@ var roomListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		rooms, err := client.Rooms.List(cmd.Context())
+		rooms, err := client.Rooms.ListWithState(cmd.Context())
 		if err != nil {
 			return err
 		}

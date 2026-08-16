@@ -44,7 +44,14 @@ func lightRows(lights []hue.Light) []resourceRow {
 func groupRows(groups []hue.Group) []resourceRow {
 	rows := make([]resourceRow, len(groups))
 	for i, g := range groups {
-		rows[i] = resourceRow{ID: g.ID, Name: g.Name()}
+		state := ""
+		if g.AggregateOn != nil {
+			state = "off"
+			if g.AggregateOn.On {
+				state = "on"
+			}
+		}
+		rows[i] = resourceRow{ID: g.ID, Name: g.Name(), State: state}
 	}
 	return rows
 }

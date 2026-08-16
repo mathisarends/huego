@@ -8,10 +8,10 @@ import (
 
 func TestGroupRows(t *testing.T) {
 	rows := groupRows([]hue.Group{
-		{ID: "room-1", Metadata: hue.NamedMetadata{Name: "Kitchen"}},
+		{ID: "room-1", Metadata: hue.NamedMetadata{Name: "Kitchen"}, AggregateOn: &hue.OnState{On: true}},
 	})
-	if len(rows) != 1 || rows[0].ID != "room-1" || rows[0].Name != "Kitchen" || rows[0].State != "" {
-		t.Fatalf("groupRows() = %+v, want one row for Kitchen with no state", rows)
+	if len(rows) != 1 || rows[0].ID != "room-1" || rows[0].Name != "Kitchen" || rows[0].State != "on" {
+		t.Fatalf("groupRows() = %+v, want one row for Kitchen with state on", rows)
 	}
 }
 

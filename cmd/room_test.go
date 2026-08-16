@@ -10,9 +10,20 @@ import (
 
 func TestRoomListCommand(t *testing.T) {
 	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
-		writeJSONFixture(t, w, hue.APIResponse[hue.Group]{Data: []hue.Group{
-			{ID: "room-1", Metadata: hue.NamedMetadata{Name: "Kitchen"}},
-		}})
+		switch r.URL.Path {
+		case "/clip/v2/resource/room":
+			writeJSONFixture(t, w, hue.APIResponse[hue.Group]{Data: []hue.Group{{
+				ID:       "room-1",
+				Metadata: hue.NamedMetadata{Name: "Kitchen"},
+				Services: []hue.ResourceReference{{RID: "grouped-1", RType: hue.ResourceTypeGroupedLight}},
+			}}})
+		case "/clip/v2/resource/grouped_light":
+			writeJSONFixture(t, w, hue.APIResponse[hue.GroupedLight]{Data: []hue.GroupedLight{{
+				ID: "grouped-1", On: &hue.OnState{On: true},
+			}}})
+		default:
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
 	})
 	withClient(t, client)
 
@@ -20,8 +31,8 @@ func TestRoomListCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Kitchen") {
-		t.Fatalf("output = %q, want it to mention Kitchen", out)
+	if !strings.Contains(out, "Kitchen") || !strings.Contains(out, "(on)") {
+		t.Fatalf("output = %q, want it to mention Kitchen and on", out)
 	}
 }
 

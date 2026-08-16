@@ -9,6 +9,31 @@ type groupNamespace struct {
 	resourceNamespace[Group]
 }
 
+func (n *groupNamespace) ListWithState(ctx context.Context) ([]Group, error) {
+	groups, err := n.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp APIResponse[GroupedLight]
+	if err := n.client.get(ctx, "grouped_light", &resp); err != nil {
+		return nil, err
+	}
+	states := make(map[string]*OnState, len(resp.Data))
+	for i := range resp.Data {
+		states[resp.Data[i].ID] = resp.Data[i].On
+	}
+	for i := range groups {
+		for _, service := range groups[i].Services {
+			if service.RType == ResourceTypeGroupedLight {
+				groups[i].AggregateOn = states[service.RID]
+				break
+			}
+		}
+	}
+	return groups, nil
+}
+
 func (n *groupNamespace) groupedLightID(ctx context.Context, id string) (string, error) {
 	group, err := n.GetOne(ctx, id)
 	if err != nil {

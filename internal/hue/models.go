@@ -100,10 +100,11 @@ type LightUpdate struct {
 }
 
 type Group struct {
-	ID       string              `json:"id"`
-	Metadata NamedMetadata       `json:"metadata"`
-	Children []ResourceReference `json:"children"`
-	Services []ResourceReference `json:"services"`
+	ID          string              `json:"id"`
+	Metadata    NamedMetadata       `json:"metadata"`
+	Children    []ResourceReference `json:"children"`
+	Services    []ResourceReference `json:"services"`
+	AggregateOn *OnState            `json:"-"`
 }
 
 func (g Group) Name() string    { return g.Metadata.Name }

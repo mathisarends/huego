@@ -19,7 +19,7 @@ var zoneListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		zones, err := client.Zones.List(cmd.Context())
+		zones, err := client.Zones.ListWithState(cmd.Context())
 		if err != nil {
 			return err
 		}
