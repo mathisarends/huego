@@ -1,0 +1,7 @@
+internal/hue/api_catalog.json contains endpoint and schema facts extracted from
+OpenHue API (https://github.com/openhue/openhue-api), revision
+1ffc817857abf456d5ff2ae50400ef768dbce28e, retrieved on 2026-10-04.
+
+Upstream is licensed under Apache-2.0; its license is reproduced in LICENSE.
+Descriptions, examples, and titles are omitted. Local references are expanded.
+The Go implementation is independently written.

@@ -1,0 +1,3660 @@
+{
+  "source": "https://github.com/openhue/openhue-api",
+  "revision": "1ffc817857abf456d5ff2ae50400ef768dbce28e",
+  "resources": [
+    {
+      "resource_type": "behavior_instance",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "configuration": {
+              "type": "object"
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "behavior_script",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "bell_button",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "bridge",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bridge"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "bridge_home",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET"
+      ],
+      "request_schemas": {}
+    },
+    {
+      "resource_type": "button",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "control_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "button": {
+              "type": "object",
+              "properties": {
+                "repeat_interval": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "camera_motion",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "contact",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "convenience_area_motion",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "device",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "device"
+              ]
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                "archetype": {
+                  "type": "string",
+                  "enum": [
+                    "bridge_v2",
+                    "unknown_archetype",
+                    "classic_bulb",
+                    "sultan_bulb",
+                    "flood_bulb",
+                    "spot_bulb",
+                    "candle_bulb",
+                    "luster_bulb",
+                    "pendant_round",
+                    "pendant_long",
+                    "ceiling_round",
+                    "ceiling_square",
+                    "floor_shade",
+                    "floor_lantern",
+                    "table_shade",
+                    "recessed_ceiling",
+                    "recessed_floor",
+                    "single_spot",
+                    "double_spot",
+                    "table_wash",
+                    "wall_lantern",
+                    "wall_shade",
+                    "flexible_lamp",
+                    "ground_spot",
+                    "wall_spot",
+                    "plug",
+                    "hue_go",
+                    "hue_lightstrip",
+                    "hue_iris",
+                    "hue_bloom",
+                    "bollard",
+                    "wall_washer",
+                    "hue_play",
+                    "vintage_bulb",
+                    "vintage_candle_bulb",
+                    "ellipse_bulb",
+                    "triangle_bulb",
+                    "small_globe_bulb",
+                    "large_globe_bulb",
+                    "edison_bulb",
+                    "christmas_tree",
+                    "string_light",
+                    "hue_centris",
+                    "hue_lightstrip_tv",
+                    "hue_lightstrip_pc",
+                    "hue_tube",
+                    "hue_signe",
+                    "pendant_spot",
+                    "ceiling_horizontal",
+                    "ceiling_tube"
+                  ]
+                }
+              }
+            },
+            "identify": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "identify"
+                  ]
+                }
+              }
+            },
+            "usertest": {
+              "type": "object",
+              "properties": {
+                "usertest": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "device_power",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET"
+      ],
+      "request_schemas": {}
+    },
+    {
+      "resource_type": "device_software_update",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "install": {
+              "type": "object",
+              "properties": {
+                "install_state": {
+                  "type": "string",
+                  "enum": [
+                    "install"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "entertainment",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "entertainment_configuration",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "configuration_type": {
+              "type": "string",
+              "enum": [
+                "screen",
+                "monitor",
+                "music",
+                "3dspace",
+                "other"
+              ]
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "start",
+                "stop"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "geofence_client",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "is_at_home": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "geolocation",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "grouped_light",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "grouped_light"
+              ]
+            },
+            "true": {
+              "type": "object",
+              "required": [
+                true
+              ],
+              "properties": {
+                "true": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "dimming": {
+              "type": "object",
+              "required": [
+                "brightness"
+              ],
+              "properties": {
+                "brightness": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "dimming_delta": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "down",
+                    "stop"
+                  ]
+                },
+                "brightness_delta": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "color_temperature": {
+              "type": "object",
+              "properties": {
+                "mirek": {
+                  "type": "integer",
+                  "minimum": 153,
+                  "maximum": 500
+                }
+              }
+            },
+            "color_temperature_delta": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "down",
+                    "stop"
+                  ]
+                },
+                "mirek_delta": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 347
+                }
+              }
+            },
+            "color": {
+              "type": "object",
+              "required": [
+                "xy"
+              ],
+              "properties": {
+                "xy": {
+                  "type": "object",
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              }
+            },
+            "alert": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string"
+                }
+              }
+            },
+            "signaling": {
+              "type": "object",
+              "properties": {
+                "signal": {
+                  "type": "string",
+                  "enum": [
+                    "no_signal",
+                    "on_off",
+                    "on_off_color",
+                    "alternating"
+                  ]
+                },
+                "duration": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65534000
+                },
+                "color": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "xy"
+                    ],
+                    "properties": {
+                      "xy": {
+                        "type": "object",
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "dynamics": {
+              "type": "object",
+              "properties": {
+                "duration": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "grouped_light_level",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "grouped_motion",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "homekit",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "homekit_reset"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "light",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "true": {
+              "type": "object",
+              "required": [
+                true
+              ],
+              "properties": {
+                "true": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "dimming": {
+              "type": "object",
+              "required": [
+                "brightness"
+              ],
+              "properties": {
+                "brightness": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "dimming_delta": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "down",
+                    "stop"
+                  ]
+                },
+                "brightness_delta": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "color_temperature": {
+              "type": "object",
+              "properties": {
+                "mirek": {
+                  "type": "integer",
+                  "minimum": 153,
+                  "maximum": 500
+                }
+              }
+            },
+            "color_temperature_delta": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "down",
+                    "stop"
+                  ]
+                },
+                "mirek_delta": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 347
+                }
+              }
+            },
+            "color": {
+              "type": "object",
+              "required": [
+                "xy"
+              ],
+              "properties": {
+                "xy": {
+                  "type": "object",
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              }
+            },
+            "dynamics": {
+              "type": "object",
+              "properties": {
+                "duration": {
+                  "type": "integer"
+                },
+                "speed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 0
+                }
+              }
+            },
+            "alert": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string"
+                }
+              }
+            },
+            "signaling": {
+              "type": "object",
+              "properties": {
+                "signal": {
+                  "type": "string",
+                  "enum": [
+                    "no_signal",
+                    "on_off",
+                    "on_off_color",
+                    "alternating"
+                  ]
+                },
+                "duration": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65534000
+                },
+                "color": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "xy"
+                    ],
+                    "properties": {
+                      "xy": {
+                        "type": "object",
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "streaming"
+              ]
+            },
+            "gradient": {
+              "type": "object",
+              "properties": {
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "xy"
+                    ],
+                    "properties": {
+                      "xy": {
+                        "type": "object",
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "maxItems": 5
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "interpolated_palette",
+                    "interpolated_palette_mirrored",
+                    "random_pixelated"
+                  ]
+                }
+              }
+            },
+            "effects": {
+              "type": "object",
+              "properties": {
+                "effect": {
+                  "type": "string",
+                  "enum": [
+                    "prism",
+                    "opal",
+                    "glisten",
+                    "sparkle",
+                    "fire",
+                    "candle",
+                    "no_effect",
+                    "underwater",
+                    "cosmos",
+                    "sunbeam",
+                    "enchant"
+                  ]
+                }
+              }
+            },
+            "effects_v2": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "object",
+                  "writeOnly": true,
+                  "properties": {
+                    "effect": {
+                      "type": "string",
+                      "enum": [
+                        "prism",
+                        "opal",
+                        "glisten",
+                        "sparkle",
+                        "fire",
+                        "candle",
+                        "no_effect",
+                        "underwater",
+                        "cosmos",
+                        "sunbeam",
+                        "enchant"
+                      ]
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "color": {
+                          "type": "object",
+                          "required": [
+                            "xy"
+                          ],
+                          "properties": {
+                            "xy": {
+                              "type": "object",
+                              "required": [
+                                "x",
+                                "y"
+                              ],
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "color_temperature": {
+                          "type": "object",
+                          "properties": {
+                            "mirek": {
+                              "type": "integer",
+                              "minimum": 153,
+                              "maximum": 500
+                            },
+                            "mirek_valid": {
+                              "type": "boolean",
+                              "readOnly": true
+                            }
+                          }
+                        },
+                        "speed": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "status": {
+                  "type": "object",
+                  "readOnly": true,
+                  "properties": {
+                    "effect": {
+                      "type": "string",
+                      "enum": [
+                        "prism",
+                        "opal",
+                        "glisten",
+                        "sparkle",
+                        "fire",
+                        "candle",
+                        "no_effect",
+                        "underwater",
+                        "cosmos",
+                        "sunbeam",
+                        "enchant"
+                      ],
+                      "readOnly": true
+                    },
+                    "effect_values": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "prism",
+                          "opal",
+                          "glisten",
+                          "sparkle",
+                          "fire",
+                          "candle",
+                          "no_effect",
+                          "underwater",
+                          "cosmos",
+                          "sunbeam",
+                          "enchant"
+                        ]
+                      }
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "color": {
+                          "type": "object",
+                          "required": [
+                            "xy"
+                          ],
+                          "properties": {
+                            "xy": {
+                              "type": "object",
+                              "required": [
+                                "x",
+                                "y"
+                              ],
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "color_temperature": {
+                          "type": "object",
+                          "properties": {
+                            "mirek": {
+                              "type": "integer",
+                              "minimum": 153,
+                              "maximum": 500
+                            },
+                            "mirek_valid": {
+                              "type": "boolean",
+                              "readOnly": true
+                            }
+                          }
+                        },
+                        "speed": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "timed_effects": {
+              "type": "object",
+              "properties": {
+                "effect": {
+                  "type": "string",
+                  "enum": [
+                    "sunrise",
+                    "sunset",
+                    "no_effect"
+                  ]
+                },
+                "duration": {
+                  "type": "integer"
+                }
+              }
+            },
+            "powerup": {
+              "type": "object",
+              "properties": {
+                "preset": {
+                  "type": "string",
+                  "enum": [
+                    "safety",
+                    "powerfail",
+                    "last_on_state",
+                    "custom"
+                  ]
+                },
+                "configured": {
+                  "type": "boolean"
+                },
+                "true": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        true,
+                        "toggle",
+                        "previous"
+                      ]
+                    },
+                    "true": {
+                      "type": "object",
+                      "required": [
+                        true
+                      ],
+                      "properties": {
+                        "true": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                },
+                "dimming": {
+                  "type": "object",
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "dimming",
+                        "previous"
+                      ]
+                    },
+                    "dimming": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "color": {
+                      "type": "object",
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "color_temperature",
+                            "color",
+                            "previous"
+                          ]
+                        },
+                        "color_temperature": {
+                          "type": "object",
+                          "properties": {
+                            "mirek": {
+                              "type": "integer",
+                              "minimum": 153,
+                              "maximum": 500
+                            },
+                            "color": {
+                              "type": "object",
+                              "required": [
+                                "xy"
+                              ],
+                              "properties": {
+                                "xy": {
+                                  "type": "object",
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "properties": {
+                                    "x": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "y": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "light_level",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "matter",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "action": {
+              "type": "object",
+              "properties": {
+                "action_type": {
+                  "type": "string",
+                  "enum": [
+                    "matter_reset"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "matter_fabric",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "motion",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "sensitivity": {
+              "type": "object",
+              "properties": {
+                "sensitivity": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "motion_area_candidate",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "motion_area_configuration",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "relative_rotary",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "room",
+      "collection_methods": [
+        "GET",
+        "POST"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "POST": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rid",
+                  "rtype"
+                ],
+                "properties": {
+                  "rid": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  },
+                  "rtype": {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "bridge_home",
+                      "room",
+                      "zone",
+                      "light",
+                      "button",
+                      "relative_rotary",
+                      "temperature",
+                      "light_level",
+                      "motion",
+                      "camera_motion",
+                      "entertainment",
+                      "contact",
+                      "tamper",
+                      "grouped_light",
+                      "device_power",
+                      "zigbee_bridge_connectivity",
+                      "zigbee_connectivity",
+                      "zgp_connectivity",
+                      "bridge",
+                      "zigbee_device_discovery",
+                      "homekit",
+                      "matter",
+                      "matter_fabric",
+                      "scene",
+                      "entertainment_configuration",
+                      "public_image",
+                      "auth_v1",
+                      "behavior_script",
+                      "behavior_instance",
+                      "geofence",
+                      "geofence_client",
+                      "geolocation",
+                      "smart_scene",
+                      "grouped_motion",
+                      "grouped_light_level"
+                    ]
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "archetype": {
+                  "type": "string",
+                  "enum": [
+                    "living_room",
+                    "kitchen",
+                    "dining",
+                    "bedroom",
+                    "kids_bedroom",
+                    "bathroom",
+                    "nursery",
+                    "recreation",
+                    "office",
+                    "gym",
+                    "hallway",
+                    "toilet",
+                    "front_door",
+                    "garage",
+                    "terrace",
+                    "garden",
+                    "driveway",
+                    "carport",
+                    "home",
+                    "downstairs",
+                    "upstairs",
+                    "top_floor",
+                    "attic",
+                    "guest_room",
+                    "staircase",
+                    "lounge",
+                    "man_cave",
+                    "computer",
+                    "studio",
+                    "music",
+                    "tv",
+                    "reading",
+                    "closet",
+                    "storage",
+                    "laundry_room",
+                    "balcony",
+                    "porch",
+                    "barbecue",
+                    "pool",
+                    "other"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rid",
+                  "rtype"
+                ],
+                "properties": {
+                  "rid": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  },
+                  "rtype": {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "bridge_home",
+                      "room",
+                      "zone",
+                      "light",
+                      "button",
+                      "relative_rotary",
+                      "temperature",
+                      "light_level",
+                      "motion",
+                      "camera_motion",
+                      "entertainment",
+                      "contact",
+                      "tamper",
+                      "grouped_light",
+                      "device_power",
+                      "zigbee_bridge_connectivity",
+                      "zigbee_connectivity",
+                      "zgp_connectivity",
+                      "bridge",
+                      "zigbee_device_discovery",
+                      "homekit",
+                      "matter",
+                      "matter_fabric",
+                      "scene",
+                      "entertainment_configuration",
+                      "public_image",
+                      "auth_v1",
+                      "behavior_script",
+                      "behavior_instance",
+                      "geofence",
+                      "geofence_client",
+                      "geolocation",
+                      "smart_scene",
+                      "grouped_motion",
+                      "grouped_light_level"
+                    ]
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "archetype": {
+                  "type": "string",
+                  "enum": [
+                    "living_room",
+                    "kitchen",
+                    "dining",
+                    "bedroom",
+                    "kids_bedroom",
+                    "bathroom",
+                    "nursery",
+                    "recreation",
+                    "office",
+                    "gym",
+                    "hallway",
+                    "toilet",
+                    "front_door",
+                    "garage",
+                    "terrace",
+                    "garden",
+                    "driveway",
+                    "carport",
+                    "home",
+                    "downstairs",
+                    "upstairs",
+                    "top_floor",
+                    "attic",
+                    "guest_room",
+                    "staircase",
+                    "lounge",
+                    "man_cave",
+                    "computer",
+                    "studio",
+                    "music",
+                    "tv",
+                    "reading",
+                    "closet",
+                    "storage",
+                    "laundry_room",
+                    "balcony",
+                    "porch",
+                    "barbecue",
+                    "pool",
+                    "other"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "scene",
+      "collection_methods": [
+        "GET",
+        "POST"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "POST": {
+          "type": "object",
+          "required": [
+            "actions",
+            "metadata",
+            "group"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "scene"
+              ]
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "target",
+                  "action"
+                ],
+                "properties": {
+                  "target": {
+                    "type": "object",
+                    "required": [
+                      "rid",
+                      "rtype"
+                    ],
+                    "properties": {
+                      "rid": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                      },
+                      "rtype": {
+                        "type": "string",
+                        "enum": [
+                          "device",
+                          "bridge_home",
+                          "room",
+                          "zone",
+                          "light",
+                          "button",
+                          "relative_rotary",
+                          "temperature",
+                          "light_level",
+                          "motion",
+                          "camera_motion",
+                          "entertainment",
+                          "contact",
+                          "tamper",
+                          "grouped_light",
+                          "device_power",
+                          "zigbee_bridge_connectivity",
+                          "zigbee_connectivity",
+                          "zgp_connectivity",
+                          "bridge",
+                          "zigbee_device_discovery",
+                          "homekit",
+                          "matter",
+                          "matter_fabric",
+                          "scene",
+                          "entertainment_configuration",
+                          "public_image",
+                          "auth_v1",
+                          "behavior_script",
+                          "behavior_instance",
+                          "geofence",
+                          "geofence_client",
+                          "geolocation",
+                          "smart_scene",
+                          "grouped_motion",
+                          "grouped_light_level"
+                        ]
+                      }
+                    }
+                  },
+                  "action": {
+                    "type": "object",
+                    "properties": {
+                      "true": {
+                        "type": "object",
+                        "required": [
+                          true
+                        ],
+                        "properties": {
+                          "true": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "dimming": {
+                        "type": "object",
+                        "required": [
+                          "brightness"
+                        ],
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      },
+                      "color": {
+                        "type": "object",
+                        "required": [
+                          "xy"
+                        ],
+                        "properties": {
+                          "xy": {
+                            "type": "object",
+                            "required": [
+                              "x",
+                              "y"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "color_temperature": {
+                        "type": "object",
+                        "properties": {
+                          "mirek": {
+                            "type": "integer",
+                            "minimum": 153,
+                            "maximum": 500
+                          }
+                        }
+                      },
+                      "gradient": {
+                        "type": "object",
+                        "properties": {
+                          "points": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "xy"
+                              ],
+                              "properties": {
+                                "xy": {
+                                  "type": "object",
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "properties": {
+                                    "x": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "y": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "maxItems": 5
+                          },
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "interpolated_palette",
+                              "interpolated_palette_mirrored",
+                              "random_pixelated"
+                            ]
+                          }
+                        }
+                      },
+                      "effects": {
+                        "type": "object",
+                        "properties": {
+                          "effect": {
+                            "type": "string",
+                            "enum": [
+                              "prism",
+                              "opal",
+                              "glisten",
+                              "sparkle",
+                              "fire",
+                              "candle",
+                              "no_effect",
+                              "underwater",
+                              "cosmos",
+                              "sunbeam",
+                              "enchant"
+                            ]
+                          }
+                        }
+                      },
+                      "dynamics": {
+                        "type": "object",
+                        "properties": {
+                          "duration": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                "image": {
+                  "type": "object",
+                  "required": [
+                    "rid",
+                    "rtype"
+                  ],
+                  "properties": {
+                    "rid": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    },
+                    "rtype": {
+                      "type": "string",
+                      "enum": [
+                        "device",
+                        "bridge_home",
+                        "room",
+                        "zone",
+                        "light",
+                        "button",
+                        "relative_rotary",
+                        "temperature",
+                        "light_level",
+                        "motion",
+                        "camera_motion",
+                        "entertainment",
+                        "contact",
+                        "tamper",
+                        "grouped_light",
+                        "device_power",
+                        "zigbee_bridge_connectivity",
+                        "zigbee_connectivity",
+                        "zgp_connectivity",
+                        "bridge",
+                        "zigbee_device_discovery",
+                        "homekit",
+                        "matter",
+                        "matter_fabric",
+                        "scene",
+                        "entertainment_configuration",
+                        "public_image",
+                        "auth_v1",
+                        "behavior_script",
+                        "behavior_instance",
+                        "geofence",
+                        "geofence_client",
+                        "geolocation",
+                        "smart_scene",
+                        "grouped_motion",
+                        "grouped_light_level"
+                      ]
+                    }
+                  }
+                },
+                "appdata": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                }
+              }
+            },
+            "group": {
+              "type": "object",
+              "required": [
+                "rid",
+                "rtype"
+              ],
+              "properties": {
+                "rid": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                },
+                "rtype": {
+                  "type": "string",
+                  "enum": [
+                    "device",
+                    "bridge_home",
+                    "room",
+                    "zone",
+                    "light",
+                    "button",
+                    "relative_rotary",
+                    "temperature",
+                    "light_level",
+                    "motion",
+                    "camera_motion",
+                    "entertainment",
+                    "contact",
+                    "tamper",
+                    "grouped_light",
+                    "device_power",
+                    "zigbee_bridge_connectivity",
+                    "zigbee_connectivity",
+                    "zgp_connectivity",
+                    "bridge",
+                    "zigbee_device_discovery",
+                    "homekit",
+                    "matter",
+                    "matter_fabric",
+                    "scene",
+                    "entertainment_configuration",
+                    "public_image",
+                    "auth_v1",
+                    "behavior_script",
+                    "behavior_instance",
+                    "geofence",
+                    "geofence_client",
+                    "geolocation",
+                    "smart_scene",
+                    "grouped_motion",
+                    "grouped_light_level"
+                  ]
+                }
+              }
+            },
+            "palette": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 9,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "color": {
+                        "type": "object",
+                        "required": [
+                          "xy"
+                        ],
+                        "properties": {
+                          "xy": {
+                            "type": "object",
+                            "required": [
+                              "x",
+                              "y"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "dimming": {
+                        "type": "object",
+                        "required": [
+                          "brightness"
+                        ],
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "dimming": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "brightness"
+                    ],
+                    "properties": {
+                      "brightness": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                      }
+                    }
+                  }
+                },
+                "color_temperature": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "color_temperature": {
+                        "type": "object",
+                        "properties": {
+                          "mirek": {
+                            "type": "integer",
+                            "minimum": 153,
+                            "maximum": 500
+                          }
+                        }
+                      },
+                      "dimming": {
+                        "type": "object",
+                        "required": [
+                          "brightness"
+                        ],
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "effects": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "effect": {
+                        "type": "string",
+                        "enum": [
+                          "prism",
+                          "opal",
+                          "glisten",
+                          "sparkle",
+                          "fire",
+                          "candle",
+                          "no_effect",
+                          "underwater",
+                          "cosmos",
+                          "sunbeam",
+                          "enchant"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "auto_dynamic": {
+              "type": "boolean"
+            }
+          }
+        },
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "scene"
+              ]
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "target",
+                  "action"
+                ],
+                "properties": {
+                  "target": {
+                    "type": "object",
+                    "required": [
+                      "rid",
+                      "rtype"
+                    ],
+                    "properties": {
+                      "rid": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                      },
+                      "rtype": {
+                        "type": "string",
+                        "enum": [
+                          "device",
+                          "bridge_home",
+                          "room",
+                          "zone",
+                          "light",
+                          "button",
+                          "relative_rotary",
+                          "temperature",
+                          "light_level",
+                          "motion",
+                          "camera_motion",
+                          "entertainment",
+                          "contact",
+                          "tamper",
+                          "grouped_light",
+                          "device_power",
+                          "zigbee_bridge_connectivity",
+                          "zigbee_connectivity",
+                          "zgp_connectivity",
+                          "bridge",
+                          "zigbee_device_discovery",
+                          "homekit",
+                          "matter",
+                          "matter_fabric",
+                          "scene",
+                          "entertainment_configuration",
+                          "public_image",
+                          "auth_v1",
+                          "behavior_script",
+                          "behavior_instance",
+                          "geofence",
+                          "geofence_client",
+                          "geolocation",
+                          "smart_scene",
+                          "grouped_motion",
+                          "grouped_light_level"
+                        ]
+                      }
+                    }
+                  },
+                  "action": {
+                    "type": "object",
+                    "properties": {
+                      "true": {
+                        "type": "object",
+                        "required": [
+                          true
+                        ],
+                        "properties": {
+                          "true": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "dimming": {
+                        "type": "object",
+                        "required": [
+                          "brightness"
+                        ],
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      },
+                      "color": {
+                        "type": "object",
+                        "required": [
+                          "xy"
+                        ],
+                        "properties": {
+                          "xy": {
+                            "type": "object",
+                            "required": [
+                              "x",
+                              "y"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "color_temperature": {
+                        "type": "object",
+                        "properties": {
+                          "mirek": {
+                            "type": "integer",
+                            "minimum": 153,
+                            "maximum": 500
+                          }
+                        }
+                      },
+                      "gradient": {
+                        "type": "object",
+                        "properties": {
+                          "points": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "xy"
+                              ],
+                              "properties": {
+                                "xy": {
+                                  "type": "object",
+                                  "required": [
+                                    "x",
+                                    "y"
+                                  ],
+                                  "properties": {
+                                    "x": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "y": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "maxItems": 5
+                          },
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "interpolated_palette",
+                              "interpolated_palette_mirrored",
+                              "random_pixelated"
+                            ]
+                          }
+                        }
+                      },
+                      "effects": {
+                        "type": "object",
+                        "properties": {
+                          "effect": {
+                            "type": "string",
+                            "enum": [
+                              "prism",
+                              "opal",
+                              "glisten",
+                              "sparkle",
+                              "fire",
+                              "candle",
+                              "no_effect",
+                              "underwater",
+                              "cosmos",
+                              "sunbeam",
+                              "enchant"
+                            ]
+                          }
+                        }
+                      },
+                      "dynamics": {
+                        "type": "object",
+                        "properties": {
+                          "duration": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "recall": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "dynamic_palette",
+                    "static"
+                  ]
+                },
+                "duration": {
+                  "type": "integer"
+                },
+                "dimming": {
+                  "type": "object",
+                  "required": [
+                    "brightness"
+                  ],
+                  "properties": {
+                    "brightness": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                "image": {
+                  "type": "object",
+                  "required": [
+                    "rid",
+                    "rtype"
+                  ],
+                  "properties": {
+                    "rid": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    },
+                    "rtype": {
+                      "type": "string",
+                      "enum": [
+                        "device",
+                        "bridge_home",
+                        "room",
+                        "zone",
+                        "light",
+                        "button",
+                        "relative_rotary",
+                        "temperature",
+                        "light_level",
+                        "motion",
+                        "camera_motion",
+                        "entertainment",
+                        "contact",
+                        "tamper",
+                        "grouped_light",
+                        "device_power",
+                        "zigbee_bridge_connectivity",
+                        "zigbee_connectivity",
+                        "zgp_connectivity",
+                        "bridge",
+                        "zigbee_device_discovery",
+                        "homekit",
+                        "matter",
+                        "matter_fabric",
+                        "scene",
+                        "entertainment_configuration",
+                        "public_image",
+                        "auth_v1",
+                        "behavior_script",
+                        "behavior_instance",
+                        "geofence",
+                        "geofence_client",
+                        "geolocation",
+                        "smart_scene",
+                        "grouped_motion",
+                        "grouped_light_level"
+                      ]
+                    }
+                  }
+                },
+                "appdata": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                }
+              }
+            },
+            "palette": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 9,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "color": {
+                        "type": "object",
+                        "required": [
+                          "xy"
+                        ],
+                        "properties": {
+                          "xy": {
+                            "type": "object",
+                            "required": [
+                              "x",
+                              "y"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "dimming": {
+                        "type": "object",
+                        "required": [
+                          "brightness"
+                        ],
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "dimming": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "brightness"
+                    ],
+                    "properties": {
+                      "brightness": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                      }
+                    }
+                  }
+                },
+                "color_temperature": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 1,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "color_temperature": {
+                        "type": "object",
+                        "properties": {
+                          "mirek": {
+                            "type": "integer",
+                            "minimum": 153,
+                            "maximum": 500
+                          }
+                        }
+                      },
+                      "dimming": {
+                        "type": "object",
+                        "required": [
+                          "brightness"
+                        ],
+                        "properties": {
+                          "brightness": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "effects": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "effect": {
+                        "type": "string",
+                        "enum": [
+                          "prism",
+                          "opal",
+                          "glisten",
+                          "sparkle",
+                          "fire",
+                          "candle",
+                          "no_effect",
+                          "underwater",
+                          "cosmos",
+                          "sunbeam",
+                          "enchant"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "auto_dynamic": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "security_area_motion",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "service_group",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "services": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rid",
+                  "rtype"
+                ],
+                "properties": {
+                  "rid": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  },
+                  "rtype": {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "bridge_home",
+                      "room",
+                      "zone",
+                      "light",
+                      "button",
+                      "relative_rotary",
+                      "temperature",
+                      "light_level",
+                      "motion",
+                      "camera_motion",
+                      "entertainment",
+                      "contact",
+                      "tamper",
+                      "grouped_light",
+                      "device_power",
+                      "zigbee_bridge_connectivity",
+                      "zigbee_connectivity",
+                      "zgp_connectivity",
+                      "bridge",
+                      "zigbee_device_discovery",
+                      "homekit",
+                      "matter",
+                      "matter_fabric",
+                      "scene",
+                      "entertainment_configuration",
+                      "public_image",
+                      "auth_v1",
+                      "behavior_script",
+                      "behavior_instance",
+                      "geofence",
+                      "geofence_client",
+                      "geolocation",
+                      "smart_scene",
+                      "grouped_motion",
+                      "grouped_light_level"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "smart_scene",
+      "collection_methods": [
+        "GET",
+        "POST"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "POST": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "smart_scene"
+              ]
+            },
+            "metadata": {
+              "type": "object",
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    },
+                    "appdata": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 16
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "image": {
+                      "type": "object",
+                      "required": [
+                        "rid",
+                        "rtype"
+                      ],
+                      "properties": {
+                        "rid": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                        },
+                        "rtype": {
+                          "type": "string",
+                          "enum": [
+                            "device",
+                            "bridge_home",
+                            "room",
+                            "zone",
+                            "light",
+                            "button",
+                            "relative_rotary",
+                            "temperature",
+                            "light_level",
+                            "motion",
+                            "camera_motion",
+                            "entertainment",
+                            "contact",
+                            "tamper",
+                            "grouped_light",
+                            "device_power",
+                            "zigbee_bridge_connectivity",
+                            "zigbee_connectivity",
+                            "zgp_connectivity",
+                            "bridge",
+                            "zigbee_device_discovery",
+                            "homekit",
+                            "matter",
+                            "matter_fabric",
+                            "scene",
+                            "entertainment_configuration",
+                            "public_image",
+                            "auth_v1",
+                            "behavior_script",
+                            "behavior_instance",
+                            "geofence",
+                            "geofence_client",
+                            "geolocation",
+                            "smart_scene",
+                            "grouped_motion",
+                            "grouped_light_level"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "group": {
+              "type": "object",
+              "required": [
+                "rid",
+                "rtype"
+              ],
+              "properties": {
+                "rid": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                },
+                "rtype": {
+                  "type": "string",
+                  "enum": [
+                    "device",
+                    "bridge_home",
+                    "room",
+                    "zone",
+                    "light",
+                    "button",
+                    "relative_rotary",
+                    "temperature",
+                    "light_level",
+                    "motion",
+                    "camera_motion",
+                    "entertainment",
+                    "contact",
+                    "tamper",
+                    "grouped_light",
+                    "device_power",
+                    "zigbee_bridge_connectivity",
+                    "zigbee_connectivity",
+                    "zgp_connectivity",
+                    "bridge",
+                    "zigbee_device_discovery",
+                    "homekit",
+                    "matter",
+                    "matter_fabric",
+                    "scene",
+                    "entertainment_configuration",
+                    "public_image",
+                    "auth_v1",
+                    "behavior_script",
+                    "behavior_instance",
+                    "geofence",
+                    "geofence_client",
+                    "geolocation",
+                    "smart_scene",
+                    "grouped_motion",
+                    "grouped_light_level"
+                  ]
+                }
+              }
+            },
+            "week_timeslots": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timeslots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start_time": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "time",
+                                "sunset"
+                              ]
+                            },
+                            "time": {
+                              "type": "object",
+                              "properties": {
+                                "hour": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 23
+                                },
+                                "minute": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 59
+                                },
+                                "second": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 59
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ]
+                        },
+                        "target": {
+                          "type": "object",
+                          "required": [
+                            "rid",
+                            "rtype"
+                          ],
+                          "properties": {
+                            "rid": {
+                              "type": "string",
+                              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                            },
+                            "rtype": {
+                              "type": "string",
+                              "enum": [
+                                "device",
+                                "bridge_home",
+                                "room",
+                                "zone",
+                                "light",
+                                "button",
+                                "relative_rotary",
+                                "temperature",
+                                "light_level",
+                                "motion",
+                                "camera_motion",
+                                "entertainment",
+                                "contact",
+                                "tamper",
+                                "grouped_light",
+                                "device_power",
+                                "zigbee_bridge_connectivity",
+                                "zigbee_connectivity",
+                                "zgp_connectivity",
+                                "bridge",
+                                "zigbee_device_discovery",
+                                "homekit",
+                                "matter",
+                                "matter_fabric",
+                                "scene",
+                                "entertainment_configuration",
+                                "public_image",
+                                "auth_v1",
+                                "behavior_script",
+                                "behavior_instance",
+                                "geofence",
+                                "geofence_client",
+                                "geolocation",
+                                "smart_scene",
+                                "grouped_motion",
+                                "grouped_light_level"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "start_time",
+                        "target"
+                      ]
+                    }
+                  },
+                  "recurrence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday",
+                        "sunday"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "timeslots",
+                  "recurrence"
+                ]
+              }
+            },
+            "transition_duration": {
+              "type": "integer"
+            },
+            "recall": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "activate",
+                    "deactivate"
+                  ]
+                }
+              },
+              "required": [
+                "action"
+              ]
+            }
+          },
+          "required": [
+            "metadata",
+            "group",
+            "week_timeslots"
+          ]
+        },
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "smart_scene"
+              ]
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                "appdata": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                }
+              }
+            },
+            "week_timeslots": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timeslots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "start_time": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "time",
+                                "sunset"
+                              ]
+                            },
+                            "time": {
+                              "type": "object",
+                              "properties": {
+                                "hour": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 23
+                                },
+                                "minute": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 59
+                                },
+                                "second": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 59
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ]
+                        },
+                        "target": {
+                          "type": "object",
+                          "required": [
+                            "rid",
+                            "rtype"
+                          ],
+                          "properties": {
+                            "rid": {
+                              "type": "string",
+                              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                            },
+                            "rtype": {
+                              "type": "string",
+                              "enum": [
+                                "device",
+                                "bridge_home",
+                                "room",
+                                "zone",
+                                "light",
+                                "button",
+                                "relative_rotary",
+                                "temperature",
+                                "light_level",
+                                "motion",
+                                "camera_motion",
+                                "entertainment",
+                                "contact",
+                                "tamper",
+                                "grouped_light",
+                                "device_power",
+                                "zigbee_bridge_connectivity",
+                                "zigbee_connectivity",
+                                "zgp_connectivity",
+                                "bridge",
+                                "zigbee_device_discovery",
+                                "homekit",
+                                "matter",
+                                "matter_fabric",
+                                "scene",
+                                "entertainment_configuration",
+                                "public_image",
+                                "auth_v1",
+                                "behavior_script",
+                                "behavior_instance",
+                                "geofence",
+                                "geofence_client",
+                                "geolocation",
+                                "smart_scene",
+                                "grouped_motion",
+                                "grouped_light_level"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "start_time",
+                        "target"
+                      ]
+                    }
+                  },
+                  "recurrence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday",
+                        "sunday"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "timeslots",
+                  "recurrence"
+                ]
+              }
+            },
+            "transition_duration": {
+              "type": "integer"
+            },
+            "recall": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "activate",
+                    "deactivate"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "speaker",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "tamper",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "temperature",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "temperature"
+              ]
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "wifi_connectivity",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "zgp_connectivity",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "zigbee_connectivity",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "channel": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "enum": [
+                    "channel_11",
+                    "channel_15",
+                    "channel_20",
+                    "channel_25"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "zigbee_device_discovery",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "action": {
+              "type": "object",
+              "properties": {
+                "action_type": {
+                  "type": "string",
+                  "enum": [
+                    "search"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "zone",
+      "collection_methods": [
+        "GET",
+        "POST"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "POST": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rid",
+                  "rtype"
+                ],
+                "properties": {
+                  "rid": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  },
+                  "rtype": {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "bridge_home",
+                      "room",
+                      "zone",
+                      "light",
+                      "button",
+                      "relative_rotary",
+                      "temperature",
+                      "light_level",
+                      "motion",
+                      "camera_motion",
+                      "entertainment",
+                      "contact",
+                      "tamper",
+                      "grouped_light",
+                      "device_power",
+                      "zigbee_bridge_connectivity",
+                      "zigbee_connectivity",
+                      "zgp_connectivity",
+                      "bridge",
+                      "zigbee_device_discovery",
+                      "homekit",
+                      "matter",
+                      "matter_fabric",
+                      "scene",
+                      "entertainment_configuration",
+                      "public_image",
+                      "auth_v1",
+                      "behavior_script",
+                      "behavior_instance",
+                      "geofence",
+                      "geofence_client",
+                      "geolocation",
+                      "smart_scene",
+                      "grouped_motion",
+                      "grouped_light_level"
+                    ]
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "archetype": {
+                  "type": "string",
+                  "enum": [
+                    "living_room",
+                    "kitchen",
+                    "dining",
+                    "bedroom",
+                    "kids_bedroom",
+                    "bathroom",
+                    "nursery",
+                    "recreation",
+                    "office",
+                    "gym",
+                    "hallway",
+                    "toilet",
+                    "front_door",
+                    "garage",
+                    "terrace",
+                    "garden",
+                    "driveway",
+                    "carport",
+                    "home",
+                    "downstairs",
+                    "upstairs",
+                    "top_floor",
+                    "attic",
+                    "guest_room",
+                    "staircase",
+                    "lounge",
+                    "man_cave",
+                    "computer",
+                    "studio",
+                    "music",
+                    "tv",
+                    "reading",
+                    "closet",
+                    "storage",
+                    "laundry_room",
+                    "balcony",
+                    "porch",
+                    "barbecue",
+                    "pool",
+                    "other"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rid",
+                  "rtype"
+                ],
+                "properties": {
+                  "rid": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  },
+                  "rtype": {
+                    "type": "string",
+                    "enum": [
+                      "device",
+                      "bridge_home",
+                      "room",
+                      "zone",
+                      "light",
+                      "button",
+                      "relative_rotary",
+                      "temperature",
+                      "light_level",
+                      "motion",
+                      "camera_motion",
+                      "entertainment",
+                      "contact",
+                      "tamper",
+                      "grouped_light",
+                      "device_power",
+                      "zigbee_bridge_connectivity",
+                      "zigbee_connectivity",
+                      "zgp_connectivity",
+                      "bridge",
+                      "zigbee_device_discovery",
+                      "homekit",
+                      "matter",
+                      "matter_fabric",
+                      "scene",
+                      "entertainment_configuration",
+                      "public_image",
+                      "auth_v1",
+                      "behavior_script",
+                      "behavior_instance",
+                      "geofence",
+                      "geofence_client",
+                      "geolocation",
+                      "smart_scene",
+                      "grouped_motion",
+                      "grouped_light_level"
+                    ]
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "archetype": {
+                  "type": "string",
+                  "enum": [
+                    "living_room",
+                    "kitchen",
+                    "dining",
+                    "bedroom",
+                    "kids_bedroom",
+                    "bathroom",
+                    "nursery",
+                    "recreation",
+                    "office",
+                    "gym",
+                    "hallway",
+                    "toilet",
+                    "front_door",
+                    "garage",
+                    "terrace",
+                    "garden",
+                    "driveway",
+                    "carport",
+                    "home",
+                    "downstairs",
+                    "upstairs",
+                    "top_floor",
+                    "attic",
+                    "guest_room",
+                    "staircase",
+                    "lounge",
+                    "man_cave",
+                    "computer",
+                    "studio",
+                    "music",
+                    "tv",
+                    "reading",
+                    "closet",
+                    "storage",
+                    "laundry_room",
+                    "balcony",
+                    "porch",
+                    "barbecue",
+                    "pool",
+                    "other"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -18,9 +18,10 @@ const basePath = "/clip/v2/resource"
 // Client talks to one Hue bridge's local CLIP v2 REST API. The bridge
 // presents a self-signed certificate, so TLS verification is disabled.
 type Client struct {
-	baseURL string
-	appKey  string
-	http    *http.Client
+	baseURL   string
+	appKey    string
+	http      *http.Client
+	Resources *ResourceRegistry
 	*Lights
 	*Rooms
 	*Zones
@@ -42,6 +43,7 @@ func NewClient(bridge config.Bridge) *Client {
 	c.Rooms = newRooms(c)
 	c.Zones = newZones(c)
 	c.Scenes = newScenes(c)
+	c.Resources = &ResourceRegistry{client: c}
 	return c
 }
 
@@ -63,7 +65,11 @@ func (c *Client) request(ctx context.Context, method, path string, body, out any
 		reqBody = bytes.NewReader(b)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+"/"+path, reqBody)
+	requestURL := c.baseURL
+	if path != "" {
+		requestURL += "/" + path
+	}
+	req, err := http.NewRequestWithContext(ctx, method, requestURL, reqBody)
 	if err != nil {
 		return err
 	}
@@ -83,7 +89,7 @@ func (c *Client) request(ctx context.Context, method, path string, body, out any
 		return err
 	}
 
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return &APIError{StatusCode: resp.StatusCode, Message: string(respBody)}
 	}
 

@@ -2,6 +2,7 @@ package hue
 
 import (
 	"context"
+	"fmt"
 	"strings"
 )
 
@@ -20,6 +21,9 @@ func (r resourceNamespace[T]) List(ctx context.Context) ([]T, error) {
 	if err := r.client.get(ctx, r.resourceType, &resp); err != nil {
 		return nil, err
 	}
+	if err := resp.Err(); err != nil {
+		return nil, err
+	}
 	return resp.Data, nil
 }
 
@@ -27,6 +31,9 @@ func (r resourceNamespace[T]) GetOne(ctx context.Context, id string) (T, error) 
 	var zero T
 	var resp APIResponse[T]
 	if err := r.client.get(ctx, r.resourceType+"/"+id, &resp); err != nil {
+		return zero, err
+	}
+	if err := resp.Err(); err != nil {
 		return zero, err
 	}
 	if len(resp.Data) == 0 {
@@ -42,22 +49,38 @@ func (r resourceNamespace[T]) FindByName(ctx context.Context, name string) (T, e
 		return zero, err
 	}
 
+	return findNamedResource(resources, r.resourceType, name)
+}
+
+func findNamedResource[T named](resources []T, kind, name string) (T, error) {
+	var zero T
 	wanted := normalizeName(name)
-	for _, res := range resources {
-		if normalizeName(res.GetName()) == wanted {
-			return res, nil
+	var matches []T
+	var names []string
+	for _, resource := range resources {
+		if resource.GetName() == "" {
+			continue
+		}
+		names = append(names, resource.GetName())
+		if wanted != "" && normalizeName(resource.GetName()) == wanted {
+			matches = append(matches, resource)
 		}
 	}
-
-	names := make([]string, len(resources))
-	for i, res := range resources {
-		names[i] = res.GetName()
+	if len(matches) == 1 {
+		return matches[0], nil
+	}
+	if len(matches) > 1 {
+		ids := make([]string, len(matches))
+		for i, match := range matches {
+			ids[i] = match.GetID()
+		}
+		return zero, fmt.Errorf("ambiguous %s name %q; use a UUID: %s", kind, name, strings.Join(ids, ", "))
 	}
 	known := strings.Join(names, ", ")
 	if known == "" {
 		known = "none"
 	}
-	return zero, newResourceNotFoundError("no %s named %q. Known names: %s", r.resourceType, name, known)
+	return zero, newResourceNotFoundError("no %s named %q. Known names: %s", kind, name, known)
 }
 
 // ResolveTarget resolves a UUID or a name to a resource ID.

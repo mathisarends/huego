@@ -1,5 +1,10 @@
 package hue
 
+import (
+	"fmt"
+	"strings"
+)
+
 // ResourceType identifies the kind of a resource or reference on the bridge.
 // Only the subset huego works with is enumerated; the bridge reports many more.
 type ResourceType string
@@ -24,6 +29,17 @@ type APIResponse[T any] struct {
 		Description string `json:"description"`
 	} `json:"errors"`
 	Data []T `json:"data"`
+}
+
+func (r APIResponse[T]) Err() error {
+	if len(r.Errors) == 0 {
+		return nil
+	}
+	descriptions := make([]string, len(r.Errors))
+	for i, detail := range r.Errors {
+		descriptions[i] = detail.Description
+	}
+	return fmt.Errorf("hue bridge reported errors: %s", strings.Join(descriptions, "; "))
 }
 
 type NamedMetadata struct {
