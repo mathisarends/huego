@@ -14,7 +14,7 @@ type ResourceCapability struct {
 	ResourceType      string                     `json:"resource_type"`
 	CollectionMethods []string                   `json:"collection_methods"`
 	ItemMethods       []string                   `json:"item_methods"`
-	RequestSchemas    map[string]json.RawMessage `json:"request_schemas"`
+	RequestSchemas    map[string]json.RawMessage `json:"request_schemas,omitempty"`
 }
 
 type APICatalog struct {

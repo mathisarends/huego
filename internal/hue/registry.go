@@ -82,6 +82,15 @@ func (r *ResourceRegistry) Of(kind string, raw bool) (*NativeNamespace, error) {
 	return &NativeNamespace{client: r.client, resourceType: kind, raw: raw}, nil
 }
 
+func ResourcePath(kind, method, id string, raw bool) (string, error) {
+	registry := ResourceRegistry{}
+	namespace, err := registry.Of(kind, raw)
+	if err != nil {
+		return "", err
+	}
+	return namespace.Path(method, id)
+}
+
 func (n *NativeNamespace) Path(method, id string) (string, error) {
 	if id != "" && !resourceIDPattern.MatchString(id) {
 		return "", fmt.Errorf("invalid resource ID %q", id)

@@ -118,3 +118,5 @@ func isUUID(s string) bool {
 	}
 	return true
 }
+
+func IsUUID(s string) bool { return isUUID(s) }
