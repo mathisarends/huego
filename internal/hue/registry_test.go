@@ -192,3 +192,22 @@ func TestNativeBridgeErrorsRetainDetails(t *testing.T) {
 		t.Fatalf("typed List error=%v", err)
 	}
 }
+
+func TestTypedReadsRejectBridgeErrorEnvelopes(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == basePath+"/room" || r.URL.Path == basePath+"/room/room-id" {
+			_, _ = io.WriteString(w, `{"errors":[],"data":[{"id":"room-id","services":[{"rid":"grouped-id","rtype":"grouped_light"}]}]}`)
+			return
+		}
+		_, _ = io.WriteString(w, `{"errors":[{"description":"bridge unavailable"}],"data":[]}`)
+	})
+	if _, err := client.Rooms.ListWithState(t.Context()); err == nil || !strings.Contains(err.Error(), "bridge unavailable") {
+		t.Fatalf("ListWithState error=%v", err)
+	}
+	if _, err := client.Rooms.IsOn(t.Context(), "room-id"); err == nil || !strings.Contains(err.Error(), "bridge unavailable") {
+		t.Fatalf("IsOn error=%v", err)
+	}
+	if _, err := client.Lights.GetOne(t.Context(), "light-id"); err == nil || !strings.Contains(err.Error(), "bridge unavailable") {
+		t.Fatalf("GetOne error=%v", err)
+	}
+}

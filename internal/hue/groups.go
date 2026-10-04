@@ -19,6 +19,9 @@ func (n *groupNamespace) ListWithState(ctx context.Context) ([]Group, error) {
 	if err := n.client.get(ctx, "grouped_light", &resp); err != nil {
 		return nil, err
 	}
+	if err := resp.Err(); err != nil {
+		return nil, err
+	}
 	states := make(map[string]*OnState, len(resp.Data))
 	for i := range resp.Data {
 		states[resp.Data[i].ID] = resp.Data[i].On
@@ -54,6 +57,9 @@ func (n *groupNamespace) groupedLight(ctx context.Context, id string) (GroupedLi
 	}
 	var resp APIResponse[GroupedLight]
 	if err := n.client.get(ctx, "grouped_light/"+groupedLightID, &resp); err != nil {
+		return GroupedLight{}, err
+	}
+	if err := resp.Err(); err != nil {
 		return GroupedLight{}, err
 	}
 	if len(resp.Data) == 0 {

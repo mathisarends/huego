@@ -1,10 +1,11 @@
 package hue
 
 import (
-	_ "embed"
 	"encoding/json"
 	"fmt"
 	"slices"
+
+	_ "embed"
 )
 
 //go:embed api_catalog.json

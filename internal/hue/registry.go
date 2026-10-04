@@ -67,8 +67,10 @@ type NativeNamespace struct {
 	raw          bool
 }
 
-var resourceTypePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
-var resourceIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_-]*$`)
+var (
+	resourceTypePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
+	resourceIDPattern   = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_-]*$`)
+)
 
 func (r *ResourceRegistry) Of(kind string, raw bool) (*NativeNamespace, error) {
 	if !resourceTypePattern.MatchString(kind) {

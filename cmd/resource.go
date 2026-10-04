@@ -43,6 +43,8 @@ func newResourceCommand() *cobra.Command {
 	parent := &cobra.Command{
 		Use: "resource", Aliases: []string{"resources"},
 		Short: "Inspect and configure every CLIP v2 resource with native JSON",
+		Args:  cobra.NoArgs,
+		RunE:  func(cmd *cobra.Command, args []string) error { return cmd.Help() },
 	}
 	parent.PersistentFlags().Bool("raw", false, "Bypass the pinned operation catalog for firmware-specific endpoints")
 	types := &cobra.Command{
