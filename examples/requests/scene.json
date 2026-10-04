@@ -1,0 +1,10 @@
+{
+  "metadata": {"name": "Focus"},
+  "group": {"rid": "00000000-0000-0000-0000-000000000002", "rtype": "room"},
+  "actions": [
+    {
+      "target": {"rid": "00000000-0000-0000-0000-000000000003", "rtype": "light"},
+      "action": {"on": {"on": true}, "dimming": {"brightness": 75}, "color_temperature": {"mirek": 370}}
+    }
+  ]
+}

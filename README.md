@@ -58,10 +58,61 @@ access for pairing.
 | `room`  | same vocabulary as `light`, applied to a room's `grouped_light` service     |
 | `zone`  | same vocabulary as `light`, applied to a zone's `grouped_light` service     |
 | `scene` | `list`, `activate`                                                          |
+| `resource` | `types`, `schema`, `list`, `get`, `create`, `update`, `delete` for every CLIP resource |
+| other resource types | `list`, `get`, and documented `create` / `update` / `delete`; e.g. `device`, `motion`, `smart-scene`, `behavior-instance` |
 
 Run `huego <command> --help` for flags on any command. The global `--json`
 flag is available on every command and switches to newline-delimited JSON
 output.
+
+### Configure Hue with an agent
+
+The CLI exposes all 41 resource types in the pinned
+[OpenHue API specification](https://github.com/openhue/openhue-api/tree/1ffc817857abf456d5ff2ae50400ef768dbce28e).
+Agents can inspect the complete bridge inventory, learn native request schemas
+offline, and send JSON from a file, stdin or `--data`:
+
+```sh
+huego resource types --json
+huego resource schema smart_scene --json
+huego resource list --json
+huego device list --json
+huego light get "Desk Lamp" --json
+
+huego room create --file office.json --dry-run --json
+huego room create --file office.json --json
+huego room update Office --file office-update.json --json
+huego scene create --file focus.json --json
+huego smart-scene create --file workday.json --json
+huego smart-scene activate "Working day" --json
+
+huego device rename "Desk Lamp" "Office lamp" --json
+huego motion enable <sensor-uuid> --json
+huego motion sensitivity <sensor-uuid> 2 --json
+huego behavior-instance disable <automation-uuid> --json
+huego light effect "Office lamp" candle --json
+huego light powerup "Office lamp" last_on_state --json
+```
+
+`resource <action> <type>` is the uniform interface; `room create`, `scene update`
+and the other resource groups are shortcuts. Compound groups accept hyphens or
+underscores (`smart-scene` / `smart_scene`); the generic `resource` interface uses
+native underscore names. Native `list` / `get` / write commands return the full
+`{"errors":[],"data":[]}` envelope. The original lighting and scene `list`
+commands retain their compact summaries; use `resource list light` for full data.
+
+Every new write command accepts `--dry-run`. Dry runs with a UUID or for creation
+need no credentials; names may require a read to resolve the target. Unknown or
+duplicate names cause an error; use UUIDs for reliable automation. JSON payloads
+preserve explicit `null`, `false`, zero and unknown firmware fields. Writes
+report a nonzero exit code for HTTP failures and errors in successful HTTP
+responses, including partial failures.
+
+The operation catalog guards documented HTTP methods. Schemas are guidance;
+the bridge validates payload semantics and hardware support. Firmware additions
+and operations absent from the public spec remain accessible through
+`huego resource ... --raw`. See the [agent guide](docs/agents.md) for complete
+room, scene, smart-scene and automation workflows, JSON templates and limits.
 
 ### `light` / `room` / `zone` — control vocabulary
 
@@ -83,7 +134,8 @@ switches every light it contains in a single bridge call, via its
 `--transition` is a fade duration in seconds. `<target>` accepts a resource
 UUID or a complete name. Name matching ignores capitalization and surrounding
 whitespace, but does not guess misspellings or abbreviated names. Unknown names
-produce an error containing the known names for that resource type.
+produce an error containing the known names for that resource type. Duplicate
+names produce an ambiguity error containing the matching IDs.
 
 ### `scene` — activate a stored scene
 
@@ -130,6 +182,8 @@ _, err = client.Scenes.Activate(ctx, sceneID, hue.SceneActivation{Dynamic: true}
 | `Client.Lights` | `*Lights` | `List`, `GetOne`, `FindByName`, `ResolveTarget` over `light` resources. |
 | `Client.Rooms` / `Client.Zones` | `*Rooms` / `*Zones` | Same namespace methods over `room`/`zone`; light commands act through the group's `grouped_light` service. |
 | `Client.Scenes` | `*Scenes` | `List`, `GetOne`, `FindByName`, plus `Recall` and `Activate`. |
+| `Client.Resources` | `*ResourceRegistry` | `List` reads the resource root; `Of(type, raw)` provides native `List`, `Get`, `ResolveTarget`, `Write` and operation-checked paths. |
+| `hue.Catalog` / `Capability` | `func() APICatalog` / `func(string) (ResourceCapability, error)` | Offline operation inventory and request schemas, with pinned source revision. |
 | `hue.TurnOn` / `TurnOff` / `Toggle` | `func(ctx, Controllable, id string, ...) (APIResponse[ResourceIdentifier], error)` | Shared light-command functions; work on any `Controllable` (lights, rooms, zones). |
 | `hue.SetBrightness` | `func(ctx, Controllable, id string, brightness float64, transition *float64) (...)` | `brightness == 0` turns the target off instead of dimming to zero. |
 | `hue.SetRGB` / `SetHex` | `func(ctx, Controllable, id string, ..., brightness, transition *float64) (...)` | Converts sRGB → CIE xy internally via `hue.RGBToXY`. |
@@ -159,6 +213,12 @@ go vet ./...
 ./scripts/lint.sh            # golangci-lint
 ./scripts/check-coverage.sh  # go test -cover, threshold defaults to 90
 ```
+
+The API catalog is embedded; running or testing huego never downloads a schema.
+To intentionally update it, install PyYAML and run
+`python scripts/update-api-catalog.py /path/to/openhue-api` against a checked-out
+revision. Review the generated schema diff, update the independent contract
+fixture and provenance in `third_party/openhue-api/NOTICE`, then run the tests.
 
 ## See also
 

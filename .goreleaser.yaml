@@ -21,6 +21,12 @@ builds:
 
 archives:
   - formats: [tar.gz]
+    files:
+      - README.md
+      - docs/agents.md
+      - examples/requests/*.json
+      - third_party/openhue-api/LICENSE
+      - third_party/openhue-api/NOTICE
     name_template: >-
       {{ .ProjectName }}_{{ .Os }}_{{ .Arch }}
     format_overrides:

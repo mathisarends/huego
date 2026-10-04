@@ -1,0 +1,20 @@
+{
+  "metadata": {"name": "Working day"},
+  "group": {"rid": "00000000-0000-0000-0000-000000000002", "rtype": "room"},
+  "transition_duration": 60000,
+  "week_timeslots": [
+    {
+      "recurrence": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "timeslots": [
+        {
+          "start_time": {"kind": "time", "time": {"hour": 8, "minute": 0, "second": 0}},
+          "target": {"rid": "00000000-0000-0000-0000-000000000004", "rtype": "scene"}
+        },
+        {
+          "start_time": {"kind": "sunset"},
+          "target": {"rid": "00000000-0000-0000-0000-000000000005", "rtype": "scene"}
+        }
+      ]
+    }
+  ]
+}
