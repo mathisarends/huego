@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -19,8 +23,33 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	if err := rootCmd.ExecuteContext(ctx); err != nil {
+		jsonOutput := jsonRequested(os.Args[1:])
+		if jsonOutput {
+			writeCommandError(os.Stderr, err)
+		} else {
+			fmt.Fprintln(os.Stderr, "error:", err)
+		}
 		os.Exit(1)
 	}
+}
+
+func jsonRequested(args []string) bool {
+	enabled := false
+	for _, arg := range args {
+		if arg == "--" {
+			break
+		}
+		if arg == "--json" {
+			enabled = true
+		}
+		if value, ok := strings.CutPrefix(arg, "--json="); ok {
+			if parsed, err := strconv.ParseBool(value); err == nil {
+				enabled = parsed
+			}
+		}
+	}
+	return enabled
 }

@@ -2,6 +2,14 @@ package hue
 
 import "fmt"
 
+type Problem struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Details any    `json:"details,omitempty"`
+}
+
+func (e *Problem) Error() string { return e.Message }
+
 type ResourceNotFoundError struct {
 	Message string
 }

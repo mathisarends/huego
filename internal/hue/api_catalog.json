@@ -16,13 +16,16 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `behavior_instance` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True to enable the behavior instance."
             },
             "configuration": {
-              "type": "object"
+              "type": "object",
+              "description": "Configuration for this behavior instance."
             },
             "metadata": {
               "type": "object",
@@ -50,7 +53,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `behavior_script` here)"
             }
           }
         }
@@ -70,7 +74,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `bell_button` here)"
             }
           }
         }
@@ -123,13 +128,15 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `button` here)"
             },
             "metadata": {
               "type": "object",
               "properties": {
                 "control_id": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "Control identifier of the switch, unique within the device."
                 }
               }
             },
@@ -137,7 +144,8 @@
               "type": "object",
               "properties": {
                 "repeat_interval": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "Interval in milliseconds for repeat events."
                 }
               }
             }
@@ -159,10 +167,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `camera_motion` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True when sensor is activated, false when deactivated."
             }
           }
         }
@@ -182,10 +192,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `contact` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True when sensor is activated, false when deactivated."
             }
           }
         }
@@ -205,10 +217,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `convenience_area_motion` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True when sensor is activated, false when deactivated."
             }
           }
         }
@@ -240,10 +254,13 @@
                 "name": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 32
+                  "maxLength": 32,
+                  "description": "Human readable name of a resource"
                 },
                 "archetype": {
                   "type": "string",
+                  "description": "The default archetype given by manufacturer. Can be changed by user.",
+                  "example": "hue_go",
                   "enum": [
                     "bridge_v2",
                     "unknown_archetype",
@@ -304,6 +321,7 @@
               "properties": {
                 "action": {
                   "type": "string",
+                  "description": "Triggers a visual identification sequence, current implemented as (which can change in the future):\nBridge performs Zigbee LED identification cycles for 5 seconds Lights perform one breathe cycle Sensors\nperform LED identification cycles for 15 seconds\n",
                   "enum": [
                     "identify"
                   ]
@@ -314,7 +332,8 @@
               "type": "object",
               "properties": {
                 "usertest": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "description": "Activates or extends user usertest mode of device for 120 seconds.\n`false` deactivates usertest mode. In usertest mode, devices report changes in state faster and indicate\nstate changes on device LED (if applicable)\n"
                 }
               }
             }
@@ -346,7 +365,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `device_software_update` here)"
             },
             "install": {
               "type": "object",
@@ -355,7 +375,8 @@
                   "type": "string",
                   "enum": [
                     "install"
-                  ]
+                  ],
+                  "description": "Set to install to start the update installation."
                 }
               }
             }
@@ -377,7 +398,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `entertainment` here)"
             }
           }
         }
@@ -397,13 +419,15 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `entertainment_configuration` here)"
             },
             "metadata": {
               "type": "object",
               "properties": {
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Human readable name of the configuration."
                 }
               }
             },
@@ -422,7 +446,8 @@
               "enum": [
                 "start",
                 "stop"
-              ]
+              ],
+              "description": "Start or stop streaming."
             }
           }
         }
@@ -442,13 +467,16 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `geofence_client` here)"
             },
             "name": {
-              "type": "string"
+              "type": "string",
+              "description": "Name of the geofence client."
             },
             "is_at_home": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True if the client is currently at home."
             }
           }
         }
@@ -468,7 +496,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `geolocation` here)"
             }
           }
         }
@@ -489,18 +518,20 @@
           "properties": {
             "type": {
               "type": "string",
+              "description": "Type of the supported resources (always `grouped_light` here)",
               "enum": [
                 "grouped_light"
               ]
             },
-            "true": {
+            "on": {
               "type": "object",
               "required": [
-                true
+                "on"
               ],
               "properties": {
-                "true": {
-                  "type": "boolean"
+                "on": {
+                  "type": "boolean",
+                  "description": "On/Off state of the light on=true, off=false"
                 }
               }
             },
@@ -513,7 +544,8 @@
                 "brightness": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 100
+                  "maximum": 100,
+                  "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                 }
               }
             },
@@ -531,7 +563,8 @@
                 "brightness_delta": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 100
+                  "maximum": 100,
+                  "description": "Brightness percentage of full-scale increase delta to current dimlevel. Clip at Max-level or Min-level.\n"
                 }
               }
             },
@@ -541,7 +574,8 @@
                 "mirek": {
                   "type": "integer",
                   "minimum": 153,
-                  "maximum": 500
+                  "maximum": 500,
+                  "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                 }
               }
             },
@@ -559,7 +593,8 @@
                 "mirek_delta": {
                   "type": "integer",
                   "minimum": 0,
-                  "maximum": 347
+                  "maximum": 347,
+                  "description": "Mirek delta to current mirek. Clip at mirek_minimum and mirek_maximum of mirek_schema."
                 }
               }
             },
@@ -571,6 +606,7 @@
               "properties": {
                 "xy": {
                   "type": "object",
+                  "description": "CIE XY gamut position",
                   "required": [
                     "x",
                     "y"
@@ -579,12 +615,14 @@
                     "x": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 1
+                      "maximum": 1,
+                      "description": "X position in color gamut"
                     },
                     "y": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 1
+                      "maximum": 1,
+                      "description": "y position in color gamut"
                     }
                   }
                 }
@@ -592,17 +630,21 @@
             },
             "alert": {
               "type": "object",
+              "description": "Joined alert control",
               "properties": {
                 "action": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "breathe"
                 }
               }
             },
             "signaling": {
               "type": "object",
+              "description": "Feature containing basic signaling properties.",
               "properties": {
                 "signal": {
                   "type": "string",
+                  "description": "- `no_signal`: No signal is active. Write \u201cno_signal\u201d to stop active signal.\n- `on_off`: Toggles between max brightness and Off in fixed color.\n- `on_off_color`: Toggles between off and max brightness with color provided.\n- `alternating`: Alternates between 2 provided colors.\n",
                   "enum": [
                     "no_signal",
                     "on_off",
@@ -613,12 +655,14 @@
                 "duration": {
                   "type": "integer",
                   "minimum": 0,
-                  "maximum": 65534000
+                  "maximum": 65534000,
+                  "description": "Duration has a max of 65534000 ms and a stepsize of 1 second.\nValues inbetween steps will be rounded.\nDuration is ignored for `no_signal`.\n"
                 },
                 "color": {
                   "type": "array",
                   "minItems": 1,
                   "maxItems": 2,
+                  "description": "List of colors to apply to the signal (not supported by all signals)",
                   "items": {
                     "type": "object",
                     "required": [
@@ -627,6 +671,7 @@
                     "properties": {
                       "xy": {
                         "type": "object",
+                        "description": "CIE XY gamut position",
                         "required": [
                           "x",
                           "y"
@@ -635,12 +680,14 @@
                           "x": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
+                            "maximum": 1,
+                            "description": "X position in color gamut"
                           },
                           "y": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
+                            "maximum": 1,
+                            "description": "y position in color gamut"
                           }
                         }
                       }
@@ -654,7 +701,8 @@
               "properties": {
                 "duration": {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 0,
+                  "description": "Duration of a light transition or timed effects in ms."
                 }
               }
             }
@@ -676,7 +724,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `grouped_light_level` here)"
             }
           }
         }
@@ -696,7 +745,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `grouped_motion` here)"
             }
           }
         }
@@ -716,13 +766,15 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `homekit` here)"
             },
             "action": {
               "type": "string",
               "enum": [
                 "homekit_reset"
-              ]
+              ],
+              "description": "Action to trigger on the HomeKit integration."
             }
           }
         }
@@ -742,16 +794,18 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `light` here)"
             },
-            "true": {
+            "on": {
               "type": "object",
               "required": [
-                true
+                "on"
               ],
               "properties": {
-                "true": {
-                  "type": "boolean"
+                "on": {
+                  "type": "boolean",
+                  "description": "On/Off state of the light on=true, off=false"
                 }
               }
             },
@@ -764,7 +818,8 @@
                 "brightness": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 100
+                  "maximum": 100,
+                  "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                 }
               }
             },
@@ -782,7 +837,8 @@
                 "brightness_delta": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 100
+                  "maximum": 100,
+                  "description": "Brightness percentage of full-scale increase delta to current dimlevel. Clip at Max-level or Min-level.\n"
                 }
               }
             },
@@ -792,7 +848,8 @@
                 "mirek": {
                   "type": "integer",
                   "minimum": 153,
-                  "maximum": 500
+                  "maximum": 500,
+                  "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                 }
               }
             },
@@ -810,7 +867,8 @@
                 "mirek_delta": {
                   "type": "integer",
                   "minimum": 0,
-                  "maximum": 347
+                  "maximum": 347,
+                  "description": "Mirek delta to current mirek. Clip at mirek_minimum and mirek_maximum of mirek_schema."
                 }
               }
             },
@@ -822,6 +880,7 @@
               "properties": {
                 "xy": {
                   "type": "object",
+                  "description": "CIE XY gamut position",
                   "required": [
                     "x",
                     "y"
@@ -830,12 +889,14 @@
                     "x": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 1
+                      "maximum": 1,
+                      "description": "X position in color gamut"
                     },
                     "y": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 1
+                      "maximum": 1,
+                      "description": "y position in color gamut"
                     }
                   }
                 }
@@ -845,28 +906,34 @@
               "type": "object",
               "properties": {
                 "duration": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "Duration of a light transition or timed effects in ms."
                 },
                 "speed": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 0
+                  "maximum": 0,
+                  "description": "Speed of dynamic palette or effect.\nThe speed is valid for the dynamic palette if the status is `dynamic_palette` or for the corresponding effect listed in status.\nIn case of status `none`, the speed is not valid.\n"
                 }
               }
             },
             "alert": {
               "type": "object",
+              "description": "Joined alert control",
               "properties": {
                 "action": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "breathe"
                 }
               }
             },
             "signaling": {
               "type": "object",
+              "description": "Feature containing basic signaling properties.",
               "properties": {
                 "signal": {
                   "type": "string",
+                  "description": "- `no_signal`: No signal is active. Write \u201cno_signal\u201d to stop active signal.\n- `on_off`: Toggles between max brightness and Off in fixed color.\n- `on_off_color`: Toggles between off and max brightness with color provided.\n- `alternating`: Alternates between 2 provided colors.\n",
                   "enum": [
                     "no_signal",
                     "on_off",
@@ -877,12 +944,14 @@
                 "duration": {
                   "type": "integer",
                   "minimum": 0,
-                  "maximum": 65534000
+                  "maximum": 65534000,
+                  "description": "Duration has a max of 65534000 ms and a stepsize of 1 second.\nValues inbetween steps will be rounded.\nDuration is ignored for `no_signal`.\n"
                 },
                 "color": {
                   "type": "array",
                   "minItems": 1,
                   "maxItems": 2,
+                  "description": "List of colors to apply to the signal (not supported by all signals)",
                   "items": {
                     "type": "object",
                     "required": [
@@ -891,6 +960,7 @@
                     "properties": {
                       "xy": {
                         "type": "object",
+                        "description": "CIE XY gamut position",
                         "required": [
                           "x",
                           "y"
@@ -899,12 +969,14 @@
                           "x": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
+                            "maximum": 1,
+                            "description": "X position in color gamut"
                           },
                           "y": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
+                            "maximum": 1,
+                            "description": "y position in color gamut"
                           }
                         }
                       }
@@ -922,9 +994,11 @@
             },
             "gradient": {
               "type": "object",
+              "description": "Basic feature containing gradient properties.",
               "properties": {
                 "points": {
                   "type": "array",
+                  "description": "Collection of gradients points. For control of the gradient points through a PUT a minimum of 2 points need to be provided.",
                   "items": {
                     "type": "object",
                     "required": [
@@ -933,6 +1007,7 @@
                     "properties": {
                       "xy": {
                         "type": "object",
+                        "description": "CIE XY gamut position",
                         "required": [
                           "x",
                           "y"
@@ -941,12 +1016,14 @@
                           "x": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
+                            "maximum": 1,
+                            "description": "X position in color gamut"
                           },
                           "y": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 1
+                            "maximum": 1,
+                            "description": "y position in color gamut"
                           }
                         }
                       }
@@ -956,6 +1033,7 @@
                 },
                 "mode": {
                   "type": "string",
+                  "description": "Mode in which the points are currently being deployed. If not provided during PUT/POST it will be defaulted to interpolated_palette",
                   "enum": [
                     "interpolated_palette",
                     "interpolated_palette_mirrored",
@@ -966,6 +1044,7 @@
             },
             "effects": {
               "type": "object",
+              "description": "Basic feature containing effect properties.",
               "properties": {
                 "effect": {
                   "type": "string",
@@ -987,10 +1066,12 @@
             },
             "effects_v2": {
               "type": "object",
+              "description": "Extended effect control with support for custom color, color temperature, and speed parameters.\nThis property is present on lights that support the newer effects engine and allows fine-grained\ncontrol over effect appearance beyond what the basic `effects` property provides.\n",
               "properties": {
                 "action": {
                   "type": "object",
                   "writeOnly": true,
+                  "description": "Set effect with optional parameters.",
                   "properties": {
                     "effect": {
                       "type": "string",
@@ -1010,6 +1091,7 @@
                     },
                     "parameters": {
                       "type": "object",
+                      "description": "Parameters for controlling the appearance of an active effect.",
                       "properties": {
                         "color": {
                           "type": "object",
@@ -1019,6 +1101,7 @@
                           "properties": {
                             "xy": {
                               "type": "object",
+                              "description": "CIE XY gamut position",
                               "required": [
                                 "x",
                                 "y"
@@ -1027,12 +1110,14 @@
                                 "x": {
                                   "type": "number",
                                   "minimum": 0,
-                                  "maximum": 1
+                                  "maximum": 1,
+                                  "description": "X position in color gamut"
                                 },
                                 "y": {
                                   "type": "number",
                                   "minimum": 0,
-                                  "maximum": 1
+                                  "maximum": 1,
+                                  "description": "y position in color gamut"
                                 }
                               }
                             }
@@ -1044,18 +1129,21 @@
                             "mirek": {
                               "type": "integer",
                               "minimum": 153,
-                              "maximum": 500
+                              "maximum": 500,
+                              "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                             },
                             "mirek_valid": {
                               "type": "boolean",
-                              "readOnly": true
+                              "readOnly": true,
+                              "description": "Indication whether the mirek value is valid for this effect"
                             }
                           }
                         },
                         "speed": {
                           "type": "number",
                           "minimum": 0,
-                          "maximum": 1
+                          "maximum": 1,
+                          "description": "Speed of the effect animation. 0.0 is slowest, 1.0 is fastest."
                         }
                       }
                     }
@@ -1064,6 +1152,7 @@
                 "status": {
                   "type": "object",
                   "readOnly": true,
+                  "description": "Current effect status and active parameters.",
                   "properties": {
                     "effect": {
                       "type": "string",
@@ -1085,6 +1174,7 @@
                     "effect_values": {
                       "readOnly": true,
                       "type": "array",
+                      "description": "Possible effect values supported by this light.",
                       "items": {
                         "type": "string",
                         "enum": [
@@ -1104,6 +1194,7 @@
                     },
                     "parameters": {
                       "type": "object",
+                      "description": "Parameters for controlling the appearance of an active effect.",
                       "properties": {
                         "color": {
                           "type": "object",
@@ -1113,6 +1204,7 @@
                           "properties": {
                             "xy": {
                               "type": "object",
+                              "description": "CIE XY gamut position",
                               "required": [
                                 "x",
                                 "y"
@@ -1121,12 +1213,14 @@
                                 "x": {
                                   "type": "number",
                                   "minimum": 0,
-                                  "maximum": 1
+                                  "maximum": 1,
+                                  "description": "X position in color gamut"
                                 },
                                 "y": {
                                   "type": "number",
                                   "minimum": 0,
-                                  "maximum": 1
+                                  "maximum": 1,
+                                  "description": "y position in color gamut"
                                 }
                               }
                             }
@@ -1138,18 +1232,21 @@
                             "mirek": {
                               "type": "integer",
                               "minimum": 153,
-                              "maximum": 500
+                              "maximum": 500,
+                              "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                             },
                             "mirek_valid": {
                               "type": "boolean",
-                              "readOnly": true
+                              "readOnly": true,
+                              "description": "Indication whether the mirek value is valid for this effect"
                             }
                           }
                         },
                         "speed": {
                           "type": "number",
                           "minimum": 0,
-                          "maximum": 1
+                          "maximum": 1,
+                          "description": "Speed of the effect animation. 0.0 is slowest, 1.0 is fastest."
                         }
                       }
                     }
@@ -1159,9 +1256,11 @@
             },
             "timed_effects": {
               "type": "object",
+              "description": "Basic feature containing timed effect properties.",
               "properties": {
                 "effect": {
                   "type": "string",
+                  "description": "Current status values the light is in regarding timed effects",
                   "enum": [
                     "sunrise",
                     "sunset",
@@ -1169,15 +1268,18 @@
                   ]
                 },
                 "duration": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "Duration is mandatory when timed effect is set except for no_effect. Resolution decreases for a larger duration. e.g Effects with duration smaller than a minute will be rounded to a resolution of 1s, while effects with duration larger than an hour will be arounded up to a resolution of 300s. Duration has a max of 21600000 ms."
                 }
               }
             },
             "powerup": {
               "type": "object",
+              "description": "Feature containing properties to configure powerup behaviour of a lightsource.",
               "properties": {
                 "preset": {
                   "type": "string",
+                  "description": "When setting the custom preset the additional properties can be set. For all other presets, no other properties can be included.",
                   "enum": [
                     "safety",
                     "powerfail",
@@ -1186,27 +1288,30 @@
                   ]
                 },
                 "configured": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "description": "Indicates if the shown values have been configured in the lightsource."
                 },
-                "true": {
+                "on": {
                   "type": "object",
                   "properties": {
                     "mode": {
                       "type": "string",
+                      "description": "State to activate after powerup.\nOn will use the value specified in the \u201con\u201d property.\nWhen setting mode \u201con\u201d, the on property must be included.\nToggle will alternate between on and off on each subsequent power toggle.\nPrevious will return to the state it was in before powering off.\n",
                       "enum": [
-                        true,
+                        "on",
                         "toggle",
                         "previous"
                       ]
                     },
-                    "true": {
+                    "on": {
                       "type": "object",
                       "required": [
-                        true
+                        "on"
                       ],
                       "properties": {
-                        "true": {
-                          "type": "boolean"
+                        "on": {
+                          "type": "boolean",
+                          "description": "On/Off state of the light on=true, off=false"
                         }
                       }
                     }
@@ -1217,6 +1322,7 @@
                   "properties": {
                     "mode": {
                       "type": "string",
+                      "description": "Dimming will set the brightness to the specified value after power up.\nWhen setting mode \u201cdimming\u201d, the dimming property must be included.\nPrevious will set brightness to the state it was in before powering off.\n",
                       "enum": [
                         "dimming",
                         "previous"
@@ -1225,7 +1331,8 @@
                     "dimming": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 100
+                      "maximum": 100,
+                      "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                     },
                     "color": {
                       "type": "object",
@@ -1236,7 +1343,8 @@
                             "color_temperature",
                             "color",
                             "previous"
-                          ]
+                          ],
+                          "description": "State to activate after powerup. Availability of \u201ccolor_temperature\u201d and \u201ccolor\u201d modes depend on the capabilities of the lamp. Colortemperature will set the colortemperature to the specified value after power up. When setting color_temperature, the color_temperature property must be included Color will set the color tot he specified value after power up. When setting color mode, the color property must be included Previous will set color to the state it was in before powering off."
                         },
                         "color_temperature": {
                           "type": "object",
@@ -1244,7 +1352,8 @@
                             "mirek": {
                               "type": "integer",
                               "minimum": 153,
-                              "maximum": 500
+                              "maximum": 500,
+                              "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                             },
                             "color": {
                               "type": "object",
@@ -1254,6 +1363,7 @@
                               "properties": {
                                 "xy": {
                                   "type": "object",
+                                  "description": "CIE XY gamut position",
                                   "required": [
                                     "x",
                                     "y"
@@ -1262,12 +1372,14 @@
                                     "x": {
                                       "type": "number",
                                       "minimum": 0,
-                                      "maximum": 1
+                                      "maximum": 1,
+                                      "description": "X position in color gamut"
                                     },
                                     "y": {
                                       "type": "number",
                                       "minimum": 0,
-                                      "maximum": 1
+                                      "maximum": 1,
+                                      "description": "y position in color gamut"
                                     }
                                   }
                                 }
@@ -1299,10 +1411,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `light_level` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "true when sensor is activated, false when deactivated"
             }
           }
         }
@@ -1322,7 +1436,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `matter` here)"
             },
             "action": {
               "type": "object",
@@ -1331,7 +1446,8 @@
                   "type": "string",
                   "enum": [
                     "matter_reset"
-                  ]
+                  ],
+                  "description": "Action to trigger on the Matter integration."
                 }
               }
             }
@@ -1353,7 +1469,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `matter_fabric` here)"
             }
           }
         }
@@ -1373,16 +1490,19 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `motion` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "true when the sensor is activated, false when deactivated"
             },
             "sensitivity": {
               "type": "object",
               "properties": {
                 "sensitivity": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "Sensitivity of the sensor. Value in the range 0 to sensitivity_max."
                 }
               }
             }
@@ -1404,7 +1524,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `motion_area_candidate` here)"
             }
           }
         }
@@ -1424,10 +1545,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `motion_area_configuration` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True when configuration is active."
             }
           }
         }
@@ -1447,7 +1570,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `relative_rotary` here)"
             }
           }
         }
@@ -1469,10 +1593,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `room` here)"
             },
             "children": {
               "type": "array",
+              "description": "Child devices/services to group by the derived group",
               "items": {
                 "type": "object",
                 "required": [
@@ -1482,10 +1608,13 @@
                 "properties": {
                   "rid": {
                     "type": "string",
-                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    "description": "The unique id of the referenced resource",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                    "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                   },
                   "rtype": {
                     "type": "string",
+                    "description": "The type of the referenced resource",
                     "enum": [
                       "device",
                       "bridge_home",
@@ -1530,12 +1659,15 @@
             },
             "metadata": {
               "type": "object",
+              "description": "configuration object for a room",
               "properties": {
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Human readable name of a resource"
                 },
                 "archetype": {
                   "type": "string",
+                  "description": "Possible archetypes of a room",
                   "enum": [
                     "living_room",
                     "kitchen",
@@ -1587,10 +1719,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `room` here)"
             },
             "children": {
               "type": "array",
+              "description": "Child devices/services to group by the derived group",
               "items": {
                 "type": "object",
                 "required": [
@@ -1600,10 +1734,13 @@
                 "properties": {
                   "rid": {
                     "type": "string",
-                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    "description": "The unique id of the referenced resource",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                    "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                   },
                   "rtype": {
                     "type": "string",
+                    "description": "The type of the referenced resource",
                     "enum": [
                       "device",
                       "bridge_home",
@@ -1648,12 +1785,15 @@
             },
             "metadata": {
               "type": "object",
+              "description": "configuration object for a room",
               "properties": {
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Human readable name of a resource"
                 },
                 "archetype": {
                   "type": "string",
+                  "description": "Possible archetypes of a room",
                   "enum": [
                     "living_room",
                     "kitchen",
@@ -1731,6 +1871,7 @@
             },
             "actions": {
               "type": "array",
+              "description": "List of actions to be executed synchronously on recall",
               "items": {
                 "type": "object",
                 "required": [
@@ -1747,10 +1888,13 @@
                     "properties": {
                       "rid": {
                         "type": "string",
-                        "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                        "description": "The unique id of the referenced resource",
+                        "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                        "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                       },
                       "rtype": {
                         "type": "string",
+                        "description": "The type of the referenced resource",
                         "enum": [
                           "device",
                           "bridge_home",
@@ -1790,19 +1934,22 @@
                           "grouped_light_level"
                         ]
                       }
-                    }
+                    },
+                    "description": "The identifier of the light to execute the action on"
                   },
                   "action": {
                     "type": "object",
+                    "description": "The action to be executed on recall",
                     "properties": {
-                      "true": {
+                      "on": {
                         "type": "object",
                         "required": [
-                          true
+                          "on"
                         ],
                         "properties": {
-                          "true": {
-                            "type": "boolean"
+                          "on": {
+                            "type": "boolean",
+                            "description": "On/Off state of the light on=true, off=false"
                           }
                         }
                       },
@@ -1815,7 +1962,8 @@
                           "brightness": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                           }
                         }
                       },
@@ -1827,6 +1975,7 @@
                         "properties": {
                           "xy": {
                             "type": "object",
+                            "description": "CIE XY gamut position",
                             "required": [
                               "x",
                               "y"
@@ -1835,12 +1984,14 @@
                               "x": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "X position in color gamut"
                               },
                               "y": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "y position in color gamut"
                               }
                             }
                           }
@@ -1852,15 +2003,18 @@
                           "mirek": {
                             "type": "integer",
                             "minimum": 153,
-                            "maximum": 500
+                            "maximum": 500,
+                            "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                           }
                         }
                       },
                       "gradient": {
                         "type": "object",
+                        "description": "Basic feature containing gradient properties.",
                         "properties": {
                           "points": {
                             "type": "array",
+                            "description": "Collection of gradients points. For control of the gradient points through a PUT a minimum of 2 points need to be provided.",
                             "items": {
                               "type": "object",
                               "required": [
@@ -1869,6 +2023,7 @@
                               "properties": {
                                 "xy": {
                                   "type": "object",
+                                  "description": "CIE XY gamut position",
                                   "required": [
                                     "x",
                                     "y"
@@ -1877,12 +2032,14 @@
                                     "x": {
                                       "type": "number",
                                       "minimum": 0,
-                                      "maximum": 1
+                                      "maximum": 1,
+                                      "description": "X position in color gamut"
                                     },
                                     "y": {
                                       "type": "number",
                                       "minimum": 0,
-                                      "maximum": 1
+                                      "maximum": 1,
+                                      "description": "y position in color gamut"
                                     }
                                   }
                                 }
@@ -1892,6 +2049,7 @@
                           },
                           "mode": {
                             "type": "string",
+                            "description": "Mode in which the points are currently being deployed. If not provided during PUT/POST it will be defaulted to interpolated_palette",
                             "enum": [
                               "interpolated_palette",
                               "interpolated_palette_mirrored",
@@ -1902,6 +2060,7 @@
                       },
                       "effects": {
                         "type": "object",
+                        "description": "Basic feature containing effect properties.",
                         "properties": {
                           "effect": {
                             "type": "string",
@@ -1926,7 +2085,8 @@
                         "properties": {
                           "duration": {
                             "type": "integer",
-                            "minimum": 0
+                            "minimum": 0,
+                            "description": "Duration of a light transition or timed effects in ms."
                           }
                         }
                       }
@@ -1941,7 +2101,8 @@
                 "name": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 32
+                  "maxLength": 32,
+                  "description": "Human readable name of a resource"
                 },
                 "image": {
                   "type": "object",
@@ -1952,10 +2113,13 @@
                   "properties": {
                     "rid": {
                       "type": "string",
-                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                      "description": "The unique id of the referenced resource",
+                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                      "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                     },
                     "rtype": {
                       "type": "string",
+                      "description": "The type of the referenced resource",
                       "enum": [
                         "device",
                         "bridge_home",
@@ -2000,7 +2164,8 @@
                 "appdata": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 16
+                  "maxLength": 16,
+                  "description": "Application specific data. Free format string."
                 }
               }
             },
@@ -2013,10 +2178,13 @@
               "properties": {
                 "rid": {
                   "type": "string",
-                  "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  "description": "The unique id of the referenced resource",
+                  "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                  "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                 },
                 "rtype": {
                   "type": "string",
+                  "description": "The type of the referenced resource",
                   "enum": [
                     "device",
                     "bridge_home",
@@ -2060,6 +2228,7 @@
             },
             "palette": {
               "type": "object",
+              "description": "Group of colors that describe the palette of colors to be used when playing dynamics",
               "properties": {
                 "color": {
                   "type": "array",
@@ -2076,6 +2245,7 @@
                         "properties": {
                           "xy": {
                             "type": "object",
+                            "description": "CIE XY gamut position",
                             "required": [
                               "x",
                               "y"
@@ -2084,12 +2254,14 @@
                               "x": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "X position in color gamut"
                               },
                               "y": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "y position in color gamut"
                               }
                             }
                           }
@@ -2104,7 +2276,8 @@
                           "brightness": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                           }
                         }
                       }
@@ -2124,7 +2297,8 @@
                       "brightness": {
                         "type": "number",
                         "minimum": 0,
-                        "maximum": 100
+                        "maximum": 100,
+                        "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                       }
                     }
                   }
@@ -2142,7 +2316,8 @@
                           "mirek": {
                             "type": "integer",
                             "minimum": 153,
-                            "maximum": 500
+                            "maximum": 500,
+                            "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                           }
                         }
                       },
@@ -2155,7 +2330,8 @@
                           "brightness": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                           }
                         }
                       }
@@ -2193,10 +2369,12 @@
             "speed": {
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 1,
+              "description": "Speed of dynamic palette for this scene"
             },
             "auto_dynamic": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Indicates whether to automatically start the scene dynamically on active recall"
             }
           }
         },
@@ -2211,6 +2389,7 @@
             },
             "actions": {
               "type": "array",
+              "description": "List of actions to be executed synchronously on recall",
               "items": {
                 "type": "object",
                 "required": [
@@ -2227,10 +2406,13 @@
                     "properties": {
                       "rid": {
                         "type": "string",
-                        "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                        "description": "The unique id of the referenced resource",
+                        "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                        "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                       },
                       "rtype": {
                         "type": "string",
+                        "description": "The type of the referenced resource",
                         "enum": [
                           "device",
                           "bridge_home",
@@ -2270,19 +2452,22 @@
                           "grouped_light_level"
                         ]
                       }
-                    }
+                    },
+                    "description": "The identifier of the light to execute the action on"
                   },
                   "action": {
                     "type": "object",
+                    "description": "The action to be executed on recall",
                     "properties": {
-                      "true": {
+                      "on": {
                         "type": "object",
                         "required": [
-                          true
+                          "on"
                         ],
                         "properties": {
-                          "true": {
-                            "type": "boolean"
+                          "on": {
+                            "type": "boolean",
+                            "description": "On/Off state of the light on=true, off=false"
                           }
                         }
                       },
@@ -2295,7 +2480,8 @@
                           "brightness": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                           }
                         }
                       },
@@ -2307,6 +2493,7 @@
                         "properties": {
                           "xy": {
                             "type": "object",
+                            "description": "CIE XY gamut position",
                             "required": [
                               "x",
                               "y"
@@ -2315,12 +2502,14 @@
                               "x": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "X position in color gamut"
                               },
                               "y": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "y position in color gamut"
                               }
                             }
                           }
@@ -2332,15 +2521,18 @@
                           "mirek": {
                             "type": "integer",
                             "minimum": 153,
-                            "maximum": 500
+                            "maximum": 500,
+                            "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                           }
                         }
                       },
                       "gradient": {
                         "type": "object",
+                        "description": "Basic feature containing gradient properties.",
                         "properties": {
                           "points": {
                             "type": "array",
+                            "description": "Collection of gradients points. For control of the gradient points through a PUT a minimum of 2 points need to be provided.",
                             "items": {
                               "type": "object",
                               "required": [
@@ -2349,6 +2541,7 @@
                               "properties": {
                                 "xy": {
                                   "type": "object",
+                                  "description": "CIE XY gamut position",
                                   "required": [
                                     "x",
                                     "y"
@@ -2357,12 +2550,14 @@
                                     "x": {
                                       "type": "number",
                                       "minimum": 0,
-                                      "maximum": 1
+                                      "maximum": 1,
+                                      "description": "X position in color gamut"
                                     },
                                     "y": {
                                       "type": "number",
                                       "minimum": 0,
-                                      "maximum": 1
+                                      "maximum": 1,
+                                      "description": "y position in color gamut"
                                     }
                                   }
                                 }
@@ -2372,6 +2567,7 @@
                           },
                           "mode": {
                             "type": "string",
+                            "description": "Mode in which the points are currently being deployed. If not provided during PUT/POST it will be defaulted to interpolated_palette",
                             "enum": [
                               "interpolated_palette",
                               "interpolated_palette_mirrored",
@@ -2382,6 +2578,7 @@
                       },
                       "effects": {
                         "type": "object",
+                        "description": "Basic feature containing effect properties.",
                         "properties": {
                           "effect": {
                             "type": "string",
@@ -2406,7 +2603,8 @@
                         "properties": {
                           "duration": {
                             "type": "integer",
-                            "minimum": 0
+                            "minimum": 0,
+                            "description": "Duration of a light transition or timed effects in ms."
                           }
                         }
                       }
@@ -2420,6 +2618,7 @@
               "properties": {
                 "action": {
                   "type": "string",
+                  "description": "When writing active, the actions in the scene are executed on the target. dynamic_palette starts dynamic scene with colors in the Palette object.",
                   "enum": [
                     "active",
                     "dynamic_palette",
@@ -2427,7 +2626,8 @@
                   ]
                 },
                 "duration": {
-                  "type": "integer"
+                  "type": "integer",
+                  "description": "Transition to the scene within the timeframe given by duration"
                 },
                 "dimming": {
                   "type": "object",
@@ -2438,7 +2638,8 @@
                     "brightness": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 100
+                      "maximum": 100,
+                      "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                     }
                   }
                 }
@@ -2450,7 +2651,8 @@
                 "name": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 32
+                  "maxLength": 32,
+                  "description": "Human readable name of a resource"
                 },
                 "image": {
                   "type": "object",
@@ -2461,10 +2663,13 @@
                   "properties": {
                     "rid": {
                       "type": "string",
-                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                      "description": "The unique id of the referenced resource",
+                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                      "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                     },
                     "rtype": {
                       "type": "string",
+                      "description": "The type of the referenced resource",
                       "enum": [
                         "device",
                         "bridge_home",
@@ -2509,12 +2714,14 @@
                 "appdata": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 16
+                  "maxLength": 16,
+                  "description": "Application specific data. Free format string."
                 }
               }
             },
             "palette": {
               "type": "object",
+              "description": "Group of colors that describe the palette of colors to be used when playing dynamics",
               "properties": {
                 "color": {
                   "type": "array",
@@ -2531,6 +2738,7 @@
                         "properties": {
                           "xy": {
                             "type": "object",
+                            "description": "CIE XY gamut position",
                             "required": [
                               "x",
                               "y"
@@ -2539,12 +2747,14 @@
                               "x": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "X position in color gamut"
                               },
                               "y": {
                                 "type": "number",
                                 "minimum": 0,
-                                "maximum": 1
+                                "maximum": 1,
+                                "description": "y position in color gamut"
                               }
                             }
                           }
@@ -2559,7 +2769,8 @@
                           "brightness": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                           }
                         }
                       }
@@ -2579,7 +2790,8 @@
                       "brightness": {
                         "type": "number",
                         "minimum": 0,
-                        "maximum": 100
+                        "maximum": 100,
+                        "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                       }
                     }
                   }
@@ -2597,7 +2809,8 @@
                           "mirek": {
                             "type": "integer",
                             "minimum": 153,
-                            "maximum": 500
+                            "maximum": 500,
+                            "description": "color temperature in mirek or null when the light color is not in the ct spectrum"
                           }
                         }
                       },
@@ -2610,7 +2823,8 @@
                           "brightness": {
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "description": "Brightness percentage. value cannot be 0, writing 0 changes it to lowest possible brightness"
                           }
                         }
                       }
@@ -2648,10 +2862,12 @@
             "speed": {
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 1,
+              "description": "Speed of dynamic palette for this scene"
             },
             "auto_dynamic": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Indicates whether to automatically start the scene dynamically on active recall"
             }
           }
         }
@@ -2671,10 +2887,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `security_area_motion` here)"
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "True when sensor is activated, false when deactivated."
             }
           }
         }
@@ -2694,7 +2912,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `service_group` here)"
             },
             "services": {
               "type": "array",
@@ -2707,10 +2926,13 @@
                 "properties": {
                   "rid": {
                     "type": "string",
-                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    "description": "The unique id of the referenced resource",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                    "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                   },
                   "rtype": {
                     "type": "string",
+                    "description": "The type of the referenced resource",
                     "enum": [
                       "device",
                       "bridge_home",
@@ -2751,7 +2973,8 @@
                     ]
                   }
                 }
-              }
+              },
+              "description": "List of services to include in this group."
             }
           }
         }
@@ -2787,12 +3010,14 @@
                     "name": {
                       "type": "string",
                       "minLength": 1,
-                      "maxLength": 32
+                      "maxLength": 32,
+                      "description": "Human readable name of a resource"
                     },
                     "appdata": {
                       "type": "string",
                       "minLength": 1,
-                      "maxLength": 16
+                      "maxLength": 16,
+                      "description": "Application specific data. Free format string."
                     }
                   }
                 },
@@ -2808,10 +3033,13 @@
                       "properties": {
                         "rid": {
                           "type": "string",
-                          "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                          "description": "The unique id of the referenced resource",
+                          "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                          "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                         },
                         "rtype": {
                           "type": "string",
+                          "description": "The type of the referenced resource",
                           "enum": [
                             "device",
                             "bridge_home",
@@ -2866,10 +3094,13 @@
               "properties": {
                 "rid": {
                   "type": "string",
-                  "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                  "description": "The unique id of the referenced resource",
+                  "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                  "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                 },
                 "rtype": {
                   "type": "string",
+                  "description": "The type of the referenced resource",
                   "enum": [
                     "device",
                     "bridge_home",
@@ -2912,6 +3143,7 @@
               }
             },
             "week_timeslots": {
+              "description": "information on what is the light state for every timeslot of the day",
               "type": "array",
               "items": {
                 "type": "object",
@@ -2933,6 +3165,7 @@
                             },
                             "time": {
                               "type": "object",
+                              "description": "this property is only used when property \u201ckind\u201d is \u201ctime\u201d",
                               "properties": {
                                 "hour": {
                                   "type": "integer",
@@ -2965,10 +3198,13 @@
                           "properties": {
                             "rid": {
                               "type": "string",
-                              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                              "description": "The unique id of the referenced resource",
+                              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                              "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                             },
                             "rtype": {
                               "type": "string",
+                              "description": "The type of the referenced resource",
                               "enum": [
                                 "device",
                                 "bridge_home",
@@ -3040,6 +3276,7 @@
               }
             },
             "transition_duration": {
+              "description": "duration of the transition from on one timeslot's scene to the other (defaults to 60000ms)",
               "type": "integer"
             },
             "recall": {
@@ -3047,6 +3284,7 @@
               "properties": {
                 "action": {
                   "type": "string",
+                  "description": "Activate will start the smart (24h) scene; deactivate will stop it",
                   "enum": [
                     "activate",
                     "deactivate"
@@ -3079,16 +3317,19 @@
                 "name": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 32
+                  "maxLength": 32,
+                  "description": "Human readable name of a resource"
                 },
                 "appdata": {
                   "type": "string",
                   "minLength": 1,
-                  "maxLength": 16
+                  "maxLength": 16,
+                  "description": "Application specific data. Free format string."
                 }
               }
             },
             "week_timeslots": {
+              "description": "information on what is the light state for every timeslot of the day",
               "type": "array",
               "items": {
                 "type": "object",
@@ -3110,6 +3351,7 @@
                             },
                             "time": {
                               "type": "object",
+                              "description": "this property is only used when property \u201ckind\u201d is \u201ctime\u201d",
                               "properties": {
                                 "hour": {
                                   "type": "integer",
@@ -3142,10 +3384,13 @@
                           "properties": {
                             "rid": {
                               "type": "string",
-                              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                              "description": "The unique id of the referenced resource",
+                              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                              "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                             },
                             "rtype": {
                               "type": "string",
+                              "description": "The type of the referenced resource",
                               "enum": [
                                 "device",
                                 "bridge_home",
@@ -3217,6 +3462,7 @@
               }
             },
             "transition_duration": {
+              "description": "duration of the transition from on one timeslot's scene to the other (defaults to 60000ms)",
               "type": "integer"
             },
             "recall": {
@@ -3224,6 +3470,7 @@
               "properties": {
                 "action": {
                   "type": "string",
+                  "description": "Activate will start the smart (24h) scene; deactivate will stop it",
                   "enum": [
                     "activate",
                     "deactivate"
@@ -3249,7 +3496,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `speaker` here)"
             }
           }
         }
@@ -3269,7 +3517,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `tamper` here)"
             }
           }
         }
@@ -3290,12 +3539,14 @@
           "properties": {
             "type": {
               "type": "string",
+              "description": "Type of the supported resources (always `temperature` here)",
               "enum": [
                 "temperature"
               ]
             },
             "enabled": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "true when sensor is activated, false when deactivated"
             }
           }
         }
@@ -3315,7 +3566,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `wifi_connectivity` here)"
             }
           }
         }
@@ -3335,7 +3587,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `zgp_connectivity` here)"
             }
           }
         }
@@ -3355,7 +3608,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `zigbee_connectivity` here)"
             },
             "channel": {
               "type": "object",
@@ -3367,7 +3621,8 @@
                     "channel_15",
                     "channel_20",
                     "channel_25"
-                  ]
+                  ],
+                  "description": "Zigbee channel to set."
                 }
               }
             }
@@ -3389,7 +3644,8 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `zigbee_device_discovery` here)"
             },
             "action": {
               "type": "object",
@@ -3398,7 +3654,8 @@
                   "type": "string",
                   "enum": [
                     "search"
-                  ]
+                  ],
+                  "description": "Action to trigger device discovery."
                 }
               }
             }
@@ -3422,10 +3679,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `room` here)"
             },
             "children": {
               "type": "array",
+              "description": "Child devices/services to group by the derived group",
               "items": {
                 "type": "object",
                 "required": [
@@ -3435,10 +3694,13 @@
                 "properties": {
                   "rid": {
                     "type": "string",
-                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    "description": "The unique id of the referenced resource",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                    "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                   },
                   "rtype": {
                     "type": "string",
+                    "description": "The type of the referenced resource",
                     "enum": [
                       "device",
                       "bridge_home",
@@ -3483,12 +3745,15 @@
             },
             "metadata": {
               "type": "object",
+              "description": "configuration object for a room",
               "properties": {
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Human readable name of a resource"
                 },
                 "archetype": {
                   "type": "string",
+                  "description": "Possible archetypes of a room",
                   "enum": [
                     "living_room",
                     "kitchen",
@@ -3540,10 +3805,12 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "description": "Type of the supported resources (always `room` here)"
             },
             "children": {
               "type": "array",
+              "description": "Child devices/services to group by the derived group",
               "items": {
                 "type": "object",
                 "required": [
@@ -3553,10 +3820,13 @@
                 "properties": {
                   "rid": {
                     "type": "string",
-                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    "description": "The unique id of the referenced resource",
+                    "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$",
+                    "example": "42edd1f5-9538-4180-9ced-2d9e07f26d0f"
                   },
                   "rtype": {
                     "type": "string",
+                    "description": "The type of the referenced resource",
                     "enum": [
                       "device",
                       "bridge_home",
@@ -3601,12 +3871,15 @@
             },
             "metadata": {
               "type": "object",
+              "description": "configuration object for a room",
               "properties": {
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Human readable name of a resource"
                 },
                 "archetype": {
                   "type": "string",
+                  "description": "Possible archetypes of a room",
                   "enum": [
                     "living_room",
                     "kitchen",

@@ -1,0 +1,401 @@
+{
+  "source": "https://developers.meethue.com/develop/hue-api-v2/api-reference/",
+  "verification_sources": [
+    "https://github.com/home-assistant-libs/aiohue/tree/ea0b3f69c4d9af3f4d3376ac25658a75435c2b47/aiohue/v2/models",
+    "https://github.com/rodney42/node-hue"
+  ],
+  "resources": [
+    {
+      "resource_type": "behavior_instance",
+      "collection_methods": [
+        "GET",
+        "POST"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "POST": {
+          "type": "object",
+          "required": [
+            "script_id",
+            "enabled",
+            "configuration"
+          ],
+          "properties": {
+            "script_id": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "configuration": {
+              "type": "object",
+              "description": "Validate against the selected behavior_script.configuration_schema using --check."
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "migrated_from": {
+              "type": "string"
+            }
+          }
+        },
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "trigger": {
+              "type": "object",
+              "description": "Script-specific action, validated against trigger_schema by the bridge."
+            }
+          }
+        }
+      },
+      "request_examples": {
+        "POST": {
+          "script_id": "00000000-0000-0000-0000-000000000001",
+          "enabled": false,
+          "metadata": {
+            "name": "Automation"
+          },
+          "configuration": {}
+        }
+      },
+      "notes": [
+        "Configuration is script-specific; use behavior-script get and --check before enabling."
+      ]
+    },
+    {
+      "resource_type": "entertainment_configuration",
+      "collection_methods": [
+        "GET",
+        "POST"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "request_schemas": {
+        "POST": {
+          "type": "object",
+          "required": [
+            "metadata",
+            "configuration_type",
+            "locations"
+          ],
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "configuration_type": {
+              "type": "string",
+              "enum": [
+                "screen",
+                "monitor",
+                "music",
+                "3dspace",
+                "other"
+              ]
+            },
+            "locations": {
+              "type": "object",
+              "required": [
+                "service_locations"
+              ],
+              "properties": {
+                "service_locations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "service",
+                      "positions"
+                    ],
+                    "properties": {
+                      "service": {
+                        "type": "object",
+                        "required": [
+                          "rid",
+                          "rtype"
+                        ],
+                        "properties": {
+                          "rid": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                          },
+                          "rtype": {
+                            "type": "string",
+                            "enum": [
+                              "entertainment"
+                            ]
+                          }
+                        }
+                      },
+                      "positions": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "x",
+                            "y",
+                            "z"
+                          ],
+                          "properties": {
+                            "x": {
+                              "type": "number",
+                              "minimum": -1,
+                              "maximum": 1
+                            },
+                            "y": {
+                              "type": "number",
+                              "minimum": -1,
+                              "maximum": 1
+                            },
+                            "z": {
+                              "type": "number",
+                              "minimum": -1,
+                              "maximum": 1
+                            }
+                          }
+                        }
+                      },
+                      "equalization_factor": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "stream_proxy": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "auto",
+                    "manual"
+                  ]
+                },
+                "node": {
+                  "type": "object",
+                  "required": [
+                    "rid",
+                    "rtype"
+                  ],
+                  "properties": {
+                    "rid": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                    },
+                    "rtype": {
+                      "type": "string",
+                      "enum": [
+                        "entertainment"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Entertainment area configuration; positions refer to entertainment services, not light IDs."
+        },
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "locations": {
+              "type": "object",
+              "required": [
+                "service_locations"
+              ],
+              "properties": {
+                "service_locations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "service",
+                      "positions"
+                    ],
+                    "properties": {
+                      "service": {
+                        "type": "object",
+                        "required": [
+                          "rid",
+                          "rtype"
+                        ],
+                        "properties": {
+                          "rid": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$"
+                          },
+                          "rtype": {
+                            "type": "string",
+                            "enum": [
+                              "entertainment"
+                            ]
+                          }
+                        }
+                      },
+                      "positions": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "x",
+                            "y",
+                            "z"
+                          ],
+                          "properties": {
+                            "x": {
+                              "type": "number",
+                              "minimum": -1,
+                              "maximum": 1
+                            },
+                            "y": {
+                              "type": "number",
+                              "minimum": -1,
+                              "maximum": 1
+                            },
+                            "z": {
+                              "type": "number",
+                              "minimum": -1,
+                              "maximum": 1
+                            }
+                          }
+                        }
+                      },
+                      "equalization_factor": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "request_examples": {
+        "POST": {
+          "metadata": {
+            "name": "TV"
+          },
+          "configuration_type": "screen",
+          "locations": {
+            "service_locations": [
+              {
+                "service": {
+                  "rid": "00000000-0000-0000-0000-000000000001",
+                  "rtype": "entertainment"
+                },
+                "positions": [
+                  {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "switch_input_configuration",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "switch_mode": {
+              "type": "object",
+              "required": [
+                "mode"
+              ],
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "switch_single_rocker",
+                    "switch_single_pushbutton",
+                    "switch_dual_rocker",
+                    "switch_dual_pushbutton"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "request_examples": {
+        "PUT": {
+          "switch_mode": {
+            "mode": "switch_single_rocker"
+          }
+        }
+      }
+    },
+    {
+      "resource_type": "motion_area_configuration",
+      "collection_methods": [
+        "GET"
+      ],
+      "item_methods": [
+        "GET",
+        "PUT"
+      ],
+      "request_schemas": {
+        "PUT": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            }
+          }
+        }
+      },
+      "notes": [
+        "MotionAware setup depends on Bridge Pro firmware and is not described by this schema; use --raw with the matching official API reference."
+      ]
+    }
+  ]
+}

@@ -1,196 +1,234 @@
 # Using huego from an agent
 
-Use `--json`, check the process exit code, and use resource UUIDs for writes.
-Pair a bridge once with `huego setup`, or provide `HUEGO_BRIDGE_IP` and
-`HUEGO_APP_KEY`. Configuration follows the existing environment / `.env` / OS
-config-file precedence. All control requests use the bridge's local HTTPS API.
+Use `--json`, inspect the exit code, and prefer resource UUIDs for writes.
+All control requests use the selected bridge's local HTTPS API. Pairing requires
+one physical link-button press. No real bridge is needed for offline discovery.
 
-## Discover resources and request shapes
+## Discover schemas and examples
 
 ```sh
 huego resource types --json
-huego resource schema room --json
 huego resource schema scene --json
-huego resource schema smart_scene --json
+huego resource example scene --json
+huego resource example light --method PUT --json
 huego resource list --json
-huego resource list device --json
 huego resource get light <light-uuid> --json
-huego resource get device <owner-rid> --json
 ```
 
-`types` returns source, revision and collection/item HTTP methods. `schema`
-also returns `request_schemas.POST` and/or `request_schemas.PUT`, when documented.
-Both work offline without bridge credentials. Local `$ref` links are expanded.
-Schemas retain fields, types, required keys, enums, bounds and read/write markers;
-upstream descriptions and examples are omitted. Read-only fields in a shared
-upstream schema are guidance to exclude those fields from writes.
+The embedded catalog combines 41 types from OpenHue revision
+`1ffc817857abf456d5ff2ae50400ef768dbce28e` with a separately attributed supplement.
+It now includes `switch_input_configuration`, automation creation/deletion, and
+entertainment-area creation/deletion and locations. `additional_sources` reports
+the supplement's references; `notes` records remaining limitations. The catalog
+is an API inventory, not a promise that every bridge supports every operation.
 
-The catalog is pinned to OpenHue revision
-[`1ffc817857abf456d5ff2ae50400ef768dbce28e`](https://github.com/openhue/openhue-api/tree/1ffc817857abf456d5ff2ae50400ef768dbce28e),
-retrieved 2026-10-04. It documents API operations, not which services a particular
-bridge exposes. Inspect the real inventory and each resource's capability fields.
+Schemas preserve descriptions, examples, required properties, bounds and enums.
+Local references are expanded. Hue fields and enum values named `on` remain
+strings, while actual JSON booleans remain booleans. Read-only annotations are
+information for authors; the schema validator does not strip fields.
 
-Resources contain references such as `owner`, `children`, `services` and `group`.
-Follow each reference's `rid` using its `rtype`. Room membership uses device
-references; zones can group light services. Scene actions target light services,
-and smart-scene timeslots target scenes in the same room or zone.
+`resource example` emits editable JSON for common tasks. Replace placeholder
+UUIDs. An automation example's empty configuration must be filled using its
+behavior script's `configuration_schema`; it is not a ready-to-enable routine.
 
-Complete reads and writes return one CLIP envelope on stdout:
+## JSON input, output and errors
 
-```json
-{"errors":[],"data":[{"rid":"01234567-89ab-cdef-0123-456789abcdef","rtype":"room"}]}
-```
-
-Read resources use `id` / `type`; write results use `rid` / `rtype`. Unknown fields,
-large integer values and explicit nulls survive JSON round trips. The original
-`light list`, `room list`, `zone list` and `scene list` return summary arrays;
-`resource list <type>` returns complete native data for those types too.
-
-Errors in a CLIP envelope remain in stdout and cause exit code 1, even when the
-HTTP status is 200 or some `data` entries succeeded. HTTP, configuration,
-validation and target-resolution failures produce diagnostics on stderr and a
-nonzero exit code. Do not retry a partial creation blindly: inspect the bridge
-to determine what succeeded. An empty item read returns an empty envelope and
-fails; an empty collection read succeeds.
-
-## Write JSON and inspect a request first
-
-```sh
-huego resource create room --file office.json --dry-run --json
-huego resource create room --file office.json --json
-huego resource update room <room-uuid> --file office-update.json --json
-huego resource delete scene <scene-uuid> --dry-run --json
-```
-
-POST addresses a collection; PUT and DELETE address an item. PUT sends only the
-supplied object; it does not merge a full snapshot into the request. A list such
-as `children` or `actions` generally replaces that field, so inspect current
-members before editing it. Use `get` afterward to verify the resulting state.
-
-Provide exactly one of `--data/-d` and `--file/-f` for create/update. `--file -`
-reads stdin. A UTF-8 BOM is accepted in file/stdin input, and payloads are limited
-to 4 MiB. Use files or stdin in PowerShell to avoid native executable quoting
-differences:
+Provide exactly one of `--data` and `--file` for native create/update/ensure.
+`--file -` reads stdin. Input is a JSON object, limited to 4 MiB; UTF-8 BOMs are
+accepted. Unknown fields, explicit null/false/zero and large integers survive
+native JSON round trips. In PowerShell, prefer files or stdin:
 
 ```powershell
-Get-Content -Raw .\office.json | huego room create --file - --dry-run --json
-huego room create --file .\office.json --json
+Get-Content -Raw .\scene.json | huego scene create --file - --dry-run --json
 ```
 
-In shells with POSIX quoting, inline JSON works too:
+Native reads and writes emit one `{"errors":[],"data":[]}` envelope on stdout.
+Read resources use `id`/`type`; write identifiers use `rid`/`rtype`.
+`light list`, `room list`, `zone list` and `scene list` keep summary arrays;
+scene summaries also include the group reference. Use `resource list <type>` for
+complete native data. Workflow no-ops report `changed:false`.
+
+All failures exit nonzero. With `--json`, stderr contains a structured
+`{"error":{"code":"...","message":"...","details":...}}` object, including
+argument, configuration, HTTP and target-resolution failures. Error codes include
+`ambiguous_target`, `target_not_found`, `validation_failed`, `reference_not_found`,
+`unsupported_operation`, `unsupported_capability`, `not_configured`,
+`bridge_http_error`, `bridge_error`, `bridge_unreachable`, `timeout` and
+`workflow_failed`. Candidate IDs and HTTP statuses are structured details.
+Native bridge error envelopes, including partial successes, remain on stdout.
+Check both streams and the exit code; never blindly retry an uncertain POST.
+
+## Validation and previews
 
 ```sh
-huego device update <device-uuid> --data '{"metadata":{"name":"Desk"}}' --json
+huego resource validate scene --file scene.json --json
+huego resource validate light --method PUT --file light.json --json
+huego scene create --file scene.json --dry-run --json
+huego scene create --file scene.json --check --dry-run --json
+huego scene create --file scene.json --check --json
+huego light on <light-uuid> --brightness 60 --dry-run --json
+huego scene activate Relax --room Office --dry-run --json
 ```
 
-All new create/update/delete commands and task commands support `--dry-run`.
-The result includes `method`, the local CLIP `path`, and optional `body`, without
-credentials. Creation and UUID targets work offline. A name requires a bridge
-read for resolution, but a dry run never writes. The original lighting control
-commands and `scene activate` retain their existing flags; they do not acquire
-`--dry-run` in this change.
+Native dry runs validate against the embedded schema by default. `--validate`
+also enables offline schema validation for native execution. `--check` implies
+schema validation and reads the bridge inventory: it checks local references,
+scene membership, supported light features/temperature ranges, smart-scene group
+relationships, and script-specific configuration/trigger schemas. Public image
+references are not checked against the local inventory. The bridge remains the
+final authority for firmware semantics, limits and hardware compatibility.
 
-A target is a UUID or a complete, case-insensitive name. Duplicate matches fail
-with matching IDs. Unnamed sensors must be addressed by UUID. Creation does not
-deduplicate or upsert: list existing resources before creating one.
+Plans identify exactly what was checked using `validation.schema`,
+`validation.references` and `validation.capabilities`. `not_checked` is explicit.
+Offline UUID/create previews need no credentials; names, group control, toggles,
+snapshots and membership changes require reads. A preview never writes.
+Lighting controls, scene recalls, native mutations and workflow mutations all
+support `--dry-run`. `--check` is for native/workflow writes; it does not add
+hardware validation to the original on/off/color convenience commands.
 
-## Create a room, a scene and a daily schedule
-
-The [JSON templates](../examples/requests) use placeholder UUIDs. Replace them
-with IDs from your bridge before running the following commands.
-
-1. Read `resource list device` and choose the devices for a room. Fill
-   `examples/requests/room.json` with their IDs. Preview it with
-   `huego room create --file room.json --dry-run --json`, then create the room
-   and record its returned `data[0].rid`.
-2. Read the devices' `services` to find their light IDs. Fill
-   `examples/requests/scene.json` with the new room ID and those light IDs.
-   Create the scene with `huego scene create --file scene.json --json` and
-   record its returned ID. Scenes require metadata, group and actions.
-3. Fill `examples/requests/smart-scene.json` with the same room ID and scenes
-   belonging to it. Create the schedule with
-   `huego smart-scene create --file smart-scene.json --json`. Activate the
-   returned ID with `huego smart-scene activate <smart-scene-uuid> --json`.
-4. Verify with `room get`, `scene get` and `smart-scene get`. To modify the
-   schedule later, send its changed `week_timeslots` with `smart-scene update`.
-
-`zone create/update/delete` uses the same native JSON surface as rooms. Supply
-light/service references for its children. Configuration writes to `room update`
-and `zone update` go to the room/zone endpoint. The existing `room on`, `zone color`
-and other light controls still operate on the group's `grouped_light` service.
-
-The light-control convenience flags use seconds and kelvin. Native JSON uses
-the CLIP fields and units: durations in milliseconds, temperatures in mirek,
-and colors as CIE xy. For example, 2700 K is approximately 370 mirek. The scene
-template uses mirek for a warm white state.
-
-## Devices, sensors, automations and effects
+`--raw` on the generic `resource` commands bypasses the operation catalog and
+schema checks for firmware additions. It retains JSON-object/path validation:
 
 ```sh
-huego device rename <device-uuid> "Office lamp" --dry-run --json
-huego device identify <device-uuid> --json
-huego device usertest <device-uuid> true --json
-huego motion enable <motion-uuid> --json
-huego motion sensitivity <motion-uuid> 2 --json
-huego temperature disable <temperature-uuid> --json
-huego light effect <light-uuid> candle --json
-huego light effect <light-uuid> no_effect --json
-huego light powerup <light-uuid> last_on_state --json
-huego zigbee-device-discovery search <discovery-uuid> --json
-huego device-software-update install <update-uuid> --json
-huego entertainment-configuration start <area-uuid> --json
-huego entertainment-configuration stop <area-uuid> --json
-huego geofence-client at-home <client-uuid> false --json
+huego resource update future_service <uuid> --raw --file update.json --dry-run --json
+```
+
+## Rooms, zones and individual scene actions
+
+```sh
+huego room add Office "Desk Lamp" "Ceiling Lamp" --dry-run --json
+huego room add Office "Desk Lamp" --json
+huego room add Office "Motion Sensor" --devices --json
+huego room remove Office "Desk Lamp" --json
+huego room move "Desk Lamp" Study --dry-run --json
+huego zone add Upstairs "Desk Lamp" --json
+huego zone remove Upstairs "Desk Lamp" --json
+
+huego scene list --room Office --json
+huego scene activate Relax --room Office --json
+huego scene get Relax --zone Upstairs --json
+huego scene snapshot "Working" --room Office --ensure --json
+huego scene clone Relax "Evening copy" --room Office --json
+huego scene set-light Relax "Desk Lamp" --room Office --brightness 35 --temperature 2700 --json
+huego scene set-light Relax "Desk Lamp" --room Office --off --json
+huego scene remove-light Relax "Desk Lamp" --room Office --json
+```
+
+Room membership converts light references to owning devices; `--devices` permits
+accessories. Zone membership uses light services. Add/remove operations preserve
+other members and do not write when nothing changed. `room move` moves the whole
+owning device, including any other light services of that device.
+
+Scenes and smart scenes accept `--room` or `--zone` for list/get/update/delete,
+rename and helper actions. Matching remains exact and case-insensitive; duplicate
+matches within the selected scope fail. UUID targets are also checked against an
+explicit scope. Snapshot captures current member lights, removes read-only state
+fields, and chooses color or valid color temperature. Clone retains the source
+group. `set-light` merges one action and preserves other actions and unknown
+fields. Supply either lighting flags or native action JSON with `--data/--file`.
+
+Membership and single-action edits re-read the edited array before writing and
+reject detected concurrent changes. Hue offers no atomic compare-and-swap here:
+a change between that final read and PUT remains possible. Moves are sequential,
+not transactions; errors include completed responses and remaining requests.
+Re-running a move re-plans against current membership.
+
+## Repeatable creation and automation
+
+```sh
+huego room ensure Office --file office.json --json
+huego scene ensure Focus --file focus.json --json
+huego smart-scene ensure Workday --file workday.json --json
 huego behavior-script list --json
-huego behavior-instance list --json
-huego behavior-instance disable <instance-uuid> --json
-huego behavior-instance update <instance-uuid> --file automation-update.json --json
+huego behavior-script get <script-uuid> --json
+huego resource example behavior_instance --json
+huego behavior-instance create --file automation.json --check --dry-run --json
+huego behavior-instance ensure "Morning routine" --file automation.json --check --json
+huego behavior-instance enable "Morning routine" --json
+huego behavior-instance disable "Morning routine" --json
+huego behavior-instance delete "Morning routine" --json
 ```
 
-Sensor groups expose enable/disable where the pinned schema has `enabled`.
-Rename sends a metadata-only update, or the native `name` field for geofence
-clients. Motion sensitivity is non-negative; the bridge enforces its reported
-`sensitivity_max`. Effects and power-up presets depend on light capabilities;
-custom power-up settings, gradients, signaling and multi-field writes use
-`light update --file ...`. Power-up configuration does not switch the light on.
+`ensure` creates a missing resource, updates a unique existing name, and reuses
+its ID. Scenes/smart scenes are matched by name and the payload's group. The name
+argument sets `metadata.name`. Payloads must be suitable for creation, including
+required fields. Unchanged values produce a no-op. An existing automation cannot
+silently switch to another script. Duplicate matches fail. Concurrent independent
+creators can still race; after a timeout, re-read the bridge before retrying.
 
-Behavior-instance `configuration` is script-specific. Inspect the associated
-behavior script's configuration schema before constructing an update.
-Automation creation/deletion is absent from this public OpenHue revision,
-so obtain the appropriate payload from the current official Hue reference
-and opt into an explicit raw operation if the bridge supports it:
+Native updates remain partial PUTs. Arrays such as `children`, `actions` and
+`week_timeslots` replace that field; use the helpers for individual member/action
+changes. Unknown configuration fields are not discarded. Native JSON uses CIE xy,
+mirek, and milliseconds; convenience flags use colors, kelvin, and seconds.
+
+## Observe completion and events
 
 ```sh
-huego resource create behavior_instance --raw --file automation.json --dry-run --json
-huego resource create behavior_instance --raw --file automation.json --json
+huego resource wait light "Desk Lamp" --path /on/on --equals true --timeout 10s --json
+huego watch --type motion --count 1 --timeout 30s --json
+huego watch --id <resource-uuid> --timeout 2m --json
 ```
 
-## Coverage and firmware extensions
+`wait` supports JSON pointers, including array indices. `--equals` is a JSON
+value (strings must include JSON quotes); default polling interval is 1s and
+default timeout is 30s. Missing fields do not satisfy a wait. Timeouts fail with
+nonzero status. `watch` emits one JSON object per SSE message and supports type/ID
+filters, bounded duration/count, cancellation, and transient reconnects with
+`Last-Event-ID`. Without bounds it runs until interrupted. A reconnect does not
+guarantee the bridge retains every missed event; re-read state when needed.
 
-All 41 types in the pinned resource contract have collection/item reads and the
-documented POST/PUT/DELETE operations. This includes lighting, rooms, zones,
-scenes, smart scenes, sensors, MotionAware resources, devices, connectivity,
-entertainment configuration, geofencing, automations, HomeKit and Matter.
-Read-only resources do not expose direct update/create/delete commands.
-
-The public specification has gaps, including automation creation, full
-entertainment-area creation, some integration writes, MotionAware setup and
-new `switch_input_configuration` firmware resources. `--raw` bypasses only
-the operation catalog, retaining JSON-object and path validation:
+## Bridge profiles and noninteractive pairing
 
 ```sh
-huego resource list switch_input_configuration --raw --json
-huego resource update switch_input_configuration <service-uuid> --raw --file switch.json --json
+huego profile discover --json
+huego setup --ip 192.168.1.10 --non-interactive --bridge downstairs --json
+huego profile save upstairs --file bridge-credentials.json --json
+huego profile list --json
+huego --bridge downstairs room list --json
 ```
 
-The [official Hue API reference](https://developers.meethue.com/develop/hue-api-v2/api-reference/)
-is authoritative for current hardware behavior. The CLI validates operation
-availability in the catalog, payload syntax, and convenience-command values;
-it does not perform full schema or capability validation. The bridge remains
-the authority for semantic validation. The embedded schemas are intentionally
-unmodified interface facts, including upstream omissions and inconsistencies.
+Press the physical link button before noninteractive pairing. Supplying `--ip`
+skips cloud discovery. Noninteractive setup reports only address/profile, not
+credentials. Interactive setup fails promptly on closed stdin.
 
-This change covers REST configuration, not DTLS entertainment frame streaming
-or SSE event subscriptions. Automated verification uses fake HTTPS bridges and
-does not modify real devices. Hardware-dependent operations still need testing
-on a compatible bridge.
+`profile save` accepts `bridge_ip`, `app_key`, optional `client_key`, and replaces
+that profile. Profile names are validated; profile lists omit credentials.
+Explicit `--bridge` overrides `HUEGO_PROFILE`. A selected profile isolates its
+credentials from bridge/key environment overrides. Without a profile, existing
+environment / `.env` / default config behavior remains available.
+
+## Entertainment and firmware boundaries
+
+```sh
+huego resource example entertainment_configuration --json
+huego entertainment-configuration create --file area.json --check --json
+huego entertainment-configuration update TV --file positions.json --json
+huego entertainment-configuration stream TV --file frames.json --fps 25 --dry-run --json
+huego entertainment-configuration stream TV --file frames.json --fps 25 --json
+huego entertainment-configuration delete TV --json
+```
+
+Area locations reference **entertainment services**, not light UUIDs. Retrieve the
+area to discover channel IDs. A finite frame file uses normalized RGB components:
+
+```json
+{"frames":[{"0":[1,0,0],"1":[0,0,1]},{"0":[0,1,0],"1":[1,0,0]}]}
+```
+
+Streaming requires the client key from the same pairing as the app key. It checks
+channels and frame values before activation, uses DTLS 1.2 on UDP 2100 at 1-60 FPS,
+and attempts to release the area on completion/failure/cancellation. It refuses
+to take over an already-active area. A stream preview validates RGB values but
+reports channels as unchecked. This is frame playback, not screen/audio capture.
+
+Wall switches have native `switch-input-configuration get/update` and schema
+support. MotionAware configuration supports reading, enable/disable and naming;
+full Bridge Pro MotionAware setup still requires firmware-specific payloads via
+`--raw`. Cloud-account functions and Hue Secure video/subscription workflows are
+not exposed by this local bridge CLI. Consult the current official Hue reference
+for those boundaries rather than interpreting a listed resource as app parity.
+
+Automated tests use fake HTTPS bridges, SSE frames, DTLS transport substitutes
+and a real local DTLS PSK handshake.
+They do not certify compatibility with physical lights, Bridge Pro firmware or
+Hue app/cloud features. Hardware validation remains necessary.

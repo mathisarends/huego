@@ -4,11 +4,31 @@ Run with Python and PyYAML: python scripts/update-api-catalog.py /path/to/openhu
 """
 
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
 
 import yaml
+
+
+class OpenAPILoader(yaml.SafeLoader):
+    pass
+
+
+# YAML 1.1 treats Hue's `on` field and enum value as a boolean.
+OpenAPILoader.yaml_implicit_resolvers = {
+    key: [(tag, pattern) for tag, pattern in resolvers
+          if tag != "tag:yaml.org,2002:bool"]
+    for key, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+OpenAPILoader.add_implicit_resolver(
+    "tag:yaml.org,2002:bool", re.compile(r"^(?:true|false)$", re.IGNORECASE), list("tTfF")
+)
+
+
+def load_yaml(path):
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=OpenAPILoader)
 
 
 def resolve(value, base, stack=()):
@@ -22,7 +42,7 @@ def resolve(value, base, stack=()):
         reference = (target, fragment)
         if reference in stack:
             raise ValueError(f"Recursive schema: {reference}")
-        document = yaml.safe_load(target.read_text(encoding="utf-8"))
+        document = load_yaml(target)
         for segment in fragment.strip("/").split("/") if fragment else []:
             document = document[segment.replace("~1", "/").replace("~0", "~")]
         result = resolve(document, target, (*stack, reference))
@@ -40,14 +60,13 @@ def schema_facts(schema):
         key: ({name: schema_facts(item) for name, item in value.items()}
               if key == "properties" else schema_facts(value))
         for key, value in schema.items()
-        if key not in {"description", "title", "example", "examples", "externalDocs"}
     }
 
 
 def main():
     checkout = Path(sys.argv[1]).resolve()
     entry = checkout / "src/main.yaml"
-    source = yaml.safe_load(entry.read_text(encoding="utf-8"))
+    source = load_yaml(entry)
     resources = {}
     for path, reference in source["paths"].items():
         prefix = "/clip/v2/resource/"

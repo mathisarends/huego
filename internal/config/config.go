@@ -12,6 +12,8 @@ const (
 	bridgeFile = "bridge.json"
 )
 
+var ErrNotConfigured = errors.New("no Hue bridge configured: run `huego setup` or set HUEGO_BRIDGE_IP and HUEGO_APP_KEY")
+
 type Bridge struct {
 	IP        string `json:"bridge_ip"`
 	AppKey    string `json:"app_key"`
@@ -43,6 +45,9 @@ func Dir() (string, error) {
 // HUEGO_BRIDGE_IP, HUEGO_APP_KEY, HUEGO_CLIENT_KEY env vars on top.
 func LoadBridge() (Bridge, error) {
 	loadDotEnv()
+	if profile := os.Getenv("HUEGO_PROFILE"); profile != "" {
+		return LoadProfile(profile)
+	}
 	var bridge Bridge
 
 	dir, err := Dir()
@@ -64,7 +69,7 @@ func LoadBridge() (Bridge, error) {
 	}
 
 	if bridge.IP == "" || bridge.AppKey == "" {
-		return bridge, errors.New("no Hue bridge configured: run `huego setup` or set HUEGO_BRIDGE_IP and HUEGO_APP_KEY")
+		return bridge, ErrNotConfigured
 	}
 	return bridge, nil
 }

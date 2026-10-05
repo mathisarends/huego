@@ -74,7 +74,7 @@ func findNamedResource[T named](resources []T, kind, name string) (T, error) {
 		for i, match := range matches {
 			ids[i] = match.GetID()
 		}
-		return zero, fmt.Errorf("ambiguous %s name %q; use a UUID: %s", kind, name, strings.Join(ids, ", "))
+		return zero, &Problem{Code: "ambiguous_target", Message: fmt.Sprintf("ambiguous %s name %q; use a UUID: %s", kind, name, strings.Join(ids, ", ")), Details: map[string]any{"resource_type": kind, "target": name, "candidate_ids": ids}}
 	}
 	known := strings.Join(names, ", ")
 	if known == "" {

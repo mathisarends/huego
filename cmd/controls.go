@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"math"
+	"strings"
 
+	"github.com/mathisarends/huego/internal/config"
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
 )
@@ -185,11 +189,14 @@ func addControlCommands(parent *cobra.Command, target func(*hue.Client) controlT
 		},
 	}
 
-	parent.AddCommand(onCmd, offCmd, toggleCmd, brightnessCmd, colorCmd, temperatureCmd, identifyCmd)
+	for _, command := range []*cobra.Command{onCmd, offCmd, toggleCmd, brightnessCmd, colorCmd, temperatureCmd, identifyCmd} {
+		command.Flags().Bool("dry-run", false, "Preview without writing; groups, names and toggles require reads")
+		parent.AddCommand(command)
+	}
 }
 
 func resolveTarget(cmd *cobra.Command, target func(*hue.Client) controlTarget, arg string) (*hue.Client, string, error) {
-	client, err := newClient()
+	client, err := controlClient(cmd, arg)
 	if err != nil {
 		return nil, "", err
 	}
@@ -198,6 +205,30 @@ func resolveTarget(cmd *cobra.Command, target func(*hue.Client) controlTarget, a
 		return nil, "", err
 	}
 	return client, id, nil
+}
+
+func controlClient(cmd *cobra.Command, target string) (*hue.Client, error) {
+	dryRun, _ := cmd.Flags().GetBool("dry-run")
+	var client *hue.Client
+	var err error
+	if dryRun && hue.IsUUID(target) && cmd.Name() != "toggle" && (cmd.Parent().Name() == "light" || cmd.Parent().Name() == "scene") && !hasSceneScope(cmd) {
+		client = hue.NewClient(config.Bridge{})
+	} else {
+		client, err = newClient()
+	}
+	if err != nil {
+		return nil, err
+	}
+	if dryRun {
+		client.PreviewWrites(func(method, path string, body json.RawMessage) error {
+			kind := strings.Split(strings.TrimPrefix(path, "/clip/v2/resource/"), "/")[0]
+			if err := hue.ValidateRequest(kind, method, body); err != nil {
+				return err
+			}
+			return writeStructured(cmd, requestPlan{Method: method, Path: path, Body: body, Validation: &planValidation{Schema: "valid", References: "not_checked", Capabilities: "not_checked"}})
+		})
+	}
+	return client, nil
 }
 
 func addBrightnessFlag(cmd *cobra.Command) {
@@ -214,7 +245,7 @@ func brightnessAndTransitionFlags(cmd *cobra.Command) (brightness, transition *f
 		if err != nil {
 			return nil, nil, err
 		}
-		if v < 0 || v > 100 {
+		if math.IsNaN(v) || math.IsInf(v, 0) || v < 0 || v > 100 {
 			return nil, nil, fmt.Errorf("brightness must be between 0 and 100")
 		}
 		brightness = &v
@@ -223,6 +254,9 @@ func brightnessAndTransitionFlags(cmd *cobra.Command) (brightness, transition *f
 		v, err := cmd.Flags().GetFloat64("transition")
 		if err != nil {
 			return nil, nil, err
+		}
+		if math.IsNaN(v) || math.IsInf(v, 0) || v < 0 || v > 2147483 {
+			return nil, nil, fmt.Errorf("transition must be finite and between 0 and 2147483 seconds")
 		}
 		transition = &v
 	}

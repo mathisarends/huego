@@ -39,7 +39,7 @@ func (r APIResponse[T]) Err() error {
 	for i, detail := range r.Errors {
 		descriptions[i] = detail.Description
 	}
-	return fmt.Errorf("hue bridge reported errors: %s", strings.Join(descriptions, "; "))
+	return &Problem{Code: "bridge_error", Message: fmt.Sprintf("hue bridge reported errors: %s", strings.Join(descriptions, "; ")), Details: r}
 }
 
 type NamedMetadata struct {

@@ -9,9 +9,10 @@ import (
 )
 
 type resourceRow struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	State string `json:"state,omitempty"`
+	ID    string                 `json:"id"`
+	Name  string                 `json:"name"`
+	State string                 `json:"state,omitempty"`
+	Group *hue.ResourceReference `json:"group,omitempty"`
 }
 
 func writeResourceRows(cmd *cobra.Command, rows []resourceRow) error {
@@ -19,6 +20,10 @@ func writeResourceRows(cmd *cobra.Command, rows []resourceRow) error {
 		return err
 	}
 	for _, row := range rows {
+		if row.Group != nil {
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s  %s  (%s) [%s %s]\n", row.ID, row.Name, row.State, row.Group.RType, row.Group.RID)
+			continue
+		}
 		if row.State != "" {
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s  %s  (%s)\n", row.ID, row.Name, row.State)
 		} else {
@@ -64,11 +69,17 @@ func sceneRows(scenes []hue.Scene) []resourceRow {
 			state = string(*s.Status.Active)
 		}
 		rows[i] = resourceRow{ID: s.ID, Name: s.Name(), State: state}
+		if s.Group.RID != "" {
+			rows[i].Group = &s.Group
+		}
 	}
 	return rows
 }
 
 func writeResponse(cmd *cobra.Command, target string, resp hue.APIResponse[hue.ResourceIdentifier]) error {
+	if dryRun, _ := cmd.Flags().GetBool("dry-run"); dryRun {
+		return nil
+	}
 	written, err := writeJSON(cmd, resp)
 	if err != nil {
 		return err
@@ -78,7 +89,7 @@ func writeResponse(cmd *cobra.Command, target string, resp hue.APIResponse[hue.R
 		for i, responseError := range resp.Errors {
 			descriptions[i] = responseError.Description
 		}
-		return fmt.Errorf("bridge could not fully update %q: %s", target, strings.Join(descriptions, "; "))
+		return &hue.Problem{Code: "bridge_error", Message: fmt.Sprintf("bridge could not fully update %q: %s", target, strings.Join(descriptions, "; ")), Details: resp}
 	}
 	if written {
 		return nil

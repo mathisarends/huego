@@ -48,7 +48,7 @@ func (r ResourceResponse) Err() error {
 			descriptions[i] = string(raw)
 		}
 	}
-	return fmt.Errorf("hue bridge reported errors: %s", strings.Join(descriptions, "; "))
+	return &Problem{Code: "bridge_error", Message: fmt.Sprintf("hue bridge reported errors: %s", strings.Join(descriptions, "; ")), Details: r}
 }
 
 type ResourceRegistry struct {
@@ -104,7 +104,7 @@ func (n *NativeNamespace) Path(method, id string) (string, error) {
 			return "", err
 		}
 		if !capability.Supports(method, item) {
-			return "", fmt.Errorf("%s is not documented for %s (item: %t); use --raw for an explicit firmware-specific request", method, n.resourceType, item)
+			return "", &Problem{Code: "unsupported_operation", Message: fmt.Sprintf("%s is not documented for %s (item: %t); use --raw for an explicit firmware-specific request", method, n.resourceType, item)}
 		}
 	}
 	path := n.resourceType

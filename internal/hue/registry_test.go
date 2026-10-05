@@ -20,7 +20,7 @@ func TestCatalogMatchesPinnedContract(t *testing.T) {
 	if err := json.Unmarshal(data, &contract); err != nil {
 		t.Fatal(err)
 	}
-	catalog := Catalog()
+	catalog := PinnedCatalog()
 	if len(catalog.Resources) != 41 || catalog.Revision != contract.Revision {
 		t.Fatalf("unexpected catalog size or revision: %d, %s", len(catalog.Resources), catalog.Revision)
 	}

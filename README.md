@@ -55,10 +55,13 @@ access for pairing.
 | ------- | ---------------------------------------------------------------------------- |
 | `setup` | discover a bridge and register an application key                          |
 | `light` | `list`, `on`, `off`, `toggle`, `brightness`, `color`, `temperature`, `identify` |
-| `room`  | same vocabulary as `light`, applied to a room's `grouped_light` service     |
-| `zone`  | same vocabulary as `light`, applied to a zone's `grouped_light` service     |
-| `scene` | `list`, `activate`                                                          |
-| `resource` | `types`, `schema`, `list`, `get`, `create`, `update`, `delete` for every CLIP resource |
+| `room`  | lighting controls, native CRUD, `ensure`, `add`, `remove`, `move`             |
+| `zone`  | lighting controls, native CRUD, `ensure`, `add`, `remove`                     |
+| `scene` | native CRUD, `ensure`, `activate`, `snapshot`, `clone`, `set-light`, `remove-light`; room/zone scope |
+| `resource` | `types`, `schema`, `example`, `validate`, `list`, `get`, `create`, `update`, `delete`, `wait` |
+| `profile` | `discover`, `list`, `save`; select a bridge with `--bridge`                 |
+| `watch` | filtered SSE events with timeout, count limit and reconnection              |
+| `entertainment-configuration` | native CRUD, `ensure`, `start`, `stop`, `stream`       |
 | other resource types | `list`, `get`, and documented `create` / `update` / `delete`; e.g. `device`, `motion`, `smart-scene`, `behavior-instance` |
 
 Run `huego <command> --help` for flags on any command. The global `--json`
@@ -69,7 +72,8 @@ output.
 
 The CLI exposes all 41 resource types in the pinned
 [OpenHue API specification](https://github.com/openhue/openhue-api/tree/1ffc817857abf456d5ff2ae50400ef768dbce28e).
-Agents can inspect the complete bridge inventory, learn native request schemas
+An attributed supplement adds wall-switch configuration and missing automation
+and entertainment-area lifecycle operations. Agents can inspect the complete bridge inventory, learn native request schemas
 offline, and send JSON from a file, stdin or `--data`:
 
 ```sh
@@ -92,6 +96,16 @@ huego motion sensitivity <sensor-uuid> 2 --json
 huego behavior-instance disable <automation-uuid> --json
 huego light effect "Office lamp" candle --json
 huego light powerup "Office lamp" last_on_state --json
+
+huego room add Office "Office lamp" --json
+huego room move "Office lamp" Study --dry-run --json
+huego scene activate Relax --room Office --json
+huego scene snapshot Working --room Office --ensure --json
+huego scene set-light Working "Office lamp" --room Office --brightness 40 --json
+huego resource validate scene --file focus.json --json
+huego behavior-instance create --file automation.json --check --json
+huego resource wait light "Office lamp" --path /on/on --equals true --json
+huego watch --type motion --count 1 --timeout 30s --json
 ```
 
 `resource <action> <type>` is the uniform interface; `room create`, `scene update`
@@ -101,18 +115,30 @@ native underscore names. Native `list` / `get` / write commands return the full
 `{"errors":[],"data":[]}` envelope. The original lighting and scene `list`
 commands retain their compact summaries; use `resource list light` for full data.
 
-Every new write command accepts `--dry-run`. Dry runs with a UUID or for creation
-need no credentials; names may require a read to resolve the target. Unknown or
+Native writes, lighting controls, scene recalls and workflow mutations accept
+`--dry-run`. Native dry runs validate the request schema. Use `--validate` for
+execution-time schema checks or `--check` for native/workflow bridge reference,
+membership and supported light/script capability checks. Plans state which checks
+ran. Native create/UUID previews need no credentials; names and stateful workflows
+require reads. Unknown or
 duplicate names cause an error; use UUIDs for reliable automation. JSON payloads
 preserve explicit `null`, `false`, zero and unknown firmware fields. Writes
 report a nonzero exit code for HTTP failures and errors in successful HTTP
 responses, including partial failures.
 
-The operation catalog guards documented HTTP methods. Schemas are guidance;
-the bridge validates payload semantics and hardware support. Firmware additions
+The operation catalog guards documented HTTP methods. Schemas retain descriptions
+and examples; `resource example` provides editable templates. The bridge remains
+the final authority on firmware semantics and hardware support. Firmware additions
 and operations absent from the public spec remain accessible through
 `huego resource ... --raw`. See the [agent guide](docs/agents.md) for complete
-room, scene, smart-scene and automation workflows, JSON templates and limits.
+room, scene, smart-scene and automation workflows, profiles, SSE observation,
+DTLS frame playback, structured errors, JSON templates and limits.
+
+`--json` errors are structured objects on stderr; native bridge envelopes remain
+on stdout. `ensure` reuses uniquely named resources and reports unchanged state.
+Use `profile save/list` and `--bridge <profile>` for multiple bridges. Pair without
+prompts using `setup --ip <address> --non-interactive --bridge <profile> --json`
+after pressing the physical link button.
 
 ### `light` / `room` / `zone` — control vocabulary
 
@@ -137,12 +163,15 @@ whitespace, but does not guess misspellings or abbreviated names. Unknown names
 produce an error containing the known names for that resource type. Duplicate
 names produce an ambiguity error containing the matching IDs.
 
-### `scene` — activate a stored scene
+### `scene` — manage and activate stored scenes
 
 | Command                        | Args         | Flags                                            | Notes                                          |
 | -------------------------------- | ------------ | -------------------------------------------------- | ------------------------------------------------- |
 | `scene list`                   | —            | —                                                  | Lists scenes with their active/inactive status. |
 | `scene activate <target>`      | UUID or name | `--brightness/-b`, `--transition`, `--dynamic`     | `--dynamic` starts the scene's dynamic palette instead of a static recall. |
+
+Both commands accept `--room` or `--zone` to resolve names within a group.
+Scene creation, editing, snapshots and cloning are covered in [the agent guide](docs/agents.md).
 
 ```sh
 huego light list
@@ -222,6 +251,5 @@ fixture and provenance in `third_party/openhue-api/NOTICE`, then run the tests.
 
 ## See also
 
-[hueify](https://github.com/mathisarends/hueify), a Python client covering
-the same lighting control plus entertainment-area DTLS streaming and the
-bridge's SSE event stream, for anyone who needs those.
+[hueify](https://github.com/mathisarends/hueify), a Python client for lighting
+control, entertainment-area DTLS streaming and the bridge's SSE event stream.

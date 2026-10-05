@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -11,7 +12,7 @@ import (
 
 func parseFloat(value, name string) (float64, error) {
 	f, err := strconv.ParseFloat(value, 64)
-	if err != nil {
+	if err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
 		return 0, fmt.Errorf("invalid %s %q: expected a number", name, value)
 	}
 	return f, nil

@@ -18,9 +18,11 @@ const basePath = "/clip/v2/resource"
 // Client talks to one Hue bridge's local CLIP v2 REST API. The bridge
 // presents a self-signed certificate, so TLS verification is disabled.
 type Client struct {
+	bridge config.Bridge
 	baseURL   string
 	appKey    string
 	http      *http.Client
+	preview   func(string, string, json.RawMessage) error
 	Resources *ResourceRegistry
 	*Lights
 	*Rooms
@@ -28,8 +30,13 @@ type Client struct {
 	*Scenes
 }
 
+func (c *Client) PreviewWrites(preview func(string, string, json.RawMessage) error) {
+	c.preview = preview
+}
+
 func NewClient(bridge config.Bridge) *Client {
 	c := &Client{
+		bridge: bridge,
 		baseURL: fmt.Sprintf("https://%s%s", bridge.IP, basePath),
 		appKey:  bridge.AppKey,
 		http: &http.Client{
@@ -63,6 +70,17 @@ func (c *Client) request(ctx context.Context, method, path string, body, out any
 			return err
 		}
 		reqBody = bytes.NewReader(b)
+	}
+	if c.preview != nil && method != http.MethodGet {
+		var payload json.RawMessage
+		if body != nil {
+			var err error
+			payload, err = json.Marshal(body)
+			if err != nil {
+				return err
+			}
+		}
+		return c.preview(method, basePath+"/"+path, payload)
 	}
 
 	requestURL := c.baseURL

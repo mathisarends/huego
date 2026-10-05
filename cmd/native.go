@@ -29,6 +29,19 @@ func newNativeListCommand(kind string) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if kind == "smart_scene" && hasSceneScope(cmd) {
+				scope, err := sceneScope(cmd, client)
+				if err != nil {
+					return err
+				}
+				filtered := []hue.Resource{}
+				for _, resource := range response.Data {
+					if decodeField[hue.ResourceReference](resource, "group") == *scope {
+						filtered = append(filtered, resource)
+					}
+				}
+				response.Data = filtered
+			}
 			return writeNativeResponse(cmd, response)
 		},
 	}
@@ -119,6 +132,7 @@ func addNativeHelpers(parent *cobra.Command, capability hue.ResourceCapability) 
 				fixedPayload(map[string]any{"recall": map[string]string{"action": action}})))
 		}
 	case "entertainment_configuration":
+		parent.AddCommand(entertainmentStreamCommand())
 		for _, action := range []string{"start", "stop"} {
 			parent.AddCommand(newNativeAction(kind, action+" <target>", action+" an entertainment area", 1, fixedPayload(map[string]string{"action": action})))
 		}
@@ -178,6 +192,12 @@ func init() {
 		parent.Args = cobra.NoArgs
 		parent.RunE = func(cmd *cobra.Command, args []string) error { return cmd.Help() }
 		parent.AddCommand(newNativeGetCommand(kind))
+		if capability.Supports(http.MethodPost, false) {
+			parent.AddCommand(ensureCommand(kind))
+		}
+		if kind == "smart_scene" {
+			addSceneScope(parent)
+		}
 		for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodDelete} {
 			if capability.Supports(method, method != http.MethodPost) {
 				parent.AddCommand(newNativeWriteCommand(kind, method))

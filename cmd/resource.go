@@ -11,9 +11,16 @@ import (
 )
 
 type requestPlan struct {
-	Method string          `json:"method"`
-	Path   string          `json:"path"`
-	Body   json.RawMessage `json:"body,omitempty"`
+	Method     string          `json:"method"`
+	Path       string          `json:"path"`
+	Body       json.RawMessage `json:"body,omitempty"`
+	Validation *planValidation `json:"validation,omitempty"`
+}
+
+type planValidation struct {
+	Schema       string `json:"schema"`
+	References   string `json:"references"`
+	Capabilities string `json:"capabilities"`
 }
 
 func writeStructured(cmd *cobra.Command, value any) error {
@@ -58,7 +65,7 @@ func newResourceCommand() *cobra.Command {
 		},
 	}
 	schema := &cobra.Command{
-		Use: "schema <type>", Short: "Show offline request schemas and supported operations from OpenHue", Args: cobra.ExactArgs(1),
+		Use: "schema <type>", Short: "Show offline request schemas, supported operations and sources", Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			capability, err := hue.Capability(args[0])
 			if err != nil {
@@ -66,10 +73,11 @@ func newResourceCommand() *cobra.Command {
 			}
 			catalog := hue.Catalog()
 			return writeStructured(cmd, struct {
-				Source   string `json:"source"`
-				Revision string `json:"revision"`
+				Source            string   `json:"source"`
+				Revision          string   `json:"revision"`
+				AdditionalSources []string `json:"additional_sources,omitempty"`
 				hue.ResourceCapability
-			}{catalog.Source, catalog.Revision, capability})
+			}{catalog.Source, catalog.Revision, catalog.AdditionalSources, capability})
 		},
 	}
 	list := &cobra.Command{
@@ -101,7 +109,7 @@ func newResourceCommand() *cobra.Command {
 			return writeNativeResponse(cmd, response)
 		},
 	}
-	parent.AddCommand(types, schema, list, newNativeGetCommand(""))
+	parent.AddCommand(types, schema, list, newNativeGetCommand(""), newValidateCommand(), waitCommand(), exampleCommand())
 	for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodDelete} {
 		parent.AddCommand(newNativeWriteCommand("", method))
 	}
@@ -134,7 +142,7 @@ func newNativeGetCommand(kind string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := namespace.ResolveTarget(cmd.Context(), target)
+			id, err := resolveResourceTarget(cmd, client, resourceType, target, raw)
 			if err != nil {
 				return err
 			}
@@ -195,8 +203,24 @@ func newNativeWriteCommand(kind, method string) *cobra.Command {
 }
 
 func runNativeWrite(cmd *cobra.Command, kind, method, target string, body json.RawMessage) error {
+	if method == http.MethodPost {
+		var err error
+		body, err = applySceneScope(cmd, kind, body)
+		if err != nil {
+			return err
+		}
+	}
 	raw, _ := cmd.Flags().GetBool("raw")
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
+	validate, _ := cmd.Flags().GetBool("validate")
+	check, _ := cmd.Flags().GetBool("check")
+	validation := &planValidation{Schema: "not_checked", References: "not_checked", Capabilities: "not_checked"}
+	if method != http.MethodDelete && !raw && (validate || dryRun || check) {
+		if err := hue.ValidateRequest(kind, method, body); err != nil {
+			return err
+		}
+		validation.Schema = "valid"
+	}
 	placeholder := ""
 	if method != http.MethodPost {
 		placeholder = "target"
@@ -211,18 +235,15 @@ func runNativeWrite(cmd *cobra.Command, kind, method, target string, body json.R
 	var err error
 	id := ""
 	if method != http.MethodPost {
-		if hue.IsUUID(target) {
+		scopedScene := (kind == "scene" || kind == "smart_scene") && hasSceneScope(cmd)
+		if hue.IsUUID(target) && !scopedScene {
 			id = strings.ToLower(target)
 		} else {
 			client, err = newClient()
 			if err != nil {
 				return err
 			}
-			namespace, nsErr := client.Resources.Of(kind, raw)
-			if nsErr != nil {
-				return nsErr
-			}
-			id, err = namespace.ResolveTarget(cmd.Context(), target)
+			id, err = resolveResourceTarget(cmd, client, kind, target, raw)
 			if err != nil {
 				return err
 			}
@@ -232,8 +253,20 @@ func runNativeWrite(cmd *cobra.Command, kind, method, target string, body json.R
 	if err != nil {
 		return err
 	}
+	if check && method != http.MethodDelete {
+		if client == nil {
+			client, err = newClient()
+			if err != nil {
+				return err
+			}
+		}
+		if err := checkRequest(cmd, client, kind, id, body); err != nil {
+			return err
+		}
+		validation.References, validation.Capabilities = "checked_local_references", "checked_supported_fields"
+	}
 	if dryRun {
-		return writeStructured(cmd, requestPlan{Method: method, Path: "/clip/v2/resource/" + path, Body: body})
+		return writeStructured(cmd, requestPlan{Method: method, Path: "/clip/v2/resource/" + path, Body: body, Validation: validation})
 	}
 	if client == nil {
 		client, err = newClient()

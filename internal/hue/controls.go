@@ -66,6 +66,8 @@ func buildLightUpdate(change StateChange) (LightUpdate, error) {
 	return update, nil
 }
 
+func BuildLightUpdate(change StateChange) (LightUpdate, error) { return buildLightUpdate(change) }
+
 func transitionToMilliseconds(seconds float64) int {
 	return int(seconds*1000 + 0.5)
 }

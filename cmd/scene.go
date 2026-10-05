@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
 )
@@ -25,6 +23,19 @@ var sceneListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		scope, err := sceneScope(cmd, client)
+		if err != nil {
+			return err
+		}
+		if scope != nil {
+			filtered := scenes[:0]
+			for _, scene := range scenes {
+				if scene.Group == *scope {
+					filtered = append(filtered, scene)
+				}
+			}
+			scenes = filtered
+		}
 		return writeResourceRows(cmd, sceneRows(scenes))
 	},
 }
@@ -35,30 +46,18 @@ var sceneActivateCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var activation hue.SceneActivation
-		if cmd.Flags().Changed("brightness") {
-			v, err := cmd.Flags().GetFloat64("brightness")
-			if err != nil {
-				return err
-			}
-			if v < 0 || v > 100 {
-				return fmt.Errorf("brightness must be between 0 and 100")
-			}
-			activation.Brightness = &v
-		}
-		if cmd.Flags().Changed("transition") {
-			v, err := cmd.Flags().GetFloat64("transition")
-			if err != nil {
-				return err
-			}
-			activation.Transition = &v
-		}
-		activation.Dynamic, _ = cmd.Flags().GetBool("dynamic")
-
-		client, err := newClient()
+		brightness, transition, err := brightnessAndTransitionFlags(cmd)
 		if err != nil {
 			return err
 		}
-		id, err := client.Scenes.ResolveTarget(cmd.Context(), args[0])
+		activation.Brightness, activation.Transition = brightness, transition
+		activation.Dynamic, _ = cmd.Flags().GetBool("dynamic")
+
+		client, err := controlClient(cmd, args[0])
+		if err != nil {
+			return err
+		}
+		id, err := resolveResourceTarget(cmd, client, "scene", args[0], false)
 		if err != nil {
 			return err
 		}
@@ -71,6 +70,8 @@ var sceneActivateCmd = &cobra.Command{
 }
 
 func init() {
+	addSceneScope(sceneCmd)
+	sceneActivateCmd.Flags().Bool("dry-run", false, "Preview scene recall without writing")
 	addBrightnessFlag(sceneActivateCmd)
 	addTransitionFlag(sceneActivateCmd)
 	sceneActivateCmd.Flags().Bool("dynamic", false, "Start the scene's dynamic palette")
