@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
 )
@@ -63,24 +61,11 @@ var sceneActivateCmd = &cobra.Command{
 	Short: "Activate a scene, optionally with a brightness or fade",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var activation hue.SceneActivation
-		if cmd.Flags().Changed("brightness") {
-			v, err := cmd.Flags().GetFloat64("brightness")
-			if err != nil {
-				return err
-			}
-			if v < 0 || v > 100 {
-				return fmt.Errorf("brightness must be between 0 and 100")
-			}
-			activation.Brightness = &v
+		brightness, transition, err := brightnessAndTransitionFlags(cmd)
+		if err != nil {
+			return err
 		}
-		if cmd.Flags().Changed("transition") {
-			v, err := cmd.Flags().GetFloat64("transition")
-			if err != nil {
-				return err
-			}
-			activation.Transition = &v
-		}
+		activation := hue.SceneActivation{Brightness: brightness, Transition: transition}
 		activation.Dynamic, _ = cmd.Flags().GetBool("dynamic")
 
 		client, err := newClient()

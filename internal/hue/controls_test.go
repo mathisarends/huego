@@ -253,3 +253,30 @@ func TestTransitionToMilliseconds(t *testing.T) {
 		t.Fatalf("transitionToMilliseconds(0) = %d, want 0", got)
 	}
 }
+
+func TestBrightenTurnsTargetOn(t *testing.T) {
+	target := &fakeControllable{}
+	if _, err := Brighten(t.Context(), target, "abc", 5); err != nil {
+		t.Fatalf("Brighten() error = %v", err)
+	}
+	if target.lastUpdate.On == nil || !target.lastUpdate.On.On {
+		t.Fatalf("On = %+v, want on", target.lastUpdate.On)
+	}
+}
+
+func TestDimRejectsOutOfRangeStep(t *testing.T) {
+	target := &fakeControllable{}
+	if _, err := Dim(t.Context(), target, "abc", 150); err == nil {
+		t.Fatal("Dim(150) error = nil, want range error")
+	}
+	if target.applyCalls != 0 {
+		t.Fatalf("Apply() called %d times, want 0", target.applyCalls)
+	}
+}
+
+func TestBuildLightUpdateRejectsNegativeTransition(t *testing.T) {
+	transition := -1.0
+	if _, err := buildLightUpdate(StateChange{Transition: &transition}); err == nil {
+		t.Fatal("buildLightUpdate() error = nil, want negative transition error")
+	}
+}

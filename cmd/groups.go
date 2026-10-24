@@ -65,7 +65,7 @@ func newGroupCommand(kind, plural string, target func(*hue.Client) groupTarget) 
 	}
 
 	parent.AddCommand(listCmd, getCmd)
-	addControlCommands(parent, func(c *hue.Client) controlTarget { return target(c) })
+	addControlCommands(parent, func(c *hue.Client) controlTarget { return target(c) }, true)
 	return parent
 }
 

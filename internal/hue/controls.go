@@ -36,6 +36,9 @@ func buildLightUpdate(change StateChange) (LightUpdate, error) {
 	if change.Brightness != nil && (*change.Brightness < 0 || *change.Brightness > 100) {
 		return LightUpdate{}, fmt.Errorf("brightness must be between 0 and 100")
 	}
+	if change.Transition != nil && *change.Transition < 0 {
+		return LightUpdate{}, fmt.Errorf("transition must not be negative")
+	}
 
 	mirek := change.Mirek
 	if change.Kelvin != nil {
@@ -105,18 +108,38 @@ func SetBrightness(ctx context.Context, target Controllable, id string, brightne
 	return SetState(ctx, target, id, StateChange{On: &on, Brightness: &brightness, Transition: transition})
 }
 
+// Brighten raises brightness by a percentage step relative to the current
+// level and turns the target on, so a "brighter" keybind also works on a
+// light that is off. by == 0 uses the default step.
 func Brighten(ctx context.Context, target Controllable, id string, by float64) (APIResponse[ResourceIdentifier], error) {
-	if by == 0 {
-		by = defaultBrightnessStep
+	by, err := brightnessStep(by)
+	if err != nil {
+		return APIResponse[ResourceIdentifier]{}, err
 	}
-	return target.Apply(ctx, id, LightUpdate{DimmingDelta: &DimmingDelta{Action: DimmingDeltaUp, BrightnessDelta: by}})
+	return target.Apply(ctx, id, LightUpdate{
+		On:           &OnState{On: true},
+		DimmingDelta: &DimmingDelta{Action: DimmingDeltaUp, BrightnessDelta: by},
+	})
 }
 
+// Dim lowers brightness by a percentage step. The bridge stops at the
+// light's minimum level instead of turning it off. by == 0 uses the default step.
 func Dim(ctx context.Context, target Controllable, id string, by float64) (APIResponse[ResourceIdentifier], error) {
-	if by == 0 {
-		by = defaultBrightnessStep
+	by, err := brightnessStep(by)
+	if err != nil {
+		return APIResponse[ResourceIdentifier]{}, err
 	}
 	return target.Apply(ctx, id, LightUpdate{DimmingDelta: &DimmingDelta{Action: DimmingDeltaDown, BrightnessDelta: by}})
+}
+
+func brightnessStep(by float64) (float64, error) {
+	if by == 0 {
+		return defaultBrightnessStep, nil
+	}
+	if by < 0 || by > 100 {
+		return 0, fmt.Errorf("brightness step must be between 0 and 100")
+	}
+	return by, nil
 }
 
 func SetRGB(ctx context.Context, target Controllable, id string, rgb RGB, brightness *float64, transition *float64) (APIResponse[ResourceIdentifier], error) {

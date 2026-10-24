@@ -173,3 +173,27 @@ type Zones struct{ groupNamespace }
 func newZones(client *Client) *Zones {
 	return &Zones{newGroupNamespace(client, ResourceTypeZone)}
 }
+
+// Home is the bridge_home group, which spans every light on the bridge.
+type Home struct{ groupNamespace }
+
+func newHome(client *Client) *Home {
+	return &Home{newGroupNamespace(client, ResourceTypeBridgeHome)}
+}
+
+// ID returns the ID of the single bridge_home resource every bridge has.
+func (h *Home) ID(ctx context.Context) (string, error) {
+	homes, err := h.List(ctx)
+	if err != nil {
+		return "", err
+	}
+	if len(homes) == 0 {
+		return "", newResourceNotFoundError("bridge reports no bridge_home resource")
+	}
+	return homes[0].ID, nil
+}
+
+// ResolveTarget ignores its argument because there is only one home.
+func (h *Home) ResolveTarget(ctx context.Context, _ string) (string, error) {
+	return h.ID(ctx)
+}

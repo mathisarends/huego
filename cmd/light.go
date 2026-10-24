@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+	"slices"
+	"strings"
+
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
 )
@@ -51,11 +55,45 @@ var lightGetCmd = &cobra.Command{
 	},
 }
 
+var lightEffectCmd = &cobra.Command{
+	Use:   "effect <target> <effect>",
+	Short: "Start a light effect such as candle or fire; \"none\" stops it",
+	Long: "Start a light effect such as candle, fire, sparkle, or prism; \"none\" stops it.\n" +
+		"Which effects a light supports is listed under capabilities in \"huego light get\".",
+	Args: cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client, id, err := resolveTarget(cmd, lightTarget, args[0])
+		if err != nil {
+			return err
+		}
+		effect := strings.ToLower(args[1])
+		if effect == "none" || effect == "off" {
+			effect = hue.EffectNone
+		}
+		light, err := client.Lights.GetOne(cmd.Context(), id)
+		if err != nil {
+			return err
+		}
+		supported := light.SupportedEffects()
+		if len(supported) == 0 {
+			return fmt.Errorf("light %q does not support effects", light.Name())
+		}
+		if effect != hue.EffectNone && !slices.Contains(supported, effect) {
+			return fmt.Errorf("light %q does not support effect %q; supported: %s, none", light.Name(), args[1], strings.Join(supported, ", "))
+		}
+		resp, err := client.Lights.SetEffect(cmd.Context(), id, effect)
+		if err != nil {
+			return err
+		}
+		return writeResponse(cmd, args[0], resp)
+	},
+}
+
 func lightTarget(c *hue.Client) controlTarget { return c.Lights }
 
 func init() {
 	addNamesFlag(lightListCmd)
-	lightCmd.AddCommand(lightListCmd, lightGetCmd)
-	addControlCommands(lightCmd, lightTarget)
+	lightCmd.AddCommand(lightListCmd, lightGetCmd, lightEffectCmd)
+	addControlCommands(lightCmd, lightTarget, true)
 	rootCmd.AddCommand(lightCmd)
 }

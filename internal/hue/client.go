@@ -26,6 +26,7 @@ type Client struct {
 	Rooms  *Rooms
 	Zones  *Zones
 	Scenes *Scenes
+	Home   *Home
 }
 
 func NewClient(bridge config.Bridge) *Client {
@@ -43,6 +44,7 @@ func NewClient(bridge config.Bridge) *Client {
 	c.Rooms = newRooms(c)
 	c.Zones = newZones(c)
 	c.Scenes = newScenes(c)
+	c.Home = newHome(c)
 	return c
 }
 

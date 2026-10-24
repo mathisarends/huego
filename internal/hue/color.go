@@ -154,6 +154,15 @@ func gammaExpand(channel float64) float64 {
 	return channel / 12.92
 }
 
+// ColorNames lists the names ParseColor accepts besides hex strings.
+func ColorNames() []string {
+	names := make([]string, 0, len(namedColors))
+	for name := range namedColors {
+		names = append(names, name)
+	}
+	return names
+}
+
 func gammaCompress(channel float64) float64 {
 	if channel <= 0.0031308 {
 		return 12.92 * channel
