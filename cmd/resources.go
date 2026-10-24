@@ -219,7 +219,7 @@ func writeResponse(cmd *cobra.Command, target string, resp hue.APIResponse[hue.R
 		for i, responseError := range resp.Errors {
 			descriptions[i] = responseError.Description
 		}
-		return fmt.Errorf("bridge could not fully update %q: %s", target, strings.Join(descriptions, "; "))
+		return partialUpdateError{fmt.Sprintf("bridge could not fully update %q: %s", target, strings.Join(descriptions, "; "))}
 	}
 	if written {
 		return nil

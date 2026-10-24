@@ -61,7 +61,7 @@ func (c *Client) Events(ctx context.Context, connected func(), handle func(Event
 		if ctx.Err() != nil {
 			return nil
 		}
-		return err
+		return c.unreachable(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 

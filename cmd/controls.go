@@ -165,13 +165,17 @@ func newControlCommand(action controlAction, target func(*hue.Client) controlTar
 		positional = append([]string{"<target>"}, positional...)
 	}
 	maxArgs := len(positional)
+	argsCheck := cobra.RangeArgs(maxArgs-action.optional, maxArgs)
+	if action.optional == 0 {
+		argsCheck = cobra.ExactArgs(maxArgs)
+	}
 
 	cmd := &cobra.Command{
 		Use:     strings.Join(append([]string{action.use}, positional...), " "),
 		Aliases: action.aliases,
 		Short:   action.short,
 		Long:    action.long,
-		Args:    cobra.RangeArgs(maxArgs-action.optional, maxArgs),
+		Args:    argsCheck,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			label := cmd.Parent().Name()
 			if targeted {
@@ -179,7 +183,7 @@ func newControlCommand(action controlAction, target func(*hue.Client) controlTar
 			}
 			if action.validate != nil {
 				if err := action.validate(args); err != nil {
-					return err
+					return asUsage(err)
 				}
 			}
 			brightness, transition, err := brightnessAndTransitionFlags(cmd)
@@ -267,7 +271,7 @@ func brightnessAndTransitionFlags(cmd *cobra.Command) (brightness, transition *f
 			return nil, nil, err
 		}
 		if v < 0 || v > 100 {
-			return nil, nil, fmt.Errorf("brightness must be between 0 and 100")
+			return nil, nil, usagef("brightness must be between 0 and 100")
 		}
 		brightness = &v
 	}
@@ -277,7 +281,7 @@ func brightnessAndTransitionFlags(cmd *cobra.Command) (brightness, transition *f
 			return nil, nil, err
 		}
 		if v < 0 {
-			return nil, nil, fmt.Errorf("transition must not be negative")
+			return nil, nil, usagef("transition must not be negative")
 		}
 		transition = &v
 	}

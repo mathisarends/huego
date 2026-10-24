@@ -12,6 +12,10 @@ const (
 	bridgeFile = "bridge.json"
 )
 
+// ErrNotConfigured means neither a saved bridge nor the environment
+// provides a bridge IP and app key.
+var ErrNotConfigured = errors.New("no Hue bridge configured: run `huego setup` or set HUEGO_BRIDGE_IP and HUEGO_APP_KEY")
+
 type Bridge struct {
 	IP        string `json:"bridge_ip"`
 	AppKey    string `json:"app_key"`
@@ -64,7 +68,7 @@ func LoadBridge() (Bridge, error) {
 	}
 
 	if bridge.IP == "" || bridge.AppKey == "" {
-		return bridge, errors.New("no Hue bridge configured: run `huego setup` or set HUEGO_BRIDGE_IP and HUEGO_APP_KEY")
+		return bridge, ErrNotConfigured
 	}
 	return bridge, nil
 }

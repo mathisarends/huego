@@ -53,12 +53,12 @@ func readableNumericFlagError(name string) func(*cobra.Command, error) error {
 		marker := " in -"
 		index := strings.LastIndex(message, marker)
 		if index == -1 {
-			return err
+			return asUsage(err)
 		}
 		value := message[index+len(marker)-1:]
 		if _, parseErr := strconv.ParseFloat(value, 64); parseErr != nil {
-			return err
+			return asUsage(err)
 		}
-		return fmt.Errorf("invalid %s %q: negative values are not allowed", name, value)
+		return usagef("invalid %s %q: negative values are not allowed", name, value)
 	}
 }

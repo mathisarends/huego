@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -21,11 +21,19 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
+// wantsJSON also scans the raw arguments because flag parsing stops at the
+// first bad flag, which may come before --json.
+func wantsJSON(cmd *cobra.Command) bool {
+	return jsonEnabled(cmd) || slices.Contains(os.Args[1:], "--json")
+}
+
 func Execute() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := rootCmd.ExecuteContext(ctx); err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
+	prepareCommands()
+	cmd, err := rootCmd.ExecuteContextC(ctx)
+	if err != nil {
+		stop()
+		os.Exit(reportError(os.Stderr, err, wantsJSON(cmd)))
 	}
 }

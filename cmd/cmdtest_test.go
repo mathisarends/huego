@@ -46,6 +46,7 @@ func withClient(t *testing.T, c *hue.Client) {
 // first since pflag values otherwise persist across Execute() calls.
 func execute(t *testing.T, args ...string) (string, error) {
 	t.Helper()
+	prepareCommands()
 	resetFlags(rootCmd)
 
 	buf := &bytes.Buffer{}

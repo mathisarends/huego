@@ -5,9 +5,11 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/mathisarends/huego/internal/config"
@@ -60,6 +62,16 @@ func (c *Client) put(ctx context.Context, path string, body, out any) error {
 	return c.request(ctx, http.MethodPut, path, body, out)
 }
 
+// unreachable rewords a transport error without the request URL, which
+// repeats the bridge address and adds nothing for the reader.
+func (c *Client) unreachable(err error) error {
+	var urlErr *url.Error
+	if errors.As(err, &urlErr) {
+		err = urlErr.Err
+	}
+	return fmt.Errorf("cannot reach the Hue bridge at %s: %w", c.host, err)
+}
+
 func (c *Client) request(ctx context.Context, method, path string, body, out any) error {
 	var reqBody io.Reader
 	if body != nil {
@@ -81,7 +93,7 @@ func (c *Client) request(ctx context.Context, method, path string, body, out any
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return err
+		return c.unreachable(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 

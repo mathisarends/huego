@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 
@@ -76,10 +75,10 @@ var lightEffectCmd = &cobra.Command{
 		}
 		supported := light.SupportedEffects()
 		if len(supported) == 0 {
-			return fmt.Errorf("light %q does not support effects", light.Name())
+			return usagef("light %q does not support effects", light.Name())
 		}
 		if effect != hue.EffectNone && !slices.Contains(supported, effect) {
-			return fmt.Errorf("light %q does not support effect %q; supported: %s, none", light.Name(), args[1], strings.Join(supported, ", "))
+			return usagef("light %q does not support effect %q; supported: %s, none", light.Name(), args[1], strings.Join(supported, ", "))
 		}
 		resp, err := client.Lights.SetEffect(cmd.Context(), id, effect)
 		if err != nil {
