@@ -1,0 +1,12 @@
+/* Append to ~/.config/waybar/style.css. Colors come from the Omarchy theme. */
+#custom-hue {
+  margin: 0 7.5px;
+}
+
+#custom-hue.off {
+  opacity: 0.5;
+}
+
+#custom-hue.disconnected {
+  opacity: 0.3;
+}
