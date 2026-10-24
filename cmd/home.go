@@ -31,7 +31,7 @@ var homeGetCmd = &cobra.Command{
 		}
 		view := newGroupView(home)
 		if view.Name == "" {
-			view.Name = "Home"
+			view.Name = hue.HomeName
 		}
 		return writeDetails(cmd, view, view.fields())
 	},

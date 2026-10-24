@@ -18,9 +18,11 @@ const basePath = "/clip/v2/resource"
 // Client talks to one Hue bridge's local CLIP v2 REST API. The bridge
 // presents a self-signed certificate, so TLS verification is disabled.
 type Client struct {
+	host    string
 	baseURL string
 	appKey  string
 	http    *http.Client
+	stream  *http.Client
 
 	Lights *Lights
 	Rooms  *Rooms
@@ -30,15 +32,17 @@ type Client struct {
 }
 
 func NewClient(bridge config.Bridge) *Client {
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // bridge cert is self-signed and unverifiable
+	}
 	c := &Client{
+		host:    bridge.IP,
 		baseURL: fmt.Sprintf("https://%s%s", bridge.IP, basePath),
 		appKey:  bridge.AppKey,
-		http: &http.Client{
-			Timeout: 10 * time.Second,
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // bridge cert is self-signed and unverifiable
-			},
-		},
+		http:    &http.Client{Timeout: 10 * time.Second, Transport: transport},
+		// The event stream is a long-lived response, so it must not share the
+		// request timeout; dead connections are detected by TCP keep-alives.
+		stream: &http.Client{Transport: transport},
 	}
 	c.Lights = newLights(c)
 	c.Rooms = newRooms(c)
