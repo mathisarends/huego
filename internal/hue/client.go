@@ -21,10 +21,11 @@ type Client struct {
 	baseURL string
 	appKey  string
 	http    *http.Client
-	*Lights
-	*Rooms
-	*Zones
-	*Scenes
+
+	Lights *Lights
+	Rooms  *Rooms
+	Zones  *Zones
+	Scenes *Scenes
 }
 
 func NewClient(bridge config.Bridge) *Client {

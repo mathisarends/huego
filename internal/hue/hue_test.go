@@ -142,7 +142,7 @@ func TestScenesActivate(t *testing.T) {
 	})
 
 	brightness := 80.0
-	_, err := client.Activate(t.Context(), "scene-1", SceneActivation{Brightness: &brightness})
+	_, err := client.Scenes.Activate(t.Context(), "scene-1", SceneActivation{Brightness: &brightness})
 	if err != nil {
 		t.Fatalf("Activate() error = %v", err)
 	}
@@ -161,7 +161,7 @@ func TestLightsIsOn(t *testing.T) {
 		}})
 	})
 
-	on, err := client.IsOn(t.Context(), "1")
+	on, err := client.Lights.IsOn(t.Context(), "1")
 	if err != nil {
 		t.Fatalf("IsOn() error = %v", err)
 	}
@@ -338,7 +338,7 @@ func TestScenesActivateDynamicWithTransition(t *testing.T) {
 	})
 
 	transition := 2.0
-	_, err := client.Activate(t.Context(), "scene-1", SceneActivation{Dynamic: true, Transition: &transition})
+	_, err := client.Scenes.Activate(t.Context(), "scene-1", SceneActivation{Dynamic: true, Transition: &transition})
 	if err != nil {
 		t.Fatalf("Activate() error = %v", err)
 	}

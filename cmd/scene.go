@@ -31,7 +31,7 @@ var sceneListCmd = &cobra.Command{
 
 var sceneActivateCmd = &cobra.Command{
 	Use:   "activate <target>",
-	Long: "Activate a scene by UUID, name, or \"<room or zone>/<scene>\" when several rooms share the scene name.",
+	Long:  "Activate a scene by UUID, name, or \"<room or zone>/<scene>\" when several rooms share the scene name.",
 	Short: "Activate a scene, optionally with a brightness or fade",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -63,7 +63,7 @@ var sceneActivateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		resp, err := client.Activate(cmd.Context(), id, activation)
+		resp, err := client.Scenes.Activate(cmd.Context(), id, activation)
 		if err != nil {
 			return err
 		}
