@@ -33,7 +33,7 @@ func TestRegisterAppKeyRetriesUntilLinkButtonPressed(t *testing.T) {
 		attempts++
 		if attempts < 2 {
 			writeJSONFixture(t, w, []map[string]any{
-				{"error": map[string]string{"description": "link button not pressed"}},
+				{"error": map[string]any{"type": 101, "description": "link button not pressed"}},
 			})
 			return
 		}

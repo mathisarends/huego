@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -43,18 +44,29 @@ func Dir() (string, error) {
 	return dir, nil
 }
 
+// BridgePath returns the file setup saves the bridge address and keys to.
+func BridgePath() (string, error) {
+	dir, err := Dir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, bridgeFile), nil
+}
+
 // LoadBridge reads bridge config from the stored file, then applies any
 // HUEGO_BRIDGE_IP, HUEGO_APP_KEY, HUEGO_CLIENT_KEY env vars on top.
 func LoadBridge() (Bridge, error) {
 	loadDotEnv()
 	var bridge Bridge
 
-	dir, err := Dir()
+	path, err := BridgePath()
 	if err != nil {
 		return bridge, err
 	}
-	if data, err := os.ReadFile(filepath.Join(dir, bridgeFile)); err == nil {
-		_ = json.Unmarshal(data, &bridge)
+	if data, err := os.ReadFile(path); err == nil {
+		if err := json.Unmarshal(data, &bridge); err != nil {
+			return bridge, fmt.Errorf("invalid bridge config %s: %w; run `huego setup` again", path, err)
+		}
 	}
 
 	if v := os.Getenv("HUEGO_BRIDGE_IP"); v != "" {
@@ -74,7 +86,7 @@ func LoadBridge() (Bridge, error) {
 }
 
 func SaveBridge(bridge Bridge) error {
-	dir, err := Dir()
+	path, err := BridgePath()
 	if err != nil {
 		return err
 	}
@@ -82,5 +94,5 @@ func SaveBridge(bridge Bridge) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, bridgeFile), data, 0o600)
+	return os.WriteFile(path, data, 0o600)
 }
