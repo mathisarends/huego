@@ -63,7 +63,7 @@ func sceneRows(scenes []hue.Scene) []resourceRow {
 		if s.Status != nil && s.Status.Active != nil {
 			state = string(*s.Status.Active)
 		}
-		rows[i] = resourceRow{ID: s.ID, Name: s.Name(), State: state}
+		rows[i] = resourceRow{ID: s.ID, Name: s.QualifiedName(), State: state}
 	}
 	return rows
 }

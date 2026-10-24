@@ -41,23 +41,42 @@ func (r resourceNamespace[T]) FindByName(ctx context.Context, name string) (T, e
 	if err != nil {
 		return zero, err
 	}
+	return matchName(r.resourceType, resources, name, T.GetName)
+}
 
+// matchName returns the single resource whose label equals name. Duplicate
+// names are common (every room has a "Relax" scene), so more than one match
+// is an error instead of a silent first pick.
+func matchName[T named](resourceType string, resources []T, name string, label func(T) string) (T, error) {
+	var zero T
 	wanted := normalizeName(name)
+	var matches []T
 	for _, res := range resources {
-		if normalizeName(res.GetName()) == wanted {
-			return res, nil
+		if normalizeName(label(res)) == wanted {
+			matches = append(matches, res)
 		}
 	}
 
-	names := make([]string, len(resources))
-	for i, res := range resources {
-		names[i] = res.GetName()
+	switch len(matches) {
+	case 1:
+		return matches[0], nil
+	case 0:
+		names := make([]string, len(resources))
+		for i, res := range resources {
+			names[i] = label(res)
+		}
+		known := strings.Join(names, ", ")
+		if known == "" {
+			known = "none"
+		}
+		return zero, newResourceNotFoundError("no %s named %q. Known names: %s", resourceType, name, known)
+	default:
+		ids := make([]string, len(matches))
+		for i, res := range matches {
+			ids[i] = res.GetID()
+		}
+		return zero, &AmbiguousNameError{ResourceType: resourceType, Name: name, Candidates: ids}
 	}
-	known := strings.Join(names, ", ")
-	if known == "" {
-		known = "none"
-	}
-	return zero, newResourceNotFoundError("no %s named %q. Known names: %s", r.resourceType, name, known)
 }
 
 // ResolveTarget resolves a UUID or a name to a resource ID.

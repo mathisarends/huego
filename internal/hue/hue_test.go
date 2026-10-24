@@ -2,6 +2,7 @@ package hue
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -365,5 +366,90 @@ func TestAPIErrorOnNon2xx(t *testing.T) {
 	}
 	if apiErr.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("StatusCode = %d, want 401", apiErr.StatusCode)
+	}
+}
+
+func sceneFixtureHandler(t *testing.T) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/clip/v2/resource/scene":
+			writeJSONFixture(t, w, APIResponse[Scene]{Data: []Scene{
+				{ID: "s1", Metadata: NamedMetadata{Name: "Relax"}, Group: ResourceReference{RID: "room-1", RType: ResourceTypeRoom}},
+				{ID: "s2", Metadata: NamedMetadata{Name: "Relax"}, Group: ResourceReference{RID: "room-2", RType: ResourceTypeRoom}},
+				{ID: "s3", Metadata: NamedMetadata{Name: "Movie"}, Group: ResourceReference{RID: "zone-1", RType: ResourceTypeZone}},
+			}})
+		case "/clip/v2/resource/room":
+			writeJSONFixture(t, w, APIResponse[Group]{Data: []Group{
+				{ID: "room-1", Metadata: NamedMetadata{Name: "Kitchen"}},
+				{ID: "room-2", Metadata: NamedMetadata{Name: "Office"}},
+			}})
+		case "/clip/v2/resource/zone":
+			writeJSONFixture(t, w, APIResponse[Group]{Data: []Group{
+				{ID: "zone-1", Metadata: NamedMetadata{Name: "Downstairs"}},
+			}})
+		default:
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
+	}
+}
+
+func TestScenesFindByNameUniquePlainName(t *testing.T) {
+	client := newTestClient(t, sceneFixtureHandler(t))
+	scene, err := client.Scenes.FindByName(t.Context(), "movie")
+	if err != nil || scene.ID != "s3" {
+		t.Fatalf("FindByName() = %+v, %v; want s3", scene, err)
+	}
+}
+
+func TestScenesFindByNameQualified(t *testing.T) {
+	client := newTestClient(t, sceneFixtureHandler(t))
+	scene, err := client.Scenes.FindByName(t.Context(), "office/relax")
+	if err != nil || scene.ID != "s2" {
+		t.Fatalf("FindByName() = %+v, %v; want s2", scene, err)
+	}
+}
+
+func TestScenesFindByNameAmbiguousListsQualifiedNames(t *testing.T) {
+	client := newTestClient(t, sceneFixtureHandler(t))
+	_, err := client.Scenes.FindByName(t.Context(), "Relax")
+	var ambiguous *AmbiguousNameError
+	if !errors.As(err, &ambiguous) {
+		t.Fatalf("FindByName() error = %v, want AmbiguousNameError", err)
+	}
+	if got := strings.Join(ambiguous.Candidates, ","); got != "Kitchen/Relax,Office/Relax" {
+		t.Fatalf("Candidates = %q, want Kitchen/Relax,Office/Relax", got)
+	}
+}
+
+func TestScenesFindByNameUnknownListsQualifiedNames(t *testing.T) {
+	client := newTestClient(t, sceneFixtureHandler(t))
+	_, err := client.Scenes.FindByName(t.Context(), "Party")
+	if err == nil || !strings.Contains(err.Error(), "Downstairs/Movie") {
+		t.Fatalf("FindByName() error = %v, want known qualified names", err)
+	}
+}
+
+func TestScenesListWithGroupNames(t *testing.T) {
+	client := newTestClient(t, sceneFixtureHandler(t))
+	scenes, err := client.Scenes.ListWithGroupNames(t.Context())
+	if err != nil {
+		t.Fatalf("ListWithGroupNames() error = %v", err)
+	}
+	if scenes[2].QualifiedName() != "Downstairs/Movie" {
+		t.Fatalf("QualifiedName() = %q, want Downstairs/Movie", scenes[2].QualifiedName())
+	}
+}
+
+func TestFindByNameAmbiguousLights(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeJSONFixture(t, w, APIResponse[Light]{Data: []Light{
+			{ID: "1", Metadata: NamedMetadata{Name: "Lamp"}},
+			{ID: "2", Metadata: NamedMetadata{Name: "lamp"}},
+		}})
+	})
+	_, err := client.Lights.FindByName(t.Context(), "Lamp")
+	var ambiguous *AmbiguousNameError
+	if !errors.As(err, &ambiguous) || len(ambiguous.Candidates) != 2 {
+		t.Fatalf("FindByName() error = %v, want ambiguity over 2 lights", err)
 	}
 }

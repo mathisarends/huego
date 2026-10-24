@@ -1,6 +1,9 @@
 package hue
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type ResourceNotFoundError struct {
 	Message string
@@ -20,4 +23,16 @@ type APIError struct {
 
 func (e *APIError) Error() string {
 	return fmt.Sprintf("hue bridge error (%d): %s", e.StatusCode, e.Message)
+}
+
+// AmbiguousNameError is returned when a name matches more than one resource.
+// Candidates holds identifiers the caller can pass instead to disambiguate.
+type AmbiguousNameError struct {
+	ResourceType string
+	Name         string
+	Candidates   []string
+}
+
+func (e *AmbiguousNameError) Error() string {
+	return fmt.Sprintf("%d %ss are named %q; use one of: %s", len(e.Candidates), e.ResourceType, e.Name, strings.Join(e.Candidates, ", "))
 }

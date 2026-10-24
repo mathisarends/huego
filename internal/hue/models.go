@@ -134,13 +134,25 @@ type SceneStatus struct {
 }
 
 type Scene struct {
-	ID       string            `json:"id"`
-	Metadata NamedMetadata     `json:"metadata"`
-	Group    ResourceReference `json:"group"`
-	Status   *SceneStatus      `json:"status,omitempty"`
+	ID        string            `json:"id"`
+	Metadata  NamedMetadata     `json:"metadata"`
+	Group     ResourceReference `json:"group"`
+	Status    *SceneStatus      `json:"status,omitempty"`
+	GroupName string            `json:"-"`
 }
 
-func (s Scene) Name() string    { return s.Metadata.Name }
+func (s Scene) Name() string { return s.Metadata.Name }
+
+// QualifiedName is "<room or zone>/<scene>", which stays unique when several
+// rooms share a scene name. It falls back to the plain name until GroupName
+// has been filled in.
+func (s Scene) QualifiedName() string {
+	if s.GroupName == "" {
+		return s.Metadata.Name
+	}
+	return s.GroupName + "/" + s.Metadata.Name
+}
+
 func (s Scene) GetID() string   { return s.ID }
 func (s Scene) GetName() string { return s.Metadata.Name }
 
