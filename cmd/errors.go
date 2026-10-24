@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"strings"
 	"sync"
 
@@ -79,7 +80,7 @@ func classifyError(err error) (errorReport, int) {
 		report.Code = "ambiguous"
 		report.Candidates = ambiguous.Candidates
 		return report, exitNotFound
-	case errors.As(err, &notFound):
+	case errors.As(err, &notFound), errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound:
 		report.Code = "not_found"
 		return report, exitNotFound
 	case errors.Is(err, config.ErrNotConfigured):

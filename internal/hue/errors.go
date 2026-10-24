@@ -1,6 +1,7 @@
 package hue
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -22,7 +23,23 @@ type APIError struct {
 }
 
 func (e *APIError) Error() string {
-	return fmt.Sprintf("hue bridge error (%d): %s", e.StatusCode, e.Message)
+	return fmt.Sprintf("hue bridge error (%d): %s", e.StatusCode, e.description())
+}
+
+// description prefers the bridge's own error descriptions over the raw
+// response body.
+func (e *APIError) description() string {
+	var body struct {
+		Errors []ResponseError `json:"errors"`
+	}
+	if json.Unmarshal([]byte(e.Message), &body) != nil || len(body.Errors) == 0 {
+		return strings.TrimSpace(e.Message)
+	}
+	descriptions := make([]string, len(body.Errors))
+	for i, responseError := range body.Errors {
+		descriptions[i] = responseError.Description
+	}
+	return strings.Join(descriptions, "; ")
 }
 
 // AmbiguousNameError is returned when a name matches more than one resource.

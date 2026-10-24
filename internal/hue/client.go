@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/mathisarends/huego/internal/config"
@@ -73,18 +74,37 @@ func (c *Client) unreachable(err error) error {
 }
 
 func (c *Client) request(ctx context.Context, method, path string, body, out any) error {
-	var reqBody io.Reader
+	var payload []byte
 	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
 			return err
 		}
-		reqBody = bytes.NewReader(b)
+		payload = b
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+"/"+path, reqBody)
+	respBody, err := c.Raw(ctx, method, path, payload)
 	if err != nil {
 		return err
+	}
+	if out == nil || len(respBody) == 0 {
+		return nil
+	}
+	return json.Unmarshal(respBody, out)
+}
+
+// Raw sends a request to the CLIP v2 resource API and returns the response
+// body unparsed. path is relative to /clip/v2/resource, e.g. "light" or
+// "scene/<id>"; body, when not nil, is sent as JSON.
+func (c *Client) Raw(ctx context.Context, method, path string, body []byte) ([]byte, error) {
+	var reqBody io.Reader
+	if body != nil {
+		reqBody = bytes.NewReader(body)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+"/"+strings.TrimPrefix(path, "/"), reqBody)
+	if err != nil {
+		return nil, err
 	}
 	req.Header.Set("hue-application-key", c.appKey)
 	if body != nil {
@@ -93,21 +113,16 @@ func (c *Client) request(ctx context.Context, method, path string, body, out any
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return c.unreachable(err)
+		return nil, c.unreachable(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	if resp.StatusCode >= 400 {
-		return &APIError{StatusCode: resp.StatusCode, Message: string(respBody)}
+		return respBody, &APIError{StatusCode: resp.StatusCode, Message: string(respBody)}
 	}
-
-	if out == nil || len(respBody) == 0 {
-		return nil
-	}
-	return json.Unmarshal(respBody, out)
+	return respBody, nil
 }

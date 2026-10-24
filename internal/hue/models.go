@@ -21,11 +21,13 @@ type ResourceReference struct {
 
 type ResourceIdentifier = ResourceReference
 
+type ResponseError struct {
+	Description string `json:"description"`
+}
+
 type APIResponse[T any] struct {
-	Errors []struct {
-		Description string `json:"description"`
-	} `json:"errors"`
-	Data []T `json:"data"`
+	Errors []ResponseError `json:"errors"`
+	Data   []T             `json:"data"`
 }
 
 type NamedMetadata struct {

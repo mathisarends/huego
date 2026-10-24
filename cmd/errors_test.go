@@ -26,6 +26,7 @@ func TestClassifyError(t *testing.T) {
 		{"ambiguous", &hue.AmbiguousNameError{ResourceType: "light", Name: "x", Candidates: []string{"a", "b"}}, "ambiguous", exitNotFound},
 		{"not configured", config.ErrNotConfigured, "not_configured", exitAuth},
 		{"unauthorized", &hue.APIError{StatusCode: http.StatusForbidden}, "unauthorized", exitAuth},
+		{"missing resource", &hue.APIError{StatusCode: http.StatusNotFound}, "not_found", exitNotFound},
 		{"bridge", &hue.APIError{StatusCode: http.StatusInternalServerError}, "bridge_error", exitError},
 		{"partial", partialUpdateError{"some lights failed"}, "bridge_error", exitError},
 		{"unreachable", fmt.Errorf("get: %w", &net.OpError{Op: "dial", Err: errors.New("connection refused")}), "unreachable", exitUnreachable},

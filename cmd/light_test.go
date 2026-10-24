@@ -81,9 +81,7 @@ func TestLightOnCommandByName(t *testing.T) {
 func TestLightOnCommandReportsBridgeErrors(t *testing.T) {
 	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
-			Errors: []struct {
-				Description string `json:"description"`
-			}{{Description: "light has communication issues"}},
+			Errors: []hue.ResponseError{{Description: "light has communication issues"}},
 		})
 	})
 	withClient(t, client)
@@ -97,9 +95,7 @@ func TestLightOnCommandReportsBridgeErrors(t *testing.T) {
 func TestLightOnCommandJSONWritesResponseAndReportsBridgeErrors(t *testing.T) {
 	client := newFakeClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeJSONFixture(t, w, hue.APIResponse[hue.ResourceIdentifier]{
-			Errors: []struct {
-				Description string `json:"description"`
-			}{{Description: "light has communication issues"}},
+			Errors: []hue.ResponseError{{Description: "light has communication issues"}},
 		})
 	})
 	withClient(t, client)
