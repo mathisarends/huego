@@ -123,6 +123,7 @@ func prepareCommands() {
 	prepareOnce.Do(func() {
 		rootCmd.SetFlagErrorFunc(func(c *cobra.Command, err error) error { return asUsage(err) })
 		markUsageErrors(rootCmd)
+		installCompletions(rootCmd, nil)
 	})
 }
 

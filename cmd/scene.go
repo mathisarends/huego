@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+	"maps"
+	"slices"
+	"strings"
+
 	"github.com/mathisarends/huego/internal/hue"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +20,9 @@ var sceneListCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
 	Short:   "List scenes with the room or zone they belong to",
-	Args:    cobra.NoArgs,
+	Example: "  huego scene list --group Office\n" +
+		"  scene=$(huego scene list --names | walker --dmenu) && huego scene activate \"$scene\"",
+	Args: cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client, err := newClient()
 		if err != nil {
@@ -25,8 +32,29 @@ var sceneListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if group, _ := cmd.Flags().GetString("group"); group != "" {
+			if scenes, err = scenesInGroup(scenes, group); err != nil {
+				return err
+			}
+		}
 		return writeList(cmd, mapViews(scenes, newSceneView), sceneListing)
 	},
+}
+
+func scenesInGroup(scenes []hue.Scene, group string) ([]hue.Scene, error) {
+	var matched []hue.Scene
+	groups := map[string]bool{}
+	for _, scene := range scenes {
+		groups[scene.GroupName] = true
+		if strings.EqualFold(scene.GroupName, strings.TrimSpace(group)) {
+			matched = append(matched, scene)
+		}
+	}
+	if matched == nil {
+		known := slices.Sorted(maps.Keys(groups))
+		return nil, &hue.ResourceNotFoundError{Message: fmt.Sprintf("no room or zone named %q has scenes. Known: %s", group, strings.Join(known, ", "))}
+	}
+	return matched, nil
 }
 
 var sceneGetCmd = &cobra.Command{
@@ -89,6 +117,7 @@ func init() {
 	addTransitionFlag(sceneActivateCmd)
 	sceneActivateCmd.Flags().Bool("dynamic", false, "Start the scene's dynamic palette")
 	addNamesFlag(sceneListCmd)
+	sceneListCmd.Flags().String("group", "", "only scenes of this room or zone")
 	sceneCmd.AddCommand(sceneListCmd, sceneGetCmd, sceneActivateCmd)
 	rootCmd.AddCommand(sceneCmd)
 }
