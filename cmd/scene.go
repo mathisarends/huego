@@ -8,14 +8,16 @@ import (
 )
 
 var sceneCmd = &cobra.Command{
-	Use:   "scene",
-	Short: "Inspect and activate scenes",
+	Use:     "scene",
+	Aliases: []string{"scenes"},
+	Short:   "Inspect and activate scenes",
 }
 
 var sceneListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List scenes visible to the configured bridge",
-	Args:  cobra.NoArgs,
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "List scenes with the room or zone they belong to",
+	Args:    cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client, err := newClient()
 		if err != nil {
@@ -25,7 +27,33 @@ var sceneListCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return writeResourceRows(cmd, sceneRows(scenes))
+		return writeList(cmd, mapViews(scenes, newSceneView), sceneListing)
+	},
+}
+
+var sceneGetCmd = &cobra.Command{
+	Use:   "get <target>",
+	Short: "Show one scene",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client, err := newClient()
+		if err != nil {
+			return err
+		}
+		id, err := client.Scenes.ResolveTarget(cmd.Context(), args[0])
+		if err != nil {
+			return err
+		}
+		scenes, err := client.Scenes.ListWithGroupNames(cmd.Context())
+		if err != nil {
+			return err
+		}
+		scene, err := findByID(scenes, id, "scene")
+		if err != nil {
+			return err
+		}
+		view := newSceneView(scene)
+		return writeDetails(cmd, view, view.fields())
 	},
 }
 
@@ -75,6 +103,7 @@ func init() {
 	addBrightnessFlag(sceneActivateCmd)
 	addTransitionFlag(sceneActivateCmd)
 	sceneActivateCmd.Flags().Bool("dynamic", false, "Start the scene's dynamic palette")
-	sceneCmd.AddCommand(sceneListCmd, sceneActivateCmd)
+	addNamesFlag(sceneListCmd)
+	sceneCmd.AddCommand(sceneListCmd, sceneGetCmd, sceneActivateCmd)
 	rootCmd.AddCommand(sceneCmd)
 }

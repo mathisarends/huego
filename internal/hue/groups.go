@@ -1,48 +1,130 @@
 package hue
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
-// groupNamespace is the shared behaviour of the room and zone endpoints:
-// light commands address the group's grouped_light service, so a room or
-// zone is switched in one bridge call instead of light by light.
+// groupNamespace is the shared behaviour of the room, zone, and bridge_home
+// endpoints: light commands address the group's grouped_light service, so a
+// group is switched in one bridge call instead of light by light.
 type groupNamespace struct {
 	resourceNamespace[Group]
+
+	// groupedLightIDs caches group ID -> grouped_light ID. The mapping never
+	// changes for a group, and skipping the lookup saves a round trip on
+	// every command, which keybind-driven use notices.
+	mu              sync.Mutex
+	groupedLightIDs map[string]string
 }
 
+func newGroupNamespace(client *Client, resourceType ResourceType) groupNamespace {
+	return groupNamespace{
+		resourceNamespace: resourceNamespace[Group]{client: client, resourceType: string(resourceType)},
+		groupedLightIDs:   map[string]string{},
+	}
+}
+
+func (n *groupNamespace) List(ctx context.Context) ([]Group, error) {
+	groups, err := n.resourceNamespace.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	n.remember(groups)
+	return groups, nil
+}
+
+func (n *groupNamespace) FindByName(ctx context.Context, name string) (Group, error) {
+	groups, err := n.List(ctx)
+	if err != nil {
+		return Group{}, err
+	}
+	return matchName(n.resourceType, groups, name, Group.GetName)
+}
+
+func (n *groupNamespace) ResolveTarget(ctx context.Context, target string) (string, error) {
+	if isUUID(target) {
+		return target, nil
+	}
+	group, err := n.FindByName(ctx, target)
+	if err != nil {
+		return "", err
+	}
+	return group.ID, nil
+}
+
+func (n *groupNamespace) remember(groups []Group) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	for _, g := range groups {
+		if id := g.groupedLightID(); id != "" {
+			n.groupedLightIDs[g.ID] = id
+		}
+	}
+}
+
+// ListWithState lists groups with their aggregate grouped_light state and
+// member lights filled in.
 func (n *groupNamespace) ListWithState(ctx context.Context) ([]Group, error) {
 	groups, err := n.List(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var resp APIResponse[GroupedLight]
-	if err := n.client.get(ctx, "grouped_light", &resp); err != nil {
+	var states APIResponse[GroupedLight]
+	if err := n.client.get(ctx, "grouped_light", &states); err != nil {
 		return nil, err
 	}
-	states := make(map[string]*OnState, len(resp.Data))
-	for i := range resp.Data {
-		states[resp.Data[i].ID] = resp.Data[i].On
+	stateByID := make(map[string]*GroupedLight, len(states.Data))
+	for i := range states.Data {
+		stateByID[states.Data[i].ID] = &states.Data[i]
 	}
+
+	lights, err := n.client.Lights.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	for i := range groups {
-		for _, service := range groups[i].Services {
-			if service.RType == ResourceTypeGroupedLight {
-				groups[i].AggregateOn = states[service.RID]
-				break
+		groups[i].State = stateByID[groups[i].groupedLightID()]
+		for _, light := range lights {
+			if groups[i].Type == ResourceTypeBridgeHome || groups[i].Contains(light) {
+				groups[i].Lights = append(groups[i].Lights, light)
 			}
 		}
 	}
 	return groups, nil
 }
 
+// GetWithState returns one group by ID with state and member lights.
+func (n *groupNamespace) GetWithState(ctx context.Context, id string) (Group, error) {
+	groups, err := n.ListWithState(ctx)
+	if err != nil {
+		return Group{}, err
+	}
+	for _, g := range groups {
+		if g.ID == id {
+			return g, nil
+		}
+	}
+	return Group{}, newResourceNotFoundError("no %s with ID %s", n.resourceType, id)
+}
+
 func (n *groupNamespace) groupedLightID(ctx context.Context, id string) (string, error) {
+	n.mu.Lock()
+	cached, ok := n.groupedLightIDs[id]
+	n.mu.Unlock()
+	if ok {
+		return cached, nil
+	}
+
 	group, err := n.GetOne(ctx, id)
 	if err != nil {
 		return "", err
 	}
-	for _, service := range group.Services {
-		if service.RType == ResourceTypeGroupedLight {
-			return service.RID, nil
-		}
+	n.remember([]Group{group})
+	if groupedLightID := group.groupedLightID(); groupedLightID != "" {
+		return groupedLightID, nil
 	}
 	return "", newResourceNotFoundError("%s %s has no grouped light service", n.resourceType, id)
 }
@@ -83,11 +165,11 @@ func (n *groupNamespace) IsOn(ctx context.Context, id string) (bool, error) {
 type Rooms struct{ groupNamespace }
 
 func newRooms(client *Client) *Rooms {
-	return &Rooms{groupNamespace{resourceNamespace[Group]{client: client, resourceType: "room"}}}
+	return &Rooms{newGroupNamespace(client, ResourceTypeRoom)}
 }
 
 type Zones struct{ groupNamespace }
 
 func newZones(client *Client) *Zones {
-	return &Zones{groupNamespace{resourceNamespace[Group]{client: client, resourceType: "zone"}}}
+	return &Zones{newGroupNamespace(client, ResourceTypeZone)}
 }

@@ -17,6 +17,8 @@ func TestRoomListCommand(t *testing.T) {
 				Metadata: hue.NamedMetadata{Name: "Kitchen"},
 				Services: []hue.ResourceReference{{RID: "grouped-1", RType: hue.ResourceTypeGroupedLight}},
 			}}})
+		case "/clip/v2/resource/light":
+			writeJSONFixture(t, w, hue.APIResponse[hue.Light]{})
 		case "/clip/v2/resource/grouped_light":
 			writeJSONFixture(t, w, hue.APIResponse[hue.GroupedLight]{Data: []hue.GroupedLight{{
 				ID: "grouped-1", On: &hue.OnState{On: true},
@@ -31,7 +33,7 @@ func TestRoomListCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Kitchen") || !strings.Contains(out, "(on)") {
+	if !strings.Contains(out, "Kitchen") || !strings.Contains(out, "Kitchen  on") {
 		t.Fatalf("output = %q, want it to mention Kitchen and on", out)
 	}
 }

@@ -17,6 +17,8 @@ func TestZoneListCommand(t *testing.T) {
 				Metadata: hue.NamedMetadata{Name: "Upstairs"},
 				Services: []hue.ResourceReference{{RID: "grouped-2", RType: hue.ResourceTypeGroupedLight}},
 			}}})
+		case "/clip/v2/resource/light":
+			writeJSONFixture(t, w, hue.APIResponse[hue.Light]{})
 		case "/clip/v2/resource/grouped_light":
 			writeJSONFixture(t, w, hue.APIResponse[hue.GroupedLight]{Data: []hue.GroupedLight{{
 				ID: "grouped-2", On: &hue.OnState{On: false},
@@ -31,7 +33,7 @@ func TestZoneListCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("execute() error = %v", err)
 	}
-	if !strings.Contains(out, "Upstairs") || !strings.Contains(out, "(off)") {
+	if !strings.Contains(out, "Upstairs") || !strings.Contains(out, "Upstairs  off") {
 		t.Fatalf("output = %q, want it to mention Upstairs and off", out)
 	}
 }
