@@ -36,8 +36,17 @@ func TestDirUsesOSDefaultWhenEnvUnset(t *testing.T) {
 	}
 }
 
-func TestSaveAndLoadBridge(t *testing.T) {
+// isolate keeps a developer's own HUEGO_* variables out of the test.
+func isolate(t *testing.T) {
+	t.Helper()
 	t.Setenv("HUEGO_CONFIG_DIR", t.TempDir())
+	for _, name := range []string{"HUEGO_BRIDGE_IP", "HUEGO_APP_KEY", "HUEGO_CLIENT_KEY"} {
+		t.Setenv(name, "")
+	}
+}
+
+func TestSaveAndLoadBridge(t *testing.T) {
+	isolate(t)
 
 	want := Bridge{IP: "192.168.1.10", AppKey: "test-app-key", ClientKey: "abc123"}
 	if err := SaveBridge(want); err != nil {
@@ -54,7 +63,7 @@ func TestSaveAndLoadBridge(t *testing.T) {
 }
 
 func TestLoadBridgeEnvOverridesFile(t *testing.T) {
-	t.Setenv("HUEGO_CONFIG_DIR", t.TempDir())
+	isolate(t)
 	if err := SaveBridge(Bridge{IP: "10.0.0.1", AppKey: "file-key"}); err != nil {
 		t.Fatalf("SaveBridge() error = %v", err)
 	}
@@ -71,7 +80,7 @@ func TestLoadBridgeEnvOverridesFile(t *testing.T) {
 }
 
 func TestLoadBridgeMissingReturnsError(t *testing.T) {
-	t.Setenv("HUEGO_CONFIG_DIR", t.TempDir())
+	isolate(t)
 
 	if _, err := LoadBridge(); err == nil {
 		t.Fatal("LoadBridge() error = nil, want error for missing bridge config")
