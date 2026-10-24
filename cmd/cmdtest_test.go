@@ -59,7 +59,12 @@ func execute(t *testing.T, args ...string) (string, error) {
 
 func resetFlags(c *cobra.Command) {
 	c.Flags().VisitAll(func(f *pflag.Flag) {
-		_ = f.Value.Set(f.DefValue)
+		// Setting a slice flag to its "[]" default would add a literal "[]".
+		if slice, ok := f.Value.(pflag.SliceValue); ok {
+			_ = slice.Replace(nil)
+		} else {
+			_ = f.Value.Set(f.DefValue)
+		}
 		f.Changed = false
 	})
 	for _, sub := range c.Commands() {

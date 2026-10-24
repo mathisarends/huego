@@ -120,6 +120,20 @@ func summarizeField(key string, value json.RawMessage) string {
 				return fmt.Sprintf("temperature=%dK", kelvin)
 			}
 		}
+	case "motion", "temperature", "light", "contact_report", "button":
+		var sensor hue.Sensor
+		if json.Unmarshal([]byte(`{"`+key+`":`+string(value)+`}`), &sensor) == nil {
+			if reading, ok := sensor.Reading(); ok {
+				return sensorReadingText(key, reading)
+			}
+		}
+	case "power_state":
+		var power struct {
+			BatteryLevel *int `json:"battery_level"`
+		}
+		if json.Unmarshal(value, &power) == nil && power.BatteryLevel != nil {
+			return fmt.Sprintf("battery=%d%%", *power.BatteryLevel)
+		}
 	case "color":
 		var color hue.ColorState
 		if json.Unmarshal(value, &color) == nil && color.XY != nil {
@@ -127,6 +141,22 @@ func summarizeField(key string, value json.RawMessage) string {
 		}
 	}
 	return key + "=" + string(value)
+}
+
+// sensorReadingText renders a sensor event's reading; key is the event's
+// field name, which differs from the sensor type for light levels and
+// contacts.
+func sensorReadingText(key string, reading hue.Reading) string {
+	text := sensorView{Value: reading.Value, Unit: reading.Unit}.valueText()
+	switch key {
+	case "motion":
+		return text
+	case "light":
+		key = "light_level"
+	case "contact_report":
+		key = "contact"
+	}
+	return key + "=" + strings.ReplaceAll(text, " ", "")
 }
 
 func init() {

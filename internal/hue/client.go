@@ -27,11 +27,12 @@ type Client struct {
 	http    *http.Client
 	stream  *http.Client
 
-	Lights *Lights
-	Rooms  *Rooms
-	Zones  *Zones
-	Scenes *Scenes
-	Home   *Home
+	Lights  *Lights
+	Rooms   *Rooms
+	Zones   *Zones
+	Scenes  *Scenes
+	Home    *Home
+	Devices *Devices
 }
 
 func NewClient(bridge config.Bridge) *Client {
@@ -52,6 +53,7 @@ func NewClient(bridge config.Bridge) *Client {
 	c.Zones = newZones(c)
 	c.Scenes = newScenes(c)
 	c.Home = newHome(c)
+	c.Devices = newDevices(c)
 	return c
 }
 
@@ -95,14 +97,19 @@ func (c *Client) request(ctx context.Context, method, path string, body, out any
 
 // Raw sends a request to the CLIP v2 resource API and returns the response
 // body unparsed. path is relative to /clip/v2/resource, e.g. "light" or
-// "scene/<id>"; body, when not nil, is sent as JSON.
+// "scene/<id>", and empty for every resource; body, when not nil, is sent
+// as JSON.
 func (c *Client) Raw(ctx context.Context, method, path string, body []byte) ([]byte, error) {
 	var reqBody io.Reader
 	if body != nil {
 		reqBody = bytes.NewReader(body)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+"/"+strings.TrimPrefix(path, "/"), reqBody)
+	endpoint := c.baseURL
+	if path = strings.Trim(path, "/"); path != "" {
+		endpoint += "/" + path
+	}
+	req, err := http.NewRequestWithContext(ctx, method, endpoint, reqBody)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,8 @@ import "context"
 // HomeName labels the bridge_home group, which has no name of its own.
 const HomeName = "Home"
 
-// Names maps the IDs of lights, rooms, zones, the home, their grouped_light
+// Names maps the IDs of lights, devices and their other services (sensors,
+// battery, connectivity), rooms, zones, the home, their grouped_light
 // services, and scenes to display names. Scenes use their qualified
 // "<group>/<scene>" name, since plain scene names repeat across rooms.
 func (c *Client) Names(ctx context.Context) (map[string]string, error) {
@@ -17,6 +18,19 @@ func (c *Client) Names(ctx context.Context) (map[string]string, error) {
 	}
 	for _, light := range lights {
 		names[light.ID] = light.Name()
+	}
+
+	devices, err := c.Devices.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, device := range devices {
+		names[device.ID] = device.GetName()
+		for _, service := range device.Services {
+			if _, named := names[service.RID]; !named {
+				names[service.RID] = device.GetName()
+			}
+		}
 	}
 
 	for _, groups := range []*groupNamespace{&c.Rooms.groupNamespace, &c.Zones.groupNamespace, &c.Home.groupNamespace} {
