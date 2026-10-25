@@ -33,7 +33,7 @@ var sceneListCmd = &cobra.Command{
 			return err
 		}
 		if group, _ := cmd.Flags().GetString("group"); group != "" {
-			if scenes, err = scenesInGroup(scenes, group); err != nil {
+			if scenes, err = inGroup(scenes, group, "scenes", func(s hue.Scene) string { return s.GroupName }); err != nil {
 				return err
 			}
 		}
@@ -41,18 +41,20 @@ var sceneListCmd = &cobra.Command{
 	},
 }
 
-func scenesInGroup(scenes []hue.Scene, group string) ([]hue.Scene, error) {
-	var matched []hue.Scene
+// inGroup keeps the items of the room or zone named group; kind names the
+// items in the error when the group has none.
+func inGroup[T any](items []T, group, kind string, groupOf func(T) string) ([]T, error) {
+	var matched []T
 	groups := map[string]bool{}
-	for _, scene := range scenes {
-		groups[scene.GroupName] = true
-		if strings.EqualFold(scene.GroupName, strings.TrimSpace(group)) {
-			matched = append(matched, scene)
+	for _, item := range items {
+		groups[groupOf(item)] = true
+		if strings.EqualFold(groupOf(item), strings.TrimSpace(group)) {
+			matched = append(matched, item)
 		}
 	}
 	if matched == nil {
 		known := slices.Sorted(maps.Keys(groups))
-		return nil, &hue.ResourceNotFoundError{Message: fmt.Sprintf("no room or zone named %q has scenes. Known: %s", group, strings.Join(known, ", "))}
+		return nil, &hue.ResourceNotFoundError{Message: fmt.Sprintf("no room or zone named %q has %s. Known: %s", group, kind, strings.Join(known, ", "))}
 	}
 	return matched, nil
 }

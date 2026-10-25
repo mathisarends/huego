@@ -42,6 +42,14 @@ var targetListers = map[string]nameLister{
 		scenes, err := c.Scenes.ListWithGroupNames(ctx)
 		return namesOf(scenes, err, hue.Scene.QualifiedName)
 	},
+	"smart-scene": func(ctx context.Context, c *hue.Client) ([]string, error) {
+		scenes, err := c.SmartScenes.ListWithGroupNames(ctx)
+		return namesOf(scenes, err, hue.SmartScene.QualifiedName)
+	},
+	"automation": func(ctx context.Context, c *hue.Client) ([]string, error) {
+		automations, err := c.Automations.List(ctx)
+		return namesOf(automations, err, hue.Automation.GetName)
+	},
 	"device": func(ctx context.Context, c *hue.Client) ([]string, error) {
 		devices, err := c.Devices.List(ctx)
 		return namesOf(devices, err, hue.Device.GetName)
@@ -64,7 +72,8 @@ var targetListers = map[string]nameLister{
 var apiPaths = []string{
 	"", "light", "grouped_light", "room", "zone", "bridge_home", "scene", "smart_scene", "device",
 	"device_power", "zigbee_connectivity", "motion", "temperature", "light_level", "contact",
-	"button", "relative_rotary", "entertainment_configuration", "behavior_instance", "bridge",
+	"button", "relative_rotary", "entertainment_configuration", "entertainment", "behavior_instance",
+	"behavior_script", "geofence_client", "geolocation", "homekit", "matter", "bridge",
 }
 
 // installCompletions gives every leaf command completion for its positional

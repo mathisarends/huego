@@ -14,69 +14,18 @@ func newScenes(client *Client) *Scenes {
 	return &Scenes{resourceNamespace[Scene]{client: client, resourceType: "scene"}}
 }
 
+func sceneGroup(s *Scene) (string, *string) { return s.Group.RID, &s.GroupName }
+
 // ListWithGroupNames lists scenes with GroupName set to the room or zone each
 // scene belongs to.
 func (n *Scenes) ListWithGroupNames(ctx context.Context) ([]Scene, error) {
-	scenes, err := n.List(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if err := n.fillGroupNames(ctx, scenes); err != nil {
-		return nil, err
-	}
-	return scenes, nil
-}
-
-func (n *Scenes) fillGroupNames(ctx context.Context, scenes []Scene) error {
-	names := map[string]string{}
-	for _, groups := range []*groupNamespace{&n.client.Rooms.groupNamespace, &n.client.Zones.groupNamespace} {
-		list, err := groups.List(ctx)
-		if err != nil {
-			return err
-		}
-		for _, g := range list {
-			names[g.ID] = g.Name()
-		}
-	}
-	for i := range scenes {
-		scenes[i].GroupName = names[scenes[i].Group.RID]
-	}
-	return nil
+	return listWithGroupNames(ctx, n.resourceNamespace, sceneGroup)
 }
 
 // FindByName accepts a plain scene name or a "<room or zone>/<scene>"
-// qualified name. Room and zone names are only fetched when the plain name
-// is missing or ambiguous, to keep the common case to one request.
+// qualified name.
 func (n *Scenes) FindByName(ctx context.Context, name string) (Scene, error) {
-	scenes, err := n.List(ctx)
-	if err != nil {
-		return Scene{}, err
-	}
-	scene, plainErr := matchName(n.resourceType, scenes, name, Scene.GetName)
-	if plainErr == nil {
-		return scene, nil
-	}
-
-	if err := n.fillGroupNames(ctx, scenes); err != nil {
-		return Scene{}, err
-	}
-	scene, qualifiedErr := matchName(n.resourceType, scenes, name, Scene.QualifiedName)
-	if qualifiedErr == nil {
-		return scene, nil
-	}
-
-	var ambiguous *AmbiguousNameError
-	if errors.As(plainErr, &ambiguous) {
-		ambiguous.Candidates = ambiguous.Candidates[:0]
-		wanted := normalizeName(name)
-		for _, s := range scenes {
-			if normalizeName(s.Name()) == wanted {
-				ambiguous.Candidates = append(ambiguous.Candidates, s.QualifiedName())
-			}
-		}
-		return Scene{}, ambiguous
-	}
-	return Scene{}, qualifiedErr
+	return findGrouped(ctx, n.resourceNamespace, name, sceneGroup)
 }
 
 func (n *Scenes) ResolveTarget(ctx context.Context, target string) (string, error) {
@@ -124,4 +73,88 @@ func (n *Scenes) Activate(ctx context.Context, id string, activation SceneActiva
 	}
 
 	return n.Recall(ctx, id, SceneRecallRequest{Recall: recall})
+}
+
+// groupedResource is a resource that belongs to a room or zone and can be
+// addressed as "<room or zone>/<name>".
+type groupedResource interface {
+	named
+	QualifiedName() string
+}
+
+// groupSlot returns the room or zone ID a resource belongs to and where to
+// store that group's name.
+type groupSlot[T any] func(*T) (groupID string, groupName *string)
+
+func (c *Client) groupNames(ctx context.Context) (map[string]string, error) {
+	names := map[string]string{}
+	for _, groups := range []*groupNamespace{&c.Rooms.groupNamespace, &c.Zones.groupNamespace} {
+		list, err := groups.List(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, g := range list {
+			names[g.ID] = g.Name()
+		}
+	}
+	return names, nil
+}
+
+func fillGroupNames[T any](ctx context.Context, c *Client, items []T, slot groupSlot[T]) error {
+	names, err := c.groupNames(ctx)
+	if err != nil {
+		return err
+	}
+	for i := range items {
+		id, name := slot(&items[i])
+		*name = names[id]
+	}
+	return nil
+}
+
+func listWithGroupNames[T named](ctx context.Context, r resourceNamespace[T], slot groupSlot[T]) ([]T, error) {
+	items, err := r.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if err := fillGroupNames(ctx, r.client, items, slot); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+// findGrouped matches a plain or a "<room or zone>/<name>" qualified name.
+// Room and zone names are only fetched when the plain name is missing or
+// ambiguous, to keep the common case to one request.
+func findGrouped[T groupedResource](ctx context.Context, r resourceNamespace[T], name string, slot groupSlot[T]) (T, error) {
+	var zero T
+	items, err := r.List(ctx)
+	if err != nil {
+		return zero, err
+	}
+	item, plainErr := matchName(r.resourceType, items, name, T.GetName)
+	if plainErr == nil {
+		return item, nil
+	}
+
+	if err := fillGroupNames(ctx, r.client, items, slot); err != nil {
+		return zero, err
+	}
+	item, qualifiedErr := matchName(r.resourceType, items, name, T.QualifiedName)
+	if qualifiedErr == nil {
+		return item, nil
+	}
+
+	var ambiguous *AmbiguousNameError
+	if errors.As(plainErr, &ambiguous) {
+		ambiguous.Candidates = ambiguous.Candidates[:0]
+		wanted := normalizeName(name)
+		for _, item := range items {
+			if normalizeName(item.GetName()) == wanted {
+				ambiguous.Candidates = append(ambiguous.Candidates, item.QualifiedName())
+			}
+		}
+		return zero, ambiguous
+	}
+	return zero, qualifiedErr
 }

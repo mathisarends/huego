@@ -140,6 +140,10 @@ func summarizeField(key string, value json.RawMessage) string {
 			return "color=" + hue.XYToHex(*color.XY, 100)
 		}
 	}
+	var text string
+	if json.Unmarshal(value, &text) == nil {
+		return key + "=" + text
+	}
 	return key + "=" + string(value)
 }
 

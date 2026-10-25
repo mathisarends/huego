@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -46,15 +48,31 @@ func withClient(t *testing.T, c *hue.Client) {
 // first since pflag values otherwise persist across Execute() calls.
 func execute(t *testing.T, args ...string) (string, error) {
 	t.Helper()
+	buf := &bytes.Buffer{}
+	err := executeContext(t, context.Background(), buf, args...)
+	return buf.String(), err
+}
+
+// executeContext runs the root command with ctx, writing its output to out.
+func executeContext(t *testing.T, ctx context.Context, out io.Writer, args ...string) error {
+	t.Helper()
 	prepareCommands()
 	resetFlags(rootCmd)
+	// cobra keeps the context of the previous run on every command it
+	// executed, which would leak a canceled context into later tests.
+	setContexts(rootCmd, ctx)
 
-	buf := &bytes.Buffer{}
-	rootCmd.SetOut(buf)
-	rootCmd.SetErr(buf)
+	rootCmd.SetOut(out)
+	rootCmd.SetErr(out)
 	rootCmd.SetArgs(args)
-	err := rootCmd.Execute()
-	return buf.String(), err
+	return rootCmd.ExecuteContext(ctx)
+}
+
+func setContexts(c *cobra.Command, ctx context.Context) {
+	c.SetContext(ctx)
+	for _, sub := range c.Commands() {
+		setContexts(sub, ctx)
+	}
 }
 
 func resetFlags(c *cobra.Command) {

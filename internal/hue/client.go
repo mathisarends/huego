@@ -27,12 +27,14 @@ type Client struct {
 	http    *http.Client
 	stream  *http.Client
 
-	Lights  *Lights
-	Rooms   *Rooms
-	Zones   *Zones
-	Scenes  *Scenes
-	Home    *Home
-	Devices *Devices
+	Lights      *Lights
+	Rooms       *Rooms
+	Zones       *Zones
+	Scenes      *Scenes
+	Home        *Home
+	Devices     *Devices
+	SmartScenes *SmartScenes
+	Automations *Automations
 }
 
 func NewClient(bridge config.Bridge) *Client {
@@ -54,6 +56,8 @@ func NewClient(bridge config.Bridge) *Client {
 	c.Scenes = newScenes(c)
 	c.Home = newHome(c)
 	c.Devices = newDevices(c)
+	c.SmartScenes = newSmartScenes(c)
+	c.Automations = newAutomations(c)
 	return c
 }
 

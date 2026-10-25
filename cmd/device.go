@@ -58,10 +58,7 @@ func (v sensorView) enabledText() string {
 	if v.Enabled == nil {
 		return "-"
 	}
-	if *v.Enabled {
-		return "yes"
-	}
-	return "no"
+	return yesNo(*v.Enabled)
 }
 
 func (v sensorView) summary() string {

@@ -1,61 +1,63 @@
 package hue
 
-import "context"
+import (
+	"context"
+	"encoding/json"
+)
 
 // HomeName labels the bridge_home group, which has no name of its own.
 const HomeName = "Home"
 
-// Names maps the IDs of lights, devices and their other services (sensors,
-// battery, connectivity), rooms, zones, the home, their grouped_light
-// services, and scenes to display names. Scenes use their qualified
-// "<group>/<scene>" name, since plain scene names repeat across rooms.
+// Names maps the ID of every resource on the bridge to a display name, read
+// in a single request. Resources without a name of their own, such as a
+// room's grouped_light or a device's sensors, take their owner's name.
+// Scenes and smart scenes use their qualified "<group>/<scene>" name, since
+// plain scene names repeat across rooms.
 func (c *Client) Names(ctx context.Context) (map[string]string, error) {
-	names := map[string]string{}
-
-	lights, err := c.Lights.List(ctx)
-	if err != nil {
+	var resp APIResponse[json.RawMessage]
+	if err := c.get(ctx, "", &resp); err != nil {
 		return nil, err
 	}
-	for _, light := range lights {
-		names[light.ID] = light.Name()
+	type resource struct {
+		ID       string             `json:"id"`
+		Type     ResourceType       `json:"type"`
+		Metadata NamedMetadata      `json:"metadata"`
+		Owner    *ResourceReference `json:"owner"`
+		Group    *ResourceReference `json:"group"`
 	}
-
-	devices, err := c.Devices.List(ctx)
-	if err != nil {
-		return nil, err
-	}
-	for _, device := range devices {
-		names[device.ID] = device.GetName()
-		for _, service := range device.Services {
-			if _, named := names[service.RID]; !named {
-				names[service.RID] = device.GetName()
-			}
-		}
-	}
-
-	for _, groups := range []*groupNamespace{&c.Rooms.groupNamespace, &c.Zones.groupNamespace, &c.Home.groupNamespace} {
-		list, err := groups.List(ctx)
-		if err != nil {
+	resources := make([]resource, 0, len(resp.Data))
+	for _, raw := range resp.Data {
+		var r resource
+		if err := json.Unmarshal(raw, &r); err != nil {
 			return nil, err
 		}
-		for _, group := range list {
-			name := group.Name()
-			if group.Type == ResourceTypeBridgeHome {
-				name = HomeName
-			}
-			names[group.ID] = name
-			if id := group.groupedLightID(); id != "" {
-				names[id] = name
-			}
-		}
+		resources = append(resources, r)
 	}
 
-	scenes, err := c.Scenes.ListWithGroupNames(ctx)
-	if err != nil {
-		return nil, err
+	names := map[string]string{}
+	for _, r := range resources {
+		switch {
+		case r.Type == ResourceTypeBridgeHome:
+			names[r.ID] = HomeName
+		case r.Metadata.Name != "":
+			names[r.ID] = r.Metadata.Name
+		}
 	}
-	for _, scene := range scenes {
-		names[scene.ID] = scene.QualifiedName()
+	for _, r := range resources {
+		if r.Group == nil || (r.Type != ResourceTypeScene && r.Type != ResourceTypeSmartScene) {
+			continue
+		}
+		if group, ok := names[r.Group.RID]; ok {
+			names[r.ID] = group + "/" + r.Metadata.Name
+		}
+	}
+	for _, r := range resources {
+		if _, named := names[r.ID]; named || r.Owner == nil {
+			continue
+		}
+		if owner, ok := names[r.Owner.RID]; ok {
+			names[r.ID] = owner
+		}
 	}
 	return names, nil
 }

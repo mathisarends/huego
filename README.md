@@ -45,6 +45,8 @@ override the saved values. `HUEGO_CONFIG_DIR` moves the config directory.
 | `room`, `zone` | `list`, `get`, and the control vocabulary, applied through the group's `grouped_light` in one bridge call |
 | `home` | `get` and the control vocabulary for every light on the bridge |
 | `scene` | `list [--group <room or zone>]`, `get`, `activate [-b] [-t] [--dynamic]` |
+| `smart-scene` | `list [--group …]`, `get`, `activate`, `deactivate` — scenes that follow the time of day |
+| `automation` | `list`, `get`, `enable`, `disable` — wake-ups, timers, and other Hue automations |
 | `device` | `list`, `get` â€” product, model, firmware, connectivity, battery, services |
 | `sensor` | `list [--type â€¦]`, `enable <device>`, `disable <device>` |
 | `bridge` | `get` â€” bridge ID, address, model, firmware, time zone |
@@ -74,7 +76,7 @@ override the saved values. `HUEGO_CONFIG_DIR` moves the config directory.
 `-b/--brightness` is a percentage, `-t/--transition` a fade in seconds.
 `<target>` is a UUID or a full name; matching ignores case and surrounding
 spaces but never guesses. Scenes also accept `<room or zone>/<scene>`, since
-every room tends to have a "Relax". Shell completion fills in names from the
+every room tends to have a "Relax"; smart scenes do too. Shell completion fills in names from the
 bridge.
 
 ```sh
@@ -87,7 +89,9 @@ huego scene activate Office/Relax --dynamic
 huego sensor list --type temperature
 huego sensor disable "Hallway sensor"
 huego api get light/<id>
-huego api put smart_scene/<id> '{"recall":{"action":"activate"}}'
+huego smart-scene activate "Office/Natural light"
+huego automation disable "Weekday wake-up"
+huego api get behavior_instance/<id>
 ```
 
 ## Scripts and agents
