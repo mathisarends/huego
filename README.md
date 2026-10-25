@@ -44,14 +44,15 @@ override the saved values. `HUEGO_CONFIG_DIR` moves the config directory.
 | `light` | `list`, `get`, `effect`, and the control vocabulary below |
 | `room`, `zone` | `list`, `get`, and the control vocabulary, applied through the group's `grouped_light` in one bridge call |
 | `home` | `get` and the control vocabulary for every light on the bridge |
-| `scene` | `list [--group <room or zone>]`, `get`, `activate [-b] [-t] [--dynamic]` |
-| `smart-scene` | `list [--group �]`, `get`, `activate`, `deactivate` � scenes that follow the time of day |
-| `automation` | `list`, `get`, `enable`, `disable` � wake-ups, timers, and other Hue automations |
+| `scene` | `list [--group <room or zone>]`, `get`, `activate [-b] [-t] [--dynamic]`, `pick` in Walker, rofi, or fzf |
+| `smart-scene` | `list [--group …]`, `get`, `activate`, `deactivate` — scenes that follow the time of day |
+| `automation` | `list`, `get`, `enable`, `disable` — wake-ups, timers, and other Hue automations |
 | `device` | `list`, `get` — product, model, firmware, connectivity, battery, services |
 | `sensor` | `list [--type …]`, `enable <device>`, `disable <device>` |
 | `bridge` | `get` — bridge ID, address, model, firmware, time zone |
 | `events` | stream live changes, `--type` to filter |
 | `waybar` | Waybar custom-module JSON, `--watch` to stream, `--room`/`--zone` |
+| `omarchy` | `install`, `uninstall` — keybindings and Waybar module for Omarchy |
 | `api` | raw CLIP v2 request for anything without a dedicated command |
 | `setup` | find a bridge and register huego with it |
 | `completion` | shell completion script for bash, zsh, fish, or PowerShell |
@@ -75,9 +76,10 @@ override the saved values. `HUEGO_CONFIG_DIR` moves the config directory.
 
 `-b/--brightness` is a percentage, `-t/--transition` a fade in seconds.
 `<target>` is a UUID or a full name; matching ignores case and surrounding
-spaces but never guesses. Scenes also accept `<room or zone>/<scene>`, since
-every room tends to have a "Relax"; smart scenes do too. Shell completion fills in names from the
-bridge.
+spaces but never guesses. Scenes and smart scenes also accept
+`<room or zone>/<name>`, since every room tends to have a "Relax". Shell
+completion fills in names from the bridge, for arguments and for `--group`,
+`--room`, and `--zone`.
 
 ```sh
 huego light on "Desk Lamp" -b 60
@@ -115,18 +117,43 @@ huego api get behavior_instance/<id>
 
 ## Omarchy / Hyprland / Waybar
 
-[`contrib/omarchy`](contrib/omarchy) has ready-to-copy pieces:
+```sh
+huego omarchy install              # keybindings, Waybar module, and its style
+huego omarchy install --dry-run    # show what would change
+huego omarchy uninstall
+```
 
-- `waybar-module.jsonc` and `waybar-style.css`: a `custom/hue` module running
-  `huego waybar --watch`. It updates from the bridge's event stream, so there
-  is no polling and no daemon; it shows brightness, a per-room tooltip, and
-  the classes `on`, `off`, and `disconnected`. Click toggles, scroll dims,
-  right-click opens the scene picker.
-- `huego-scene-picker`: picks a scene with Walker
-  (`huego scene list --names | walker --dmenu`) and activates it; install it
-  to `~/.local/bin`. `huego-scene-picker Office` offers only that room's
-  scenes.
-- `hyprland.conf`: keybindings for toggle, brighten, dim, and the picker.
+`omarchy install` only touches your user config in `~/.config` (or
+`$XDG_CONFIG_HOME`):
+
+- `hypr/huego.conf` with keybindings, sourced from `hypr/hyprland.conf`:
+  `SUPER CTRL ALT` + `H` toggles, `=` / `-` brighten and dim (held keys
+  repeat), `S` opens the scene picker. `--modifier "SUPER SHIFT"` picks other
+  keys. Hyprland reloads by itself.
+- A `custom/hue` module in `waybar/config.jsonc`, first in `modules-right`,
+  and its style in `waybar/style.css`. The module runs
+  `huego waybar --watch`, which updates from the bridge's event stream, so
+  there is no polling and no daemon. It shows brightness, a per-room tooltip,
+  and the classes `on`, `off`, and `disconnected`; colors come from the
+  Omarchy theme. Click toggles, scroll dims, right-click opens the scene
+  picker. Waybar is restarted with `omarchy-restart-waybar`.
+
+Every edit sits between `huego:begin` / `huego:end` markers, so installing
+again updates it in place and `uninstall` removes exactly it. The first edit
+of a file keeps the original as `<file>.huego.bak`. To set things up by hand,
+copy the pieces from [`internal/omarchy/files`](internal/omarchy/files).
+
+`huego scene pick` lists the scenes in a dmenu-style picker and activates the
+choice; dismissing the picker does nothing. It uses `--picker`, else
+`$HUEGO_PICKER`, else the first of `walker`, `fuzzel`, `rofi`, `wofi`, or
+`fzf` it finds. `--group Office` offers only that room's scenes, and
+`--notify` reports errors with `notify-send`, for keybindings where nobody
+reads stderr.
+
+```sh
+huego scene pick --group Office
+huego scene pick --picker "fzf --height 10"
+```
 
 ## Library
 

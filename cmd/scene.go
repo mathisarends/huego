@@ -117,7 +117,7 @@ var sceneActivateCmd = &cobra.Command{
 func init() {
 	addBrightnessFlag(sceneActivateCmd)
 	addTransitionFlag(sceneActivateCmd)
-	sceneActivateCmd.Flags().Bool("dynamic", false, "Start the scene's dynamic palette")
+	sceneActivateCmd.Flags().Bool("dynamic", false, "start the scene's dynamic palette")
 	addNamesFlag(sceneListCmd)
 	sceneListCmd.Flags().String("group", "", "only scenes of this room or zone")
 	sceneCmd.AddCommand(sceneListCmd, sceneGetCmd, sceneActivateCmd)

@@ -69,6 +69,19 @@ var targetListers = map[string]nameLister{
 	},
 }
 
+var groupFlagListers = map[string]nameLister{
+	"room": targetListers["room"],
+	"zone": targetListers["zone"],
+	"group": func(ctx context.Context, c *hue.Client) ([]string, error) {
+		rooms, err := targetListers["room"](ctx, c)
+		if err != nil {
+			return nil, err
+		}
+		zones, err := targetListers["zone"](ctx, c)
+		return append(rooms, zones...), err
+	},
+}
+
 var apiPaths = []string{
 	"", "light", "grouped_light", "room", "zone", "bridge_home", "scene", "smart_scene", "device",
 	"device_power", "zigbee_connectivity", "motion", "temperature", "light_level", "contact",
@@ -85,6 +98,13 @@ func installCompletions(cmd *cobra.Command, targets nameLister) {
 	}
 	if !cmd.HasSubCommands() && cmd.ValidArgsFunction == nil {
 		cmd.ValidArgsFunction = positionalCompletion(targets)
+	}
+	for flag, lister := range groupFlagListers {
+		if cmd.LocalFlags().Lookup(flag) != nil {
+			_ = cmd.RegisterFlagCompletionFunc(flag, func(cmd *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+				return bridgeCompletions(cmd, lister)
+			})
+		}
 	}
 	for _, sub := range cmd.Commands() {
 		installCompletions(sub, targets)

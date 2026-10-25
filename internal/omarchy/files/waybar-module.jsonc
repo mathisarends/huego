@@ -1,5 +1,3 @@
-// Add "custom/hue" to a modules-* list in ~/.config/waybar/config.jsonc and
-// this block next to the other module settings.
 "custom/hue": {
   // Streams a line on every change from the bridge; no polling interval.
   "exec": "huego waybar --watch",
@@ -13,7 +11,7 @@
   },
   "tooltip": true,
   "on-click": "huego home toggle",
-  "on-click-right": "huego-scene-picker",
+  "on-click-right": "huego scene pick --notify",
   "on-scroll-up": "huego home brighten 5",
   "on-scroll-down": "huego home dim 5"
-}
+},
