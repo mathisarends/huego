@@ -22,13 +22,6 @@ func namesOf[T any](items []T, err error, name func(T) string) ([]string, error)
 	return names, nil
 }
 
-func groupNames(groups func(*hue.Client) groupTarget) nameLister {
-	return func(ctx context.Context, c *hue.Client) ([]string, error) {
-		list, err := groups(c).ListWithState(ctx)
-		return namesOf(list, err, hue.Group.Name)
-	}
-}
-
 // targetListers complete the <target> or <device> argument of each command
 // group's subcommands.
 var targetListers = map[string]nameLister{
@@ -36,8 +29,14 @@ var targetListers = map[string]nameLister{
 		lights, err := c.Lights.List(ctx)
 		return namesOf(lights, err, hue.Light.Name)
 	},
-	"room": groupNames(func(c *hue.Client) groupTarget { return c.Rooms }),
-	"zone": groupNames(func(c *hue.Client) groupTarget { return c.Zones }),
+	"room": func(ctx context.Context, c *hue.Client) ([]string, error) {
+		rooms, err := c.Rooms.List(ctx)
+		return namesOf(rooms, err, hue.Group.Name)
+	},
+	"zone": func(ctx context.Context, c *hue.Client) ([]string, error) {
+		zones, err := c.Zones.List(ctx)
+		return namesOf(zones, err, hue.Group.Name)
+	},
 	"scene": func(ctx context.Context, c *hue.Client) ([]string, error) {
 		scenes, err := c.Scenes.ListWithGroupNames(ctx)
 		return namesOf(scenes, err, hue.Scene.QualifiedName)

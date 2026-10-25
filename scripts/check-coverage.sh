@@ -3,7 +3,14 @@ set -euo pipefail
 
 threshold=${1:-90}
 
-go test ./... -coverprofile=coverage.out -covermode=atomic
+# -coverpkg counts code that tests in other packages exercise, such as the
+# hue client driven by the cmd tests; covdata merges the per-package runs
+# into one profile without duplicate blocks.
+covdir=$(mktemp -d)
+trap 'rm -rf "$covdir"' EXIT
+
+go test ./... -cover -coverpkg=./cmd/...,./internal/... -args -test.gocoverdir="$covdir"
+go tool covdata textfmt -i="$covdir" -o coverage.out
 
 total=$(go tool cover -func=coverage.out | tail -1 | awk '{print substr($3, 1, length($3)-1)}')
 
