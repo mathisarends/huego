@@ -78,3 +78,21 @@ func TestUsageErrorsFromCobra(t *testing.T) {
 		})
 	}
 }
+
+func TestGroupHelpListsOnlySubcommandUsage(t *testing.T) {
+	out, err := execute(t, "light", "--help")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(out, "huego light [flags]") || !strings.Contains(out, "huego light [command]") {
+		t.Errorf("light --help usage:\n%s", out)
+	}
+
+	out, err = execute(t, "light", "on", "--help")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "huego light on <target> [flags]") {
+		t.Errorf("light on --help usage:\n%s", out)
+	}
+}

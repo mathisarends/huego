@@ -123,6 +123,10 @@ func prepareCommands() {
 	prepareOnce.Do(func() {
 		rootCmd.SetFlagErrorFunc(func(c *cobra.Command, err error) error { return asUsage(err) })
 		markUsageErrors(rootCmd)
+		// The RunE markUsageErrors gives group commands makes cobra list a
+		// bare "huego light [flags]" usage line, which only prints help.
+		rootCmd.SetUsageTemplate(strings.Replace(rootCmd.UsageTemplate(),
+			"{{if .Runnable}}", "{{if and .Runnable (not .HasAvailableSubCommands)}}", 1))
 		installCompletions(rootCmd, nil)
 	})
 }
