@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
@@ -94,5 +95,43 @@ func TestGroupHelpListsOnlySubcommandUsage(t *testing.T) {
 	}
 	if !strings.Contains(out, "huego light on <target> [flags]") {
 		t.Errorf("light on --help usage:\n%s", out)
+	}
+}
+
+func TestUnreachableBridgeExitsWithCode5(t *testing.T) {
+	withClient(t, hue.NewClient(config.Bridge{IP: "127.0.0.1:1", AppKey: "test-app-key"}))
+
+	_, err := execute(t, "light", "list", "--json")
+	var buf bytes.Buffer
+	if exit := reportError(&buf, err, true); exit != exitUnreachable {
+		t.Fatalf("exit = %d for %v, want %d", exit, err, exitUnreachable)
+	}
+	var report errorReport
+	if err := json.Unmarshal(buf.Bytes(), &report); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasPrefix(report.Error, "cannot reach the Hue bridge at 127.0.0.1:1:") || strings.Contains(report.Error, "https://") {
+		t.Errorf("error = %q, want the bridge address without the request URL", report.Error)
+	}
+
+	buf.Reset()
+	_ = reportError(&buf, err, false)
+	if !strings.HasPrefix(buf.String(), "error: cannot reach") {
+		t.Errorf("plain error = %q", buf.String())
+	}
+}
+
+func TestWantsJSONSeesTheFlagBeforeParsingFails(t *testing.T) {
+	orig := os.Args
+	t.Cleanup(func() { os.Args = orig })
+	resetFlags(rootCmd)
+
+	os.Args = []string{"huego", "light", "on", "--bogus", "--json"}
+	if !wantsJSON(rootCmd) {
+		t.Error("wantsJSON = false with --json after a bad flag")
+	}
+	os.Args = []string{"huego", "light", "list"}
+	if wantsJSON(rootCmd) {
+		t.Error("wantsJSON = true without --json")
 	}
 }

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -131,5 +132,20 @@ func TestOmarchyInstallWithoutConfigFails(t *testing.T) {
 	_, err := execute(t, "omarchy", "install")
 	if err == nil || !strings.Contains(err.Error(), "every file was skipped") {
 		t.Fatalf("err = %v, want every file skipped", err)
+	}
+}
+
+func TestOmarchyInstallReportsAFailedWaybarRestart(t *testing.T) {
+	omarchyFixture(t)
+	orig := restartWaybar
+	t.Cleanup(func() { restartWaybar = orig })
+	restartWaybar = func(context.Context) (bool, error) { return true, errors.New("exit status 1") }
+
+	out, err := execute(t, "omarchy", "install")
+	if err == nil || !strings.Contains(err.Error(), "restart Waybar: exit status 1") {
+		t.Fatalf("err = %v, want the restart failure", err)
+	}
+	if !strings.Contains(out, "config.jsonc") {
+		t.Errorf("output = %q, want the changes listed anyway", out)
 	}
 }

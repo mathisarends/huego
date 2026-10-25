@@ -168,3 +168,20 @@ func TestSummarizeSensorEvents(t *testing.T) {
 		}
 	}
 }
+
+func TestSummarizeLightEvents(t *testing.T) {
+	tests := map[string]string{
+		`{"id":"x","type":"light","owner":{"rid":"d"},"on":{"on":true}}`: "on",
+		`{"dimming":{"brightness":42.6}}`:                                "brightness=43%",
+		`{"color_temperature":{"mirek":370,"mirek_valid":true}}`:         "temperature=2703K",
+		`{"color_temperature":{"mirek":null,"mirek_valid":false}}`:       `color_temperature={"mirek":null,"mirek_valid":false}`,
+		`{"color":{"xy":{"x":0.6915,"y":0.3083}}}`:                       "color=#ff2c00",
+		`{"status":"active","on":{"on":false}}`:                          "off status=active",
+		`[1,2]`:                                                          "[1,2]",
+	}
+	for data, want := range tests {
+		if got := summarizeChange(json.RawMessage(data)); got != want {
+			t.Errorf("summarizeChange(%s) = %q, want %q", data, got, want)
+		}
+	}
+}

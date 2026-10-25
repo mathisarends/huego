@@ -279,3 +279,44 @@ func TestAddWaybarModuleHandlesInlineAndEmptyLists(t *testing.T) {
 		t.Error("config without modules-right: want error")
 	}
 }
+
+func TestInstallReportsUnwritableFiles(t *testing.T) {
+	o := omarchyHome(t)
+	if err := os.MkdirAll(o.path("hypr", "huego.conf"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	changes, err := Install(o)
+	if err == nil {
+		t.Fatal("Install with a directory in place of huego.conf: want error")
+	}
+	if got := actions(changes); got["huego.conf"] != Skipped {
+		t.Errorf("changes = %+v", changes)
+	}
+	if strings.Contains(read(t, o, "waybar", "config.jsonc"), "custom/hue") {
+		t.Error("Install went on after the error")
+	}
+}
+
+func TestUninstallWithoutInstallChangesNothing(t *testing.T) {
+	o := omarchyHome(t)
+
+	changes, err := Uninstall(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range changes {
+		if c.Action != Unchanged {
+			t.Errorf("%+v, want unchanged", c)
+		}
+	}
+	if HasWaybarChanges(changes) {
+		t.Error("HasWaybarChanges = true")
+	}
+}
+
+func TestAppendBlockToEmptyFile(t *testing.T) {
+	if got := appendBlock("\n", "block\n"); got != "block\n" {
+		t.Errorf("appendBlock = %q", got)
+	}
+}

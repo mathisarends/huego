@@ -3,6 +3,9 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
+	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -133,5 +136,41 @@ func TestScenePickNotifiesErrors(t *testing.T) {
 	}
 	if len(notified) != 1 {
 		t.Errorf("notified without --notify: %v", notified)
+	}
+}
+
+// TestPickerProcess stands in for a picker program when the test binary is
+// run with HUEGO_TEST_PICKER set; it chooses the second line of stdin.
+func TestPickerProcess(t *testing.T) {
+	mode := os.Getenv("HUEGO_TEST_PICKER")
+	if mode == "" {
+		return
+	}
+	if mode == "dismiss" {
+		os.Exit(1)
+	}
+	input, _ := io.ReadAll(os.Stdin)
+	lines := strings.Split(string(input), "\n")
+	fmt.Println(lines[1])
+	os.Exit(0)
+}
+
+func TestRunPickerReadsTheChoiceAndTreatsFailureAsDismissal(t *testing.T) {
+	argv := []string{os.Args[0], "-test.run=^TestPickerProcess$"}
+
+	t.Setenv("HUEGO_TEST_PICKER", "choose")
+	chosen, err := runPicker(t.Context(), argv, "Office/Relax\nOffice/Focus\n")
+	if err != nil || chosen != "Office/Focus" {
+		t.Errorf("runPicker = %q, %v; want Office/Focus", chosen, err)
+	}
+
+	t.Setenv("HUEGO_TEST_PICKER", "dismiss")
+	chosen, err = runPicker(t.Context(), argv, "Office/Relax\n")
+	if err != nil || chosen != "" {
+		t.Errorf("dismissed runPicker = %q, %v; want no choice and no error", chosen, err)
+	}
+
+	if _, err := runPicker(t.Context(), []string{"huego-test-no-such-picker"}, ""); err == nil {
+		t.Error("missing picker program: want error")
 	}
 }
