@@ -69,8 +69,6 @@ var targetListers = map[string]nameLister{
 }
 
 var groupFlagListers = map[string]nameLister{
-	"room": targetListers["room"],
-	"zone": targetListers["zone"],
 	"group": func(ctx context.Context, c *hue.Client) ([]string, error) {
 		rooms, err := targetListers["room"](ctx, c)
 		if err != nil {

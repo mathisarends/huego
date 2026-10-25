@@ -65,7 +65,7 @@ func TestCompletionCoversEveryCommandGroup(t *testing.T) {
 		"/light/" + deskLampID: `{"errors":[],"data":[{"id":"` + deskLampID + `","metadata":{"name":"Desk Lamp"},"effects":{"status":"no_effect","effect_values":["no_effect","candle","fire"]}}]}`,
 		"/zone":                `{"errors":[],"data":[{"id":"zone-1","metadata":{"name":"Downstairs"},"children":[],"services":[]}]}`,
 	}
-	for _, fixtures := range []map[string]string{smartSceneGets, automationGets, pickGets} {
+	for _, fixtures := range []map[string]string{smartSceneGets, automationGets} {
 		for path, body := range fixtures {
 			if _, ok := gets[path]; !ok {
 				gets[path] = body
@@ -85,7 +85,7 @@ func TestCompletionCoversEveryCommandGroup(t *testing.T) {
 		{[]string{"light", "effect", "Desk Lamp", ""}, []string{"none", "candle", "fire"}},
 		{[]string{"zone", "on", ""}, []string{"Downstairs"}},
 		{[]string{"scene", "list", "--group", ""}, []string{"Office", "Kitchen", "Downstairs"}},
-		{[]string{"waybar", "--zone", ""}, []string{"Downstairs"}},
+		{[]string{"smart-scene", "list", "--group", ""}, []string{"Office", "Downstairs"}},
 		{[]string{"api", "get", ""}, []string{"behavior_instance"}},
 	}
 	for _, tt := range tests {

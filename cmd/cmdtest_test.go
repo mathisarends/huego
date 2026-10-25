@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/mathisarends/huego/internal/config"
 	"github.com/mathisarends/huego/internal/hue"
@@ -87,5 +89,35 @@ func resetFlags(c *cobra.Command) {
 	})
 	for _, sub := range c.Commands() {
 		resetFlags(sub)
+	}
+}
+
+// syncBuffer is a bytes.Buffer safe to read while a command's goroutines
+// still write to it.
+type syncBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *syncBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *syncBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
+}
+
+func waitFor(t *testing.T, condition func() bool) {
+	t.Helper()
+	deadline := time.Now().Add(5 * time.Second)
+	for !condition() {
+		if time.Now().After(deadline) {
+			t.Fatal("condition not met within 5s")
+		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
